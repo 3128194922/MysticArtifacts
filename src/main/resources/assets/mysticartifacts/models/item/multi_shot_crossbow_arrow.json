@@ -1,0 +1,6 @@
+{
+    "parent": "mysticartifacts:item/multi_shot_crossbow",
+    "textures": {
+        "layer0": "mysticartifacts:item/multi_shot_crossbow_arrow"
+    }
+}

@@ -1,0 +1,80 @@
+{
+    "entity.ceasing": {
+        "subtitle": "subtitle.mysticartifacts.ceasing",
+        "sounds": [
+            {
+                "name": "mysticartifacts:cessation_heartbeat"
+            }
+        ]
+    },
+    "entity.bell_toll": {
+        "subtitle": "subtitle.mysticartifacts.bell_toll",
+        "sounds": [
+            {
+                "name": "mysticartifacts:bell_toll"
+            }
+        ]
+    },
+    "entity.bell_toll_fail": {
+        "subtitle": "subtitle.mysticartifacts.bell_toll_fail",
+        "sounds": [
+            {
+                "name": "mysticartifacts:bell_toll_fail"
+            }
+        ]
+    },
+    "entity.two_dragons_play_ball_spin": {
+        "subtitle": "subtitles.entity.two_dragons_play_ball.spin",
+        "sounds": [
+            {
+                "name": "mysticartifacts:two_dragons_play_ball_spin"
+            }
+        ]
+    },
+    "entity.katana_block": {
+        "subtitle": "subtitle.mysticartifacts.katana_block",
+        "sounds": [
+            {
+                "name": "mysticartifacts:katana/block1"
+            },
+            {
+                "name": "mysticartifacts:katana/block2"
+            },
+            {
+                "name": "mysticartifacts:katana/block3"
+            }
+        ]
+    },
+    "entity.poker_throw": {
+        "subtitle": "subtitle.mysticartifacts.poker_throw",
+        "sounds": [
+            {
+                "name": "mysticartifacts:poker_throw"
+            }
+        ]
+    },
+    "entity.poker_recall": {
+        "subtitle": "subtitle.mysticartifacts.poker_recall",
+        "sounds": [
+            {
+                "name": "mysticartifacts:poker_recall"
+            }
+        ]
+    },
+    "item.quantum_key.unlock": {
+        "subtitle": "subtitle.mysticartifacts.quantum_key_unlock",
+        "sounds": [
+            {
+                "name": "mysticartifacts:quantum_key_unlock"
+            }
+        ]
+    },
+    "item.mandel.open": {
+        "subtitle": "subtitle.mysticartifacts.mandel_open",
+        "sounds": [
+            {
+                "name": "mysticartifacts:mandel_open"
+            }
+        ]
+    }
+}

@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.uniye.mysticartifacts.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "mysticartifacts.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "KatanaRenderMixin",
+    "KatanaModelMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
