@@ -2,6 +2,7 @@ package com.uniye.mysticartifacts.item.impl;
 
 import com.uniye.mysticartifacts.entity.EnderKunaiEntity;
 import com.uniye.mysticartifacts.init.ModEntities;
+import com.uniye.mysticartifacts.util.EnderKunaiTracker;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerPlayer;
 
 public class EnderKunaiItem extends Item {
     public EnderKunaiItem(Properties pProperties) {
@@ -27,6 +29,9 @@ public class EnderKunaiItem extends Item {
             kunai.setItem(itemstack);
             kunai.shootFromRotation(pPlayer, pPlayer.getXRot(), pPlayer.getYRot(), 0.0F, 1.5F, 1.0F);
             pLevel.addFreshEntity(kunai);
+            if (pPlayer instanceof ServerPlayer serverPlayer) {
+                EnderKunaiTracker.addKunai(serverPlayer, kunai.getUUID());
+            }
         }
 
         pPlayer.awardStat(Stats.ITEM_USED.get(this));

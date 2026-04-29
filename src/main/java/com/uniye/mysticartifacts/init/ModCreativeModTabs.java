@@ -19,6 +19,7 @@ public class ModCreativeModTabs {
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModItems.RUBBER.get());
                         pOutput.accept(ModItems.SLIME_ARROW.get());
+                        pOutput.accept(ModItems.VOID_ARROW.get());
                         pOutput.accept(ModItems.DEMOCRACY_HELMET.get());
                         pOutput.accept(ModItems.DEMOCRACY_CHESTPLATE.get());
                         pOutput.accept(ModItems.DEMOCRACY_LEGGINGS.get());

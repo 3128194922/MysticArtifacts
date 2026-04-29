@@ -47,10 +47,11 @@ public class TeleportToKunaiPacket {
                         shouldTeleport = true;
                         
                         ItemStack itemStack = kunai.getPickupItem();
-                        if (player.getInventory().add(itemStack)) {
-                            player.take(kunai, 1);
-                            kunai.discard();
+                        if (!player.getInventory().add(itemStack)) {
+                            player.drop(itemStack, false);
                         }
+                        player.take(kunai, 1);
+                        kunai.discard();
                     }
                 }
 

@@ -10,6 +10,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public class AirburstArrowEntity extends AbstractArrow {
@@ -55,9 +56,17 @@ public class AirburstArrowEntity extends AbstractArrow {
                 shooterPos = this.getOwner().position();
             }
             
-            if (tickCount >= 20*2 || (shooterPos != null && this.position().distanceToSqr(shooterPos) > 400)) {
-                explode();
-            }
+            double r = Config.AirBurstProximityRadius;
+            AABB box = new AABB(
+                    this.getX() - r, this.getY() - r, this.getZ() - r,
+                    this.getX() + r, this.getY() + r, this.getZ() + r
+            );
+            Entity owner = this.getOwner();
+            boolean hasTarget = !this.level().getEntitiesOfClass(LivingEntity.class, box, e -> {
+                if (e == owner) return false;
+                return e.isAlive();
+            }).isEmpty();
+            if (hasTarget) explode();
         } catch (Exception e) {
             this.discard();
         }

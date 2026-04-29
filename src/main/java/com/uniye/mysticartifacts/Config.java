@@ -22,6 +22,9 @@ public class Config
     private static final ForgeConfigSpec.IntValue AIRBURST_NUMBER_2_RANDOM = BUILDER
             .comment("Random range for Airburst phase 2 bullets")
             .defineInRange("AirBurstNumber2Random", 3, 1, 255);
+    private static final ForgeConfigSpec.ConfigValue<Double> AIRBURST_PROXIMITY_RADIUS = BUILDER
+            .comment("Airburst proximity detonation radius (blocks)")
+            .defineInRange("AirBurstProximityRadius", 3.0, 0.0, 1024.0);
     private static final ForgeConfigSpec.IntValue TNT_ARROW_BOUNCES = BUILDER
             .comment("Slime Arrow bounces")
             .defineInRange("TNTArrowBounces", 3, 1, 255);
@@ -86,6 +89,9 @@ public class Config
     private static final ForgeConfigSpec.IntValue QUANTUM_KEY_EXPIRATION = BUILDER
             .comment("Quantum Key expiration time (ticks)")
             .defineInRange("QuantumKeyExpiration", 1200, 0, 100000);
+    private static final ForgeConfigSpec.IntValue VOID_ARROW_LIFETIME = BUILDER
+            .comment("Void Arrow lifetime (ticks)")
+            .defineInRange("VoidArrowLifetime", 100, 1, 100000);
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
@@ -93,6 +99,7 @@ public class Config
     public static int AirBurstNumberRandom;
     public static int AirBurstNumber2;
     public static int AirBurstNumber2Random;
+    public static double AirBurstProximityRadius;
     public static int TNTArrowBounces;
     public static double TNTArrowDamage;
     public static double TNTArrowMinVelocity;
@@ -119,6 +126,7 @@ public class Config
     public static double DeathEyeRenderRange;
     
     public static int QuantumKeyExpiration;
+    public static int VoidArrowLifetime;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
@@ -127,6 +135,7 @@ public class Config
         AirBurstNumberRandom = AIRBURST_NUMBER_RANDOM.get();
         AirBurstNumber2 = AIRBURST_NUMBER_2.get();
         AirBurstNumber2Random = AIRBURST_NUMBER_2_RANDOM.get();
+        AirBurstProximityRadius = AIRBURST_PROXIMITY_RADIUS.get();
         TNTArrowBounces = TNT_ARROW_BOUNCES.get();
         TNTArrowDamage = TNT_ARROW_DAMAGE.get();
         TNTArrowMinVelocity = TNT_ARROW_MIN_VELOCITY.get();
@@ -153,5 +162,6 @@ public class Config
         DeathEyeRenderRange = DEATH_EYE_RENDER_RANGE.get();
         
         QuantumKeyExpiration = QUANTUM_KEY_EXPIRATION.get();
+        VoidArrowLifetime = VOID_ARROW_LIFETIME.get();
     }
 }

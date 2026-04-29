@@ -12,6 +12,14 @@ import net.minecraftforge.registries.RegistryObject;
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MysticArtifacts.MODID);
 
+    public static final RegistryObject<EntityType<VoidArrowEntity>> VOID_ARROW = ENTITIES.register("void_arrow",
+            () -> EntityType.Builder.<VoidArrowEntity>of(VoidArrowEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .clientTrackingRange(4)
+                    .updateInterval(20)
+                    .build("void_arrow")
+    );
+
     public static final RegistryObject<EntityType<SlimeArrow>> SLIME_ARROW = ENTITIES.register("slime_arrow",
             () -> EntityType.Builder.<SlimeArrow>of(SlimeArrow::new, MobCategory.MISC)
                     .sized(0.5F, 0.5F)
@@ -54,7 +62,7 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<EnderKunaiEntity>> ENDER_KUNAI = ENTITIES.register("ender_kunai",
             () -> EntityType.Builder.<EnderKunaiEntity>of(EnderKunaiEntity::new, MobCategory.MISC)
-                    .sized(0.5f, 0.5f)
+                    .sized(0.8f, 0.8f)
                     .clientTrackingRange(4)
                     .updateInterval(20)
                     .build("ender_kunai")

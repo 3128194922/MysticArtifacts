@@ -19,6 +19,10 @@ public class ModItems {
             () -> new SlimeArrowItem(new Item.Properties())
     );
 
+    public static final RegistryObject<Item> VOID_ARROW = ITEMS.register("void_arrow",
+            () -> new VoidArrowItem(new Item.Properties())
+    );
+
     public static final RegistryObject<Item> DEMOCRACY_HELMET = ITEMS.register(
             "democracy_helmet",
             () -> new ArmorItem(ModArmorMaterials.DEMOCRACY, ArmorItem.Type.HELMET, new Item.Properties())

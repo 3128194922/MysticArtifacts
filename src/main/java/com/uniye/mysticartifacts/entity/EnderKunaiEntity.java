@@ -1,12 +1,16 @@
 package com.uniye.mysticartifacts.entity;
 
 import com.uniye.mysticartifacts.init.ModItems;
+import com.uniye.mysticartifacts.util.EnderKunaiTracker;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,9 +20,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraftforge.network.NetworkHooks;
 
+import java.util.UUID;
+
 public class EnderKunaiEntity extends AbstractArrow {
     private static final EntityDataAccessor<Boolean> IS_GLOWING_KUNAI = SynchedEntityData.defineId(EnderKunaiEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final String TAG_ITEM = "Item";
+    private static final String TAG_OWNER_UUID = "OwnerUUID";
     private int groundTimer = 0;
+    private ItemStack pickupItemStack = new ItemStack(ModItems.ENDER_KUNAI.get());
+    private UUID ownerUuid;
+    private boolean timedOut;
+    private boolean removedHandled;
 
     public EnderKunaiEntity(EntityType<? extends AbstractArrow> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -27,11 +39,12 @@ public class EnderKunaiEntity extends AbstractArrow {
     public EnderKunaiEntity(EntityType<? extends AbstractArrow> pEntityType, Level pLevel, LivingEntity pShooter) {
         super(pEntityType, pShooter, pLevel);
         this.pickup = Pickup.ALLOWED;
+        this.ownerUuid = pShooter.getUUID();
     }
 
     @Override
     public ItemStack getPickupItem() {
-        return new ItemStack(ModItems.ENDER_KUNAI.get());
+        return this.pickupItemStack.copy();
     }
 
     @Override
@@ -60,6 +73,7 @@ public class EnderKunaiEntity extends AbstractArrow {
             }
             
             if (this.groundTimer > 1200) {
+                this.timedOut = true;
                 this.discard();
             }
             
@@ -94,5 +108,48 @@ public class EnderKunaiEntity extends AbstractArrow {
     }
     
     public void setItem(ItemStack stack) {
+        if (!stack.isEmpty()) {
+            this.pickupItemStack = stack.copy();
+            this.pickupItemStack.setCount(1);
+        }
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.put(TAG_ITEM, this.pickupItemStack.save(new CompoundTag()));
+        if (this.ownerUuid != null) {
+            tag.putUUID(TAG_OWNER_UUID, this.ownerUuid);
+        }
+        tag.putInt("GroundTimer", this.groundTimer);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains(TAG_ITEM, 10)) {
+            this.pickupItemStack = ItemStack.of(tag.getCompound(TAG_ITEM));
+        }
+        if (tag.hasUUID(TAG_OWNER_UUID)) {
+            this.ownerUuid = tag.getUUID(TAG_OWNER_UUID);
+        } else if (this.getOwner() != null) {
+            this.ownerUuid = this.getOwner().getUUID();
+        }
+        this.groundTimer = tag.getInt("GroundTimer");
+    }
+
+    @Override
+    public void remove(RemovalReason pReason) {
+        if (!this.level().isClientSide && !this.removedHandled) {
+            this.removedHandled = true;
+            ServerPlayer ownerPlayer = this.ownerUuid == null ? null : this.level().getServer().getPlayerList().getPlayer(this.ownerUuid);
+            if (ownerPlayer != null) {
+                EnderKunaiTracker.removeKunai(ownerPlayer, this.getUUID());
+                if (this.timedOut) {
+                    ownerPlayer.displayClientMessage(Component.literal("末影苦无消失了"), false);
+                }
+            }
+        }
+        super.remove(pReason);
     }
 }
