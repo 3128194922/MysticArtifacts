@@ -6,7 +6,10 @@ import com.uniye.mysticartifacts.init.ModCreativeModTabs;
 import com.uniye.mysticartifacts.init.ModEntities;
 import com.uniye.mysticartifacts.init.ModItems;
 import com.uniye.mysticartifacts.init.ModSounds;
+import com.uniye.mysticartifacts.item.impl.MuramasaItem;
 import com.uniye.mysticartifacts.network.NetworkHandler;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.api.distmarker.Dist;
@@ -80,6 +83,12 @@ public class MysticArtifacts
             EntityRenderers.register(ModEntities.SWORD_PHANTOM.get(), SwordPhantomRenderer::new);
             
             CuriosRendererRegistry.register(ModItems.SWORD_SWARM_CHARM.get(), SwordSwarmCharmRenderer::new);
+
+            event.enqueueWork(() -> ItemProperties.register(
+                    ModItems.KATANA.get(),
+                    new ResourceLocation(MODID, "enhanced"),
+                    (stack, level, holder, seed) -> MuramasaItem.isEnhanced(stack, level, holder) ? 1.0F : 0.0F
+            ));
         }
     }
 }

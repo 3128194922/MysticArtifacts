@@ -2,5 +2,13 @@
   "parent": "item/handheld",
   "textures": {
     "layer0": "mysticartifacts:item/muramasa"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "mysticartifacts:enhanced": 1.0
+      },
+      "model": "mysticartifacts:item/katana_enhanced"
+    }
+  ]
 }

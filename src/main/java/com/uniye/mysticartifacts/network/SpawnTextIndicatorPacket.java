@@ -1,11 +1,11 @@
 package com.uniye.mysticartifacts.network;
 
-import com.uniye.mysticartifacts.client.particle.TextIndicatorParticle;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
+import com.uniye.mysticartifacts.client.network.ClientPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
@@ -57,12 +57,7 @@ public class SpawnTextIndicatorPacket {
 
     public static void handle(SpawnTextIndicatorPacket msg, Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
-            ClientLevel level = Minecraft.getInstance().level;
-            if (level != null) {
-                Minecraft.getInstance().particleEngine.add(
-                        new TextIndicatorParticle(level, msg.x, msg.y, msg.z, msg.text, msg.color, msg.outline, msg.outlineColor, msg.size)
-                );
-            }
+            DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPacketHandler.handleSpawnTextIndicator(msg));
         });
         ctx.get().setPacketHandled(true);
     }
@@ -70,5 +65,37 @@ public class SpawnTextIndicatorPacket {
     public static void sendTo(ServerPlayer player, Vec3 pos, String text, int color, boolean outline, int outlineColor, float size) {
         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
                 new SpawnTextIndicatorPacket(pos.x, pos.y, pos.z, text, color, outline, outlineColor, size));
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public boolean isOutline() {
+        return outline;
+    }
+
+    public int getOutlineColor() {
+        return outlineColor;
+    }
+
+    public float getSize() {
+        return size;
     }
 }

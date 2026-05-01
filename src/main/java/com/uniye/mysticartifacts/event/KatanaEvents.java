@@ -8,7 +8,9 @@ import com.uniye.mysticartifacts.util.ParticleTextAPI;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.EntityHitResult;
@@ -24,7 +26,6 @@ public class KatanaEvents {
 
     @SubscribeEvent
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        ItemStack stack = event.getItemStack();
     }
 
     @SubscribeEvent
@@ -51,10 +52,14 @@ public class KatanaEvents {
                         event.setCanceled(true); 
                         
                         Projectile projectile = event.getProjectile();
-                        projectile.setOwner(entity); 
-                        
-                        Vec3 lookVec = entity.getLookAngle();
-                        projectile.shoot(lookVec.x, lookVec.y, lookVec.z, 1.5F, 0.0F);
+                        if (isPerfect) {
+                            projectile.setOwner(entity);
+
+                            Vec3 lookVec = entity.getLookAngle();
+                            projectile.shoot(lookVec.x, lookVec.y, lookVec.z, 1.5F, 0.0F);
+                        } else if (!entity.level().isClientSide) {
+                            projectile.discard();
+                        }
                         
                         entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), ModSounds.KATANA_BLOCK.get(), SoundSource.PLAYERS, 1.0F, 1.0F + (entity.level().random.nextFloat() - entity.level().random.nextFloat()) * 0.2F);
                         
@@ -64,7 +69,7 @@ public class KatanaEvents {
                             if (isPerfect) {
                                 ParticleTextAPI.sendInFront(sp, "完美弹反！", 0xFFAA00);
                             } else {
-                                ParticleTextAPI.sendInFront(sp, "弹反！", 0x00FF00);
+                                ParticleTextAPI.sendInFront(sp, "格挡！", 0x00FF00);
                             }
                         }
                     }
@@ -106,6 +111,19 @@ public class KatanaEvents {
                       event.setCanceled(true);
                      
                      if (!(event.getSource().getDirectEntity() instanceof Projectile)) {
+                        Entity sourceEntity = event.getSource().getEntity();
+                        if (isPerfect
+                                && sourceEntity instanceof LivingEntity attacker
+                                && attacker != entity
+                                && attacker.isAlive()) {
+                            float reflectDamage = event.getAmount();
+                            if (reflectDamage > 0.0F && entity instanceof Player player) {
+                                attacker.hurt(entity.damageSources().playerAttack(player), reflectDamage);
+                            } else if (reflectDamage > 0.0F) {
+                                attacker.hurt(entity.damageSources().mobAttack(entity), reflectDamage);
+                            }
+                        }
+
                         entity.getUseItem().hurtAndBreak(1, entity, (e) -> e.broadcastBreakEvent(entity.getUsedItemHand()));
                         entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), ModSounds.KATANA_BLOCK.get(), SoundSource.PLAYERS, 1.0F, 1.0F + (entity.level().random.nextFloat() - entity.level().random.nextFloat()) * 0.2F);
                         if (entity instanceof ServerPlayer sp) {

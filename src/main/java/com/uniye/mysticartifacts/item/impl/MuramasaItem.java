@@ -31,8 +31,11 @@ public class MuramasaItem extends SwordItem {
     private static final UUID STEP_HEIGHT_UUID = UUID.fromString("e0f4e6d2-8b4e-4f3b-9c7a-1a2b3c4d5e6f");
     private static final AttributeModifier STEP_HEIGHT_MODIFIER = new AttributeModifier(STEP_HEIGHT_UUID, "Muramasa Dash Step Height", 2.0, AttributeModifier.Operation.ADDITION);
     private static final int MAX_SHARPNESS = 100;
-    // private static final int BLOCK_COST = 25; // Moved to Config
     private static final int IAIDO_COST = 100;
+    private static final float BLOCK_HEALTH_COST = 2.0F;
+    private static final float IAIDO_HEALTH_COST = 6.0F;
+    private static final int ENHANCED_DURATION_TICKS = 200;
+    private static final String ENHANCED_EXPIRE_TICK_TAG = "EnhancedExpireTick";
 
     public MuramasaItem(Properties properties) {
         super(Tiers.IRON, 4, -2.4F, properties);
@@ -58,6 +61,10 @@ public class MuramasaItem extends SwordItem {
 
         if (player.isShiftKeyDown()) {
             if (getSharpness(itemstack) >= IAIDO_COST) {
+                if (!level.isClientSide && applyDirectHealthCost(player, IAIDO_HEALTH_COST)) {
+                    return InteractionResultHolder.fail(itemstack);
+                }
+
                 consumeSharpness(itemstack, IAIDO_COST);
                 
                 Vec3 look = player.getLookAngle();
@@ -67,6 +74,7 @@ public class MuramasaItem extends SwordItem {
                 player.hurtMarked = true; 
                 
                 itemstack.getOrCreateTag().putInt("IaidoTicks", 10); 
+                itemstack.getOrCreateTag().putLong(ENHANCED_EXPIRE_TICK_TAG, level.getGameTime() + ENHANCED_DURATION_TICKS);
                 
                 AttributeInstance stepHeight = player.getAttribute(ForgeMod.STEP_HEIGHT_ADDITION.get());
                 if (stepHeight != null && !stepHeight.hasModifier(STEP_HEIGHT_MODIFIER)) {
@@ -122,6 +130,9 @@ public class MuramasaItem extends SwordItem {
         }
 
         if (getSharpness(itemstack) >= Config.KatanaStacksBlockCost) {
+            if (!level.isClientSide && applyDirectHealthCost(player, BLOCK_HEALTH_COST)) {
+                return InteractionResultHolder.fail(itemstack);
+            }
             player.startUsingItem(hand);
             return InteractionResultHolder.consume(itemstack);
         } else {
@@ -152,11 +163,26 @@ public class MuramasaItem extends SwordItem {
                     }
                 }
             }
+
+            if (stack.getOrCreateTag().contains(ENHANCED_EXPIRE_TICK_TAG)) {
+                long expireTick = stack.getOrCreateTag().getLong(ENHANCED_EXPIRE_TICK_TAG);
+                if (expireTick <= level.getGameTime()) {
+                    stack.getOrCreateTag().remove(ENHANCED_EXPIRE_TICK_TAG);
+                }
+            }
         }
     }
     
     public static boolean isInIaido(ItemStack stack) {
         return stack.hasTag() && stack.getTag().getInt("IaidoTicks") > 0;
+    }
+
+    public static boolean isEnhanced(ItemStack stack, Level level, Entity holder) {
+        if (!stack.hasTag()) {
+            return false;
+        }
+        long expireTick = stack.getTag().getLong(ENHANCED_EXPIRE_TICK_TAG);
+        return expireTick > getCurrentTick(level, holder);
     }
 
     @Override
@@ -189,5 +215,25 @@ public class MuramasaItem extends SwordItem {
         } else {
             stack.getOrCreateTag().putInt("Sharpness", 0);
         }
+    }
+
+    private static long getCurrentTick(Level level, Entity holder) {
+        if (level != null) {
+            return level.getGameTime();
+        }
+        if (holder != null) {
+            return holder.level().getGameTime();
+        }
+        return 0L;
+    }
+
+    private static boolean applyDirectHealthCost(Player player, float healthCost) {
+        float remain = player.getHealth() - healthCost;
+        player.setHealth(Math.max(remain, 0.0F));
+        if (remain <= 0.0F) {
+            player.kill();
+            return true;
+        }
+        return false;
     }
 }
