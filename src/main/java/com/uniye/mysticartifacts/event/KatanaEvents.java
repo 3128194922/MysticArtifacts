@@ -34,43 +34,30 @@ public class KatanaEvents {
             if (entityHitResult.getEntity() instanceof LivingEntity entity) {
                 if (entity.isUsingItem() && entity.getUseItem().getItem() instanceof MuramasaItem) {
                     ItemStack stack = entity.getUseItem();
-                    if (MuramasaItem.getSharpness(stack) >= Config.KatanaStacksBlockCost) {
-                        int ticksUsed = stack.getUseDuration() - entity.getUseItemRemainingTicks();
-                        boolean isPerfect = ticksUsed <= Config.KatanaPerfectBlockWindow;
+                    int ticksUsed = stack.getUseDuration() - entity.getUseItemRemainingTicks();
+                    boolean isPerfect = ticksUsed <= Config.KatanaPerfectBlockWindow;
+                        
+                    event.setCanceled(true);
+                        
+                    Projectile projectile = event.getProjectile();
+                    if (isPerfect) {
+                        projectile.setOwner(entity);
 
-                        if (!isPerfect) {
-                            MuramasaItem.consumeSharpness(stack, Config.KatanaStacksBlockCost);
+                        Vec3 lookVec = entity.getLookAngle();
+                        projectile.shoot(lookVec.x, lookVec.y, lookVec.z, 1.5F, 0.0F);
+                    } else if (!entity.level().isClientSide) {
+                        projectile.discard();
+                    }
                         
-                            if (MuramasaItem.getSharpness(stack) < Config.KatanaStacksBlockCost) {
-                                entity.stopUsingItem();
-                                if (entity instanceof net.minecraft.world.entity.player.Player player) {
-                                    player.getCooldowns().addCooldown(stack.getItem(), 100);
-                                }
-                            }
-                        }
+                    entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), ModSounds.KATANA_BLOCK.get(), SoundSource.PLAYERS, 1.0F, 1.0F + (entity.level().random.nextFloat() - entity.level().random.nextFloat()) * 0.2F);
                         
-                        event.setCanceled(true); 
+                    entity.getUseItem().hurtAndBreak(1, entity, (e) -> e.broadcastBreakEvent(entity.getUsedItemHand()));
                         
-                        Projectile projectile = event.getProjectile();
+                    if (entity instanceof ServerPlayer sp) {
                         if (isPerfect) {
-                            projectile.setOwner(entity);
-
-                            Vec3 lookVec = entity.getLookAngle();
-                            projectile.shoot(lookVec.x, lookVec.y, lookVec.z, 1.5F, 0.0F);
-                        } else if (!entity.level().isClientSide) {
-                            projectile.discard();
-                        }
-                        
-                        entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), ModSounds.KATANA_BLOCK.get(), SoundSource.PLAYERS, 1.0F, 1.0F + (entity.level().random.nextFloat() - entity.level().random.nextFloat()) * 0.2F);
-                        
-                        entity.getUseItem().hurtAndBreak(1, entity, (e) -> e.broadcastBreakEvent(entity.getUsedItemHand()));
-                        
-                        if (entity instanceof ServerPlayer sp) {
-                            if (isPerfect) {
-                                ParticleTextAPI.sendInFront(sp, "完美弹反！", 0xFFAA00);
-                            } else {
-                                ParticleTextAPI.sendInFront(sp, "格挡！", 0x00FF00);
-                            }
+                            ParticleTextAPI.sendInFront(sp, "完美弹反！", 0xFFAA00);
+                        } else {
+                            ParticleTextAPI.sendInFront(sp, "格挡！", 0x00FF00);
                         }
                     }
                 }
@@ -91,26 +78,14 @@ public class KatanaEvents {
         
         if (entity.isUsingItem() && entity.getUseItem().getItem() instanceof MuramasaItem) {
             ItemStack stack = entity.getUseItem();
-             if (MuramasaItem.getSharpness(stack) >= Config.KatanaStacksBlockCost) {
-                 if (!event.getSource().is(DamageTypeTags.BYPASSES_ARMOR) && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+             if (!event.getSource().is(DamageTypeTags.BYPASSES_ARMOR) && !event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
                       
-                      int ticksUsed = stack.getUseDuration() - entity.getUseItemRemainingTicks();
-                      boolean isPerfect = ticksUsed <= Config.KatanaPerfectBlockWindow;
-
-                      if (!isPerfect) {
-                          MuramasaItem.consumeSharpness(stack, Config.KatanaStacksBlockCost);
-                      
-                          if (MuramasaItem.getSharpness(stack) < Config.KatanaStacksBlockCost) {
-                              entity.stopUsingItem();
-                              if (entity instanceof net.minecraft.world.entity.player.Player player) {
-                                  player.getCooldowns().addCooldown(stack.getItem(), 100);
-                              }
-                          }
-                      }
+                  int ticksUsed = stack.getUseDuration() - entity.getUseItemRemainingTicks();
+                  boolean isPerfect = ticksUsed <= Config.KatanaPerfectBlockWindow;
  
-                      event.setCanceled(true);
+                  event.setCanceled(true);
                      
-                     if (!(event.getSource().getDirectEntity() instanceof Projectile)) {
+                  if (!(event.getSource().getDirectEntity() instanceof Projectile)) {
                         Entity sourceEntity = event.getSource().getEntity();
                         if (isPerfect
                                 && sourceEntity instanceof LivingEntity attacker
@@ -124,17 +99,16 @@ public class KatanaEvents {
                             }
                         }
 
-                        entity.getUseItem().hurtAndBreak(1, entity, (e) -> e.broadcastBreakEvent(entity.getUsedItemHand()));
-                        entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), ModSounds.KATANA_BLOCK.get(), SoundSource.PLAYERS, 1.0F, 1.0F + (entity.level().random.nextFloat() - entity.level().random.nextFloat()) * 0.2F);
-                        if (entity instanceof ServerPlayer sp) {
-                            if (isPerfect) {
-                                ParticleTextAPI.sendInFront(sp, "完美格挡！", 0xFFAA00);
-                            } else {
-                                ParticleTextAPI.sendInFront(sp, "格挡！", 0x00FF00);
-                            }
+                    entity.getUseItem().hurtAndBreak(1, entity, (e) -> e.broadcastBreakEvent(entity.getUsedItemHand()));
+                    entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), ModSounds.KATANA_BLOCK.get(), SoundSource.PLAYERS, 1.0F, 1.0F + (entity.level().random.nextFloat() - entity.level().random.nextFloat()) * 0.2F);
+                    if (entity instanceof ServerPlayer sp) {
+                        if (isPerfect) {
+                            ParticleTextAPI.sendInFront(sp, "完美格挡！", 0xFFAA00);
+                        } else {
+                            ParticleTextAPI.sendInFront(sp, "格挡！", 0x00FF00);
                         }
-                     }
-                }
+                    }
+                  }
             }
         }
     }

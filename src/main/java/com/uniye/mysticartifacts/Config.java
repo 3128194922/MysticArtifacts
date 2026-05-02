@@ -62,12 +62,6 @@ public class Config
             .comment("Two Dragons Play Ball item cooldown (ticks)")
             .defineInRange("TwoDragonsCooldown", 40, 0, 10000);
 
-    private static final ForgeConfigSpec.IntValue KATANA_STACKS_PER_ATTACK = BUILDER
-            .comment("Katana stacks gained per attack")
-            .defineInRange("KatanaStacksPerAttack", 1, 1, 100);
-    private static final ForgeConfigSpec.IntValue KATANA_STACKS_BLOCK_COST = BUILDER
-            .comment("Katana stacks consumed on block")
-            .defineInRange("KatanaStacksBlockCost", 25, 0, 100);
     private static final ForgeConfigSpec.IntValue KATANA_PERFECT_BLOCK_WINDOW = BUILDER
             .comment("Katana perfect block window (ticks)")
             .defineInRange("KatanaPerfectBlockWindow", 20, 0, 100);
@@ -115,8 +109,6 @@ public class Config
     public static int TwoDragonsRotationTime;
     public static int TwoDragonsCooldown;
     
-    public static int KatanaStacksPerAttack;
-    public static int KatanaStacksBlockCost;
     public static int KatanaPerfectBlockWindow;
     public static double KatanaDashDamageMultiplier;
     
@@ -151,8 +143,6 @@ public class Config
         TwoDragonsRotationTime = TWO_DRAGONS_ROTATION_TIME.get();
         TwoDragonsCooldown = TWO_DRAGONS_COOLDOWN.get();
         
-        KatanaStacksPerAttack = KATANA_STACKS_PER_ATTACK.get();
-        KatanaStacksBlockCost = KATANA_STACKS_BLOCK_COST.get();
         KatanaPerfectBlockWindow = KATANA_PERFECT_BLOCK_WINDOW.get();
         KatanaDashDamageMultiplier = KATANA_DASH_DAMAGE_MULTIPLIER.get();
         
