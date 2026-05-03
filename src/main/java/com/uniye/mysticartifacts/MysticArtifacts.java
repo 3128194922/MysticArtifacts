@@ -71,6 +71,7 @@ public class MysticArtifacts
         {
             EntityRenderers.register(ModEntities.SLIME_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "slime_arrow"));
             EntityRenderers.register(ModEntities.VOID_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "void_arrow"));
+            EntityRenderers.register(ModEntities.TRACKING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "void_arrow"));
             EntityRenderers.register(ModEntities.AIRBURST_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "airburst_arrow"));
             EntityRenderers.register(ModEntities.EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "exploding_arrow"));
             EntityRenderers.register(ModEntities.FINAL_EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "final_exploding_arrow"));

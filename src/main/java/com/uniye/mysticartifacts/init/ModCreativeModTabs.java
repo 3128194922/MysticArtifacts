@@ -20,6 +20,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.RUBBER.get());
                         pOutput.accept(ModItems.SLIME_ARROW.get());
                         pOutput.accept(ModItems.VOID_ARROW.get());
+                        pOutput.accept(ModItems.TRACKING_ARROW.get());
                         pOutput.accept(ModItems.DEMOCRACY_HELMET.get());
                         pOutput.accept(ModItems.DEMOCRACY_CHESTPLATE.get());
                         pOutput.accept(ModItems.DEMOCRACY_LEGGINGS.get());
@@ -36,6 +37,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.SWORD_SWARM_CHARM.get());
                         pOutput.accept(ModItems.QUANTUM_KEY.get());
                         pOutput.accept(ModItems.MANDEL_BRICK.get());
+                        pOutput.accept(ModItems.FIREWORK_GAUNTLET.get());
                     })
                     .build());
 

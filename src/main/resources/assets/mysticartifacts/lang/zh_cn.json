@@ -3,6 +3,8 @@
     "creativetab.mysticartifacts_tab": "奇器玄兵",
     "item.mysticartifacts.void_arrow": "虚空箭",
     "entity.mysticartifacts.void_arrow": "虚空箭",
+    "item.mysticartifacts.tracking_arrow": "追踪箭",
+    "entity.mysticartifacts.tracking_arrow": "追踪箭",
     "item.mysticartifacts.slime_arrow": "史莱姆幽匿箭",
     "entity.mysticartifacts.slime_arrow": "史莱姆幽匿箭",
     "item.mysticartifacts.nether_of_voice": "下界之音",
@@ -54,5 +56,6 @@
     "item.mysticartifacts.quantum_key.expired": "已过期",
     "item.mysticartifacts.quantum_key.initializing": "初始化中...",
     "item.mysticartifacts.mandel_brick.unlocked": "已解锁",
-    "item.mysticartifacts.mandel_brick.locked": "未解锁"
+    "item.mysticartifacts.mandel_brick.locked": "未解锁",
+    "item.mysticartifacts.firework_gauntlet": "烟花拳套"
 }

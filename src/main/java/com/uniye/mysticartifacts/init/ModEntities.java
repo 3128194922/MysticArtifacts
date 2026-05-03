@@ -20,6 +20,14 @@ public class ModEntities {
                     .build("void_arrow")
     );
 
+    public static final RegistryObject<EntityType<TrackingArrowEntity>> TRACKING_ARROW = ENTITIES.register("tracking_arrow",
+            () -> EntityType.Builder.<TrackingArrowEntity>of(TrackingArrowEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .clientTrackingRange(4)
+                    .updateInterval(1)
+                    .build("tracking_arrow")
+    );
+
     public static final RegistryObject<EntityType<SlimeArrow>> SLIME_ARROW = ENTITIES.register("slime_arrow",
             () -> EntityType.Builder.<SlimeArrow>of(SlimeArrow::new, MobCategory.MISC)
                     .sized(0.5F, 0.5F)

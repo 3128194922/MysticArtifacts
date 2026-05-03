@@ -23,6 +23,10 @@ public class ModItems {
             () -> new VoidArrowItem(new Item.Properties())
     );
 
+    public static final RegistryObject<Item> TRACKING_ARROW = ITEMS.register("tracking_arrow",
+            () -> new TrackingArrowItem(new Item.Properties())
+    );
+
     public static final RegistryObject<Item> DEMOCRACY_HELMET = ITEMS.register(
             "democracy_helmet",
             () -> new ArmorItem(ModArmorMaterials.DEMOCRACY, ArmorItem.Type.HELMET, new Item.Properties())
@@ -89,6 +93,9 @@ public class ModItems {
 
     public static final RegistryObject<Item> MANDEL_BRICK = ITEMS.register("mandel_brick",
             () -> new MandelBrickItem(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> FIREWORK_GAUNTLET = ITEMS.register("firework_gauntlet",
+            () -> new FireworkGauntletItem(new Item.Properties()));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

@@ -18,3 +18,12 @@ https://github.com/ObscuriaLithium/Aquamirae
 
 https://github.com/AlexModGuy/RetroDamageIndicators
 开源协议：https://www.curseforge.com/minecraft/mc-mods/retro-damage-indicators#license
+
+https://github.com/MarbleGateKeeper/RisingUppercut
+开源协议：https://github.com/MarbleGateKeeper/RisingUppercut/blob/main/LICENSE
+
+https://github.com/JrDemiurg/Demis-Enigmatic-Dice
+开源协议：https://www.curseforge.com/minecraft/mc-mods/demis-enigmatic-dice#license
+
+https://github.com/AlexModGuy/AlexsCaves
+开源协议：https://www.curseforge.com/minecraft/mc-mods/alexs-caves#license#license
