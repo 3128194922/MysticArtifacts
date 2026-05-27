@@ -186,11 +186,11 @@ public class MuramasaItem extends SwordItem {
 
     private static boolean applyDirectHealthCost(Player player, float healthCost) {
         float remain = player.getHealth() - healthCost;
-        player.setHealth(Math.max(remain, 0.0F));
         if (remain <= 0.0F) {
             player.kill();
             return true;
         }
+        player.setHealth(remain);
         return false;
     }
 }
