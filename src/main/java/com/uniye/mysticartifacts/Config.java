@@ -87,6 +87,22 @@ public class Config
             .comment("Void Arrow lifetime (ticks)")
             .defineInRange("VoidArrowLifetime", 100, 1, 100000);
 
+    private static final ForgeConfigSpec.ConfigValue<Double> DIVINER_STONE_ORBIT_RADIUS = BUILDER
+            .comment("Diviner Stone orbit radius (blocks)")
+            .defineInRange("DivinerStoneOrbitRadius", 3.0, 0.5, 10.0);
+    private static final ForgeConfigSpec.ConfigValue<Double> DIVINER_STONE_ATTACK_RANGE = BUILDER
+            .comment("Diviner Stone attack detection range (blocks)")
+            .defineInRange("DivinerStoneAttackRange", 5.0, 1.0, 20.0);
+    private static final ForgeConfigSpec.ConfigValue<Double> DIVINER_STONE_DAMAGE = BUILDER
+            .comment("Diviner Stone base damage")
+            .defineInRange("DivinerStoneDamage", 8.0, 0.0, 1000.0);
+    private static final ForgeConfigSpec.IntValue DIVINER_STONE_MAX_LIFETIME = BUILDER
+            .comment("Diviner Stone max lifetime (ticks, 6000 = 5 minutes)")
+            .defineInRange("DivinerStoneMaxLifetime", 6000, 100, 72000);
+    private static final ForgeConfigSpec.ConfigValue<Double> DIVINER_STONE_ORBIT_SPEED = BUILDER
+            .comment("Diviner Stone orbit angular speed (radians per tick)")
+            .defineInRange("DivinerStoneOrbitSpeed", 0.1, 0.01, 1.0);
+
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static int AirBurstNumber;
@@ -119,6 +135,12 @@ public class Config
     
     public static int QuantumKeyExpiration;
     public static int VoidArrowLifetime;
+
+    public static double DivinerStoneOrbitRadius;
+    public static double DivinerStoneAttackRange;
+    public static double DivinerStoneDamage;
+    public static int DivinerStoneMaxLifetime;
+    public static double DivinerStoneOrbitSpeed;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
@@ -153,5 +175,11 @@ public class Config
         
         QuantumKeyExpiration = QUANTUM_KEY_EXPIRATION.get();
         VoidArrowLifetime = VOID_ARROW_LIFETIME.get();
+
+        DivinerStoneOrbitRadius = DIVINER_STONE_ORBIT_RADIUS.get();
+        DivinerStoneAttackRange = DIVINER_STONE_ATTACK_RANGE.get();
+        DivinerStoneDamage = DIVINER_STONE_DAMAGE.get();
+        DivinerStoneMaxLifetime = DIVINER_STONE_MAX_LIFETIME.get();
+        DivinerStoneOrbitSpeed = DIVINER_STONE_ORBIT_SPEED.get();
     }
 }

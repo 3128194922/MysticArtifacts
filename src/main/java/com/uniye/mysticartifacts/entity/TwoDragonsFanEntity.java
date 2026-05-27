@@ -5,7 +5,7 @@ import com.uniye.mysticartifacts.init.ModDamageTypes;
 import com.uniye.mysticartifacts.init.ModEntities;
 import com.uniye.mysticartifacts.init.ModSounds;
 import com.uniye.mysticartifacts.init.ModItems;
-import com.uniye.mysticartifacts.item.impl.TwoDragonsPlayBallItem;
+import com.uniye.mysticartifacts.util.TwoDragonsState;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -37,11 +37,10 @@ public class TwoDragonsFanEntity extends Projectile implements IEntityAdditional
     private static final EntityDataAccessor<Boolean> IS_RETURNING = SynchedEntityData.defineId(TwoDragonsFanEntity.class, EntityDataSerializers.BOOLEAN);
 
     private int bounceCount = 0;
-    // private static final int MAX_BOUNCES = 6; // Moved to Config
     private static final float DAMAGE = 5.0f;
     private static final float SPEED = 1.0f;
     private static final float RETURN_SPEED = 1.5f;
-    private static final int MAX_LIFETIME = 600; 
+    private static final int MAX_LIFETIME = 600;
 
     private int lastHitEntityId = -1;
     private LivingEntity target;
@@ -91,7 +90,7 @@ public class TwoDragonsFanEntity extends Projectile implements IEntityAdditional
         }
 
         Entity owner = this.getOwner();
-        
+
         if (owner == null || !owner.isAlive()) {
             this.discard();
             return;
@@ -110,42 +109,25 @@ public class TwoDragonsFanEntity extends Projectile implements IEntityAdditional
         Vec3 motion = this.getDeltaMovement();
         this.setPos(this.getX() + motion.x, this.getY() + motion.y, this.getZ() + motion.z);
     }
-    
+
     private void handleReturnLogic(Entity owner) {
         Vec3 ownerPos = owner.position().add(0, owner.getBbHeight() * 0.5, 0);
         Vec3 toOwner = ownerPos.subtract(this.position()).normalize().scale(RETURN_SPEED);
         this.setDeltaMovement(toOwner);
-        
+
         double distSqr = this.distanceToSqr(ownerPos);
 
         if (this.getBoundingBox().intersects(owner.getBoundingBox().inflate(0.5)) || distSqr < 2.0 || this.tickCount > MAX_LIFETIME + 100) {
-            restoreToOwner(owner);
+            if (owner instanceof Player player) {
+                boolean isFire = this.isFire();
+                if (isFire) {
+                    TwoDragonsState.setHasFire(player, true);
+                } else {
+                    TwoDragonsState.setHasIce(player, true);
+                }
+            }
             this.discard();
         }
-    }
-
-    private void restoreToOwner(Entity owner) {
-        if (owner instanceof Player player) {
-            if (restoreToItem(player.getMainHandItem())) return;
-            if (restoreToItem(player.getOffhandItem())) return;
-            for (ItemStack stack : player.getInventory().items) {
-                if (restoreToItem(stack)) return;
-            }
-        }
-    }
-
-    private boolean restoreToItem(ItemStack stack) {
-        if (stack.getItem() instanceof TwoDragonsPlayBallItem) {
-            CompoundTag nbt = stack.getOrCreateTag();
-            boolean isFire = this.isFire();
-            String key = isFire ? "has_fire" : "has_ice";
-            
-            if (!nbt.getBoolean(key)) {
-                nbt.putBoolean(key, true);
-                return true;
-            }
-        }
-        return false;
     }
 
     private void handleAttackLogic(Entity owner) {
@@ -161,7 +143,7 @@ public class TwoDragonsFanEntity extends Projectile implements IEntityAdditional
             Vec3 targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
             Vec3 toTarget = targetPos.subtract(this.position()).normalize().scale(SPEED);
             this.setDeltaMovement(toTarget);
-            
+
             if (this.getBoundingBox().intersects(target.getBoundingBox())) {
                 hitTarget(target);
             }
@@ -204,15 +186,15 @@ public class TwoDragonsFanEntity extends Projectile implements IEntityAdditional
         );
 
         hitEntity.hurt(source, DAMAGE);
-        
+
         lastHitEntityId = hitEntity.getId();
         target = null;
-        
+
         bounceCount++;
         if (bounceCount >= Config.TwoDragonsMaxBounces) {
             setReturning(true);
         }
-        
+
         this.level().playSound(null, this.getX(), this.getY(), this.getZ(), ModSounds.TWO_DRAGONS_PLAY_BALL_SPIN.get(), SoundSource.NEUTRAL, 1.0f, 1.5f);
     }
 

@@ -15,8 +15,8 @@ public class ModItems {
 
     public static final RegistryObject<Item> RUBBER = ITEMS.register("rubber", ()-> new Item(new Item.Properties()));
 
-    public static final RegistryObject<Item> SLIME_ARROW = ITEMS.register("slime_arrow",
-            () -> new SlimeArrowItem(new Item.Properties())
+    public static final RegistryObject<Item> SCULK_ARROW = ITEMS.register("sculk_arrow",
+            () -> new SculkArrowItem(new Item.Properties())
     );
 
     public static final RegistryObject<Item> VOID_ARROW = ITEMS.register("void_arrow",

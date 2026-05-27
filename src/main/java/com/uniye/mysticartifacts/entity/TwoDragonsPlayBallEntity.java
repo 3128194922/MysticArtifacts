@@ -4,7 +4,7 @@ import com.uniye.mysticartifacts.init.ModDamageTypes;
 import com.uniye.mysticartifacts.init.ModEntities;
 import com.uniye.mysticartifacts.init.ModSounds;
 import com.uniye.mysticartifacts.init.ModItems;
-import com.uniye.mysticartifacts.item.impl.TwoDragonsPlayBallItem;
+import com.uniye.mysticartifacts.util.TwoDragonsState;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -37,7 +37,7 @@ public class TwoDragonsPlayBallEntity extends Projectile implements IEntityAddit
     private int duration = 800;
     private float damage = 5.0f;
     private float spinOffset = 0f;
-    private boolean isFire = true; 
+    private boolean isFire = true;
 
     public TwoDragonsPlayBallEntity(EntityType<? extends Projectile> type, Level level) {
         super(type, level);
@@ -50,14 +50,14 @@ public class TwoDragonsPlayBallEntity extends Projectile implements IEntityAddit
         this.damage = damage;
         this.duration = duration;
         this.setIsFire(isFire);
-        
+
         this.setPos(owner.getX(), owner.getY() + owner.getBbHeight() * 0.33, owner.getZ());
     }
-    
+
     public void setSpinOffset(float offset) {
         this.spinOffset = offset;
     }
-    
+
     public boolean isFire() {
         return this.isFire;
     }
@@ -66,7 +66,7 @@ public class TwoDragonsPlayBallEntity extends Projectile implements IEntityAddit
     protected void defineSynchedData() {
        this.entityData.define(IS_FIRE, true);
     }
-    
+
     private static final EntityDataAccessor<Boolean> IS_FIRE = SynchedEntityData.defineId(TwoDragonsPlayBallEntity.class, EntityDataSerializers.BOOLEAN);
 
     public void setIsFire(boolean isFire) {
@@ -105,43 +105,28 @@ public class TwoDragonsPlayBallEntity extends Projectile implements IEntityAddit
             this.updateMotion(owner);
         }
     }
-    
+
     @Override
     public void remove(RemovalReason reason) {
         super.remove(reason);
         if (!this.level().isClientSide) {
              Entity owner = this.getOwner();
              if (owner instanceof Player player) {
-                 resetActiveState(player);
+                 boolean isFire = this.getIsFire();
+                 if (isFire) {
+                     TwoDragonsState.setActiveFire(player, false);
+                 } else {
+                     TwoDragonsState.setActiveIce(player, false);
+                 }
              }
-        }
-    }
-    
-    private void resetActiveState(Player player) {
-        boolean isFire = this.getIsFire();
-        String activeKey = isFire ? "active_fire" : "active_ice";
-        
-        resetItemState(player.getMainHandItem(), activeKey);
-        resetItemState(player.getOffhandItem(), activeKey);
-        for (ItemStack stack : player.getInventory().items) {
-             resetItemState(stack, activeKey);
-        }
-    }
-    
-    private void resetItemState(ItemStack stack, String activeKey) {
-        if (stack.getItem() instanceof TwoDragonsPlayBallItem) {
-            CompoundTag nbt = stack.getOrCreateTag();
-            if (nbt.contains(activeKey)) {
-                nbt.putBoolean(activeKey, false);
-            }
         }
     }
 
     private void updateMotion(Entity owner) {
         Vec3 center = owner.position().add(0.0, owner.getBbHeight() * 0.33, 0.0);
-        
+
         float currentAngle = this.tickCount * this.spinSpeed + this.spinOffset;
-        
+
         double x = center.x + Math.cos(currentAngle) * radius;
         double z = center.z + Math.sin(currentAngle) * radius;
         double y = center.y;
@@ -156,7 +141,7 @@ public class TwoDragonsPlayBallEntity extends Projectile implements IEntityAddit
     private void checkCollision() {
         AABB aabb = this.getBoundingBox().inflate(0.5);
         List<LivingEntity> list = this.level().getEntitiesOfClass(LivingEntity.class, aabb);
-        
+
         for (LivingEntity target : list) {
             if (target != this.getOwner() && !target.isAlliedTo(this.getOwner())) {
                 DamageSource source = new DamageSource(

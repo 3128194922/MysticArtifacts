@@ -23,17 +23,17 @@ public class ModEntities {
     public static final RegistryObject<EntityType<TrackingArrowEntity>> TRACKING_ARROW = ENTITIES.register("tracking_arrow",
             () -> EntityType.Builder.<TrackingArrowEntity>of(TrackingArrowEntity::new, MobCategory.MISC)
                     .sized(0.5F, 0.5F)
-                    .clientTrackingRange(4)
-                    .updateInterval(1)
+                    .clientTrackingRange(10)
+                    .updateInterval(3)
                     .build("tracking_arrow")
     );
 
-    public static final RegistryObject<EntityType<SlimeArrow>> SLIME_ARROW = ENTITIES.register("slime_arrow",
-            () -> EntityType.Builder.<SlimeArrow>of(SlimeArrow::new, MobCategory.MISC)
+    public static final RegistryObject<EntityType<SculkArrow>> SCULK_ARROW = ENTITIES.register("sculk_arrow",
+            () -> EntityType.Builder.<SculkArrow>of(SculkArrow::new, MobCategory.MISC)
                     .sized(0.5F, 0.5F)
                     .clientTrackingRange(4)
                     .updateInterval(20)
-                    .build("slime_arrow")
+                    .build("sculk_arrow")
     );
 
     public static final RegistryObject<EntityType<NetherOfVoiceEntity>> NETHER_OF_VOICE = ENTITIES.register("nether_of_voice",

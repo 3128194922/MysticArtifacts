@@ -18,7 +18,7 @@ public class ModCreativeModTabs {
                     .title(Component.translatable("creativetab.mysticartifacts_tab"))
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModItems.RUBBER.get());
-                        pOutput.accept(ModItems.SLIME_ARROW.get());
+                        pOutput.accept(ModItems.SCULK_ARROW.get());
                         pOutput.accept(ModItems.VOID_ARROW.get());
                         pOutput.accept(ModItems.TRACKING_ARROW.get());
                         pOutput.accept(ModItems.DEMOCRACY_HELMET.get());
