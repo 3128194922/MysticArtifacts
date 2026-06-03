@@ -29,6 +29,11 @@ public class VoidArrowEntity extends AbstractArrow {
     @Override
     public void tick() {
         super.tick();
+
+        // 保持恒定速度
+        double speed = 5.0; // 自定义速度
+        this.setDeltaMovement(this.getDeltaMovement().normalize().scale(speed));
+
         if (this.tickCount >= Math.max(1, Config.VoidArrowLifetime)) {
             this.discard();
         }

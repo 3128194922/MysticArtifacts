@@ -82,6 +82,8 @@ public class MysticArtifacts
             EntityRenderers.register(ModEntities.TWO_DRAGONS_PLAY_BALL.get(), TwoDragonsPlayBallRenderer::new);
             EntityRenderers.register(ModEntities.TWO_DRAGONS_FAN.get(), TwoDragonsFanRenderer::new);
             EntityRenderers.register(ModEntities.SWORD_PHANTOM.get(), SwordPhantomRenderer::new);
+            EntityRenderers.register(ModEntities.ARTIFACT_SPIRIT.get(), ArtifactSpiritRenderer::new);
+            EntityRenderers.register(ModEntities.FLAME_PROJECTILE.get(), FlameProjectileRenderer::new);
             
             CuriosRendererRegistry.register(ModItems.SWORD_SWARM_CHARM.get(), SwordSwarmCharmRenderer::new);
 

@@ -97,6 +97,9 @@ public class ModItems {
     public static final RegistryObject<Item> FIREWORK_GAUNTLET = ITEMS.register("firework_gauntlet",
             () -> new FireworkGauntletItem(new Item.Properties()));
 
+    public static final RegistryObject<Item> ARTIFACT_SPIRIT = ITEMS.register("artifact_spirit",
+            () -> new ArtifactSpiritItem(new Item.Properties().stacksTo(1)));
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

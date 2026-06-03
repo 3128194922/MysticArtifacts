@@ -57,5 +57,7 @@
     "item.mysticartifacts.quantum_key.initializing": "初始化中...",
     "item.mysticartifacts.mandel_brick.unlocked": "已解锁",
     "item.mysticartifacts.mandel_brick.locked": "未解锁",
-    "item.mysticartifacts.firework_gauntlet": "烟花拳套"
+    "item.mysticartifacts.firework_gauntlet": "烟花拳套",
+    "item.mysticartifacts.artifact_spirit": "器灵",
+    "entity.mysticartifacts.artifact_spirit": "器灵"
 }

@@ -103,6 +103,22 @@ public class Config
             .comment("Diviner Stone orbit angular speed (radians per tick)")
             .defineInRange("DivinerStoneOrbitSpeed", 0.1, 0.01, 1.0);
 
+    private static final ForgeConfigSpec.ConfigValue<Double> SPIRIT_FOLLOW_DISTANCE = BUILDER
+            .comment("Artifact Spirit follow distance from player (blocks)")
+            .defineInRange("SpiritFollowDistance", 2.0, 0.5, 5.0);
+    private static final ForgeConfigSpec.ConfigValue<Double> SPIRIT_ATTACK_RANGE = BUILDER
+            .comment("Artifact Spirit attack detection range (blocks)")
+            .defineInRange("SpiritAttackRange", 5.0, 1.0, 20.0);
+    private static final ForgeConfigSpec.ConfigValue<Double> SPIRIT_DAMAGE = BUILDER
+            .comment("Artifact Spirit base damage")
+            .defineInRange("SpiritDamage", 8.0, 0.0, 1000.0);
+    private static final ForgeConfigSpec.IntValue SPIRIT_ATTACK_COOLDOWN = BUILDER
+            .comment("Artifact Spirit attack cooldown (ticks)")
+            .defineInRange("SpiritAttackCooldown", 40, 10, 200);
+    private static final ForgeConfigSpec.ConfigValue<Double> SPIRIT_MOVE_SPEED = BUILDER
+            .comment("Artifact Spirit movement speed when attacking")
+            .defineInRange("SpiritMoveSpeed", 0.8, 0.1, 3.0);
+
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static int AirBurstNumber;
@@ -141,6 +157,12 @@ public class Config
     public static double DivinerStoneDamage;
     public static int DivinerStoneMaxLifetime;
     public static double DivinerStoneOrbitSpeed;
+
+    public static double SpiritFollowDistance;
+    public static double SpiritAttackRange;
+    public static double SpiritDamage;
+    public static int SpiritAttackCooldown;
+    public static double SpiritMoveSpeed;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
@@ -181,5 +203,11 @@ public class Config
         DivinerStoneDamage = DIVINER_STONE_DAMAGE.get();
         DivinerStoneMaxLifetime = DIVINER_STONE_MAX_LIFETIME.get();
         DivinerStoneOrbitSpeed = DIVINER_STONE_ORBIT_SPEED.get();
+
+        SpiritFollowDistance = SPIRIT_FOLLOW_DISTANCE.get();
+        SpiritAttackRange = SPIRIT_ATTACK_RANGE.get();
+        SpiritDamage = SPIRIT_DAMAGE.get();
+        SpiritAttackCooldown = SPIRIT_ATTACK_COOLDOWN.get();
+        SpiritMoveSpeed = SPIRIT_MOVE_SPEED.get();
     }
 }

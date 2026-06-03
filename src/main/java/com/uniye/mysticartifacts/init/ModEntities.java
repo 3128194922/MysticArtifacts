@@ -108,6 +108,22 @@ public class ModEntities {
                     .build("sword_phantom")
     );
 
+    public static final RegistryObject<EntityType<FlameProjectileEntity>> FLAME_PROJECTILE = ENTITIES.register("flame_projectile",
+            () -> EntityType.Builder.<FlameProjectileEntity>of(FlameProjectileEntity::new, MobCategory.MISC)
+                    .sized(0.25f, 0.25f)
+                    .clientTrackingRange(64)
+                    .updateInterval(10)
+                    .build("flame_projectile")
+    );
+
+    public static final RegistryObject<EntityType<ArtifactSpiritEntity>> ARTIFACT_SPIRIT = ENTITIES.register("artifact_spirit",
+            () -> EntityType.Builder.<ArtifactSpiritEntity>of(ArtifactSpiritEntity::new, MobCategory.MISC)
+                    .sized(0.5f, 0.5f)
+                    .clientTrackingRange(10)
+                    .updateInterval(3)
+                    .build("artifact_spirit")
+    );
+
     public static void register(IEventBus eventBus) {
         ENTITIES.register(eventBus);
     }
