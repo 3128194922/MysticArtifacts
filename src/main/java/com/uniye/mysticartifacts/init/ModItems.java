@@ -5,6 +5,7 @@ import com.uniye.mysticartifacts.item.ModArmorMaterials;
 import com.uniye.mysticartifacts.item.impl.*;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Tiers;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -94,11 +95,20 @@ public class ModItems {
     public static final RegistryObject<Item> MANDEL_BRICK = ITEMS.register("mandel_brick",
             () -> new MandelBrickItem(new Item.Properties().stacksTo(1)));
 
-    public static final RegistryObject<Item> FIREWORK_GAUNTLET = ITEMS.register("firework_gauntlet",
-            () -> new FireworkGauntletItem(new Item.Properties()));
-
     public static final RegistryObject<Item> ARTIFACT_SPIRIT = ITEMS.register("artifact_spirit",
             () -> new ArtifactSpiritItem(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> GRIEFER_SPEAR = ITEMS.register("griefer_spear",
+            () -> new GrieferSpearItem(Tiers.IRON, 2, -2.8F, new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> SPEAR = ITEMS.register("spear",
+            () -> new SpearItem(Tiers.DIAMOND, 3, (1.0F / 1.05F) - 4.0F, new Item.Properties()));
+
+    public static final RegistryObject<Item> CODEX = ITEMS.register("codex",
+            () -> new CodexItem(new Item.Properties()));
+
+    public static final RegistryObject<Item> WITCH_POT = ITEMS.register("witch_pot",
+            () -> new WitchPotItem(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

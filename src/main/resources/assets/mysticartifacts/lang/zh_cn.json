@@ -39,10 +39,10 @@
     "death.attack.mysticartifacts.void_slice.item": "%1$s 被 %2$s 用 %3$s 切碎了。",
     "death.attack.mysticartifacts.poker_slice": "%1$s 被 %2$s 的扑克牌切碎了。",
     "item.mysticartifacts.katana": "武士刀",
-    "item.mysticartifacts.poker_card": "扑克牌",
-    "entity.mysticartifacts.poker_card": "扑克牌",
+    "item.mysticartifacts.poker_card": "击杀牌叠",
+    "entity.mysticartifacts.poker_card": "击杀牌叠",
     "item.mysticartifacts.death_eye": "死亡之眼",
-    "item.mysticartifacts.sword_swarm_charm": "剑群饰品",
+    "item.mysticartifacts.sword_swarm_charm": "王之宝库",
     "entity.mysticartifacts.sword_phantom": "幻影之剑",
     "death.attack.mysticartifacts.phantom_sword": "%1$s 被 %2$s 的幻影之剑斩杀了。",
     "death.attack.mysticartifacts.iaido": "%1$s 被 %2$s 的居合斩一刀两断。",
@@ -57,7 +57,12 @@
     "item.mysticartifacts.quantum_key.initializing": "初始化中...",
     "item.mysticartifacts.mandel_brick.unlocked": "已解锁",
     "item.mysticartifacts.mandel_brick.locked": "未解锁",
-    "item.mysticartifacts.firework_gauntlet": "烟花拳套",
     "item.mysticartifacts.artifact_spirit": "器灵",
-    "entity.mysticartifacts.artifact_spirit": "器灵"
+    "entity.mysticartifacts.artifact_spirit": "器灵",
+    "item.mysticartifacts.spear": "钻石长矛",
+    "item.mysticartifacts.griefer_spear": "破坏者刺雷",
+    "item.mysticartifacts.codex": "伪抄",
+    "item.mysticartifacts.witch_pot": "女巫坩埚",
+    "death.attack.spear": "%1$s 被长矛刺穿了",
+    "death.attack.spear.player": "%1$s 被 %2$s 用长矛刺穿了"
 }

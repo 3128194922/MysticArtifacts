@@ -1,0 +1,14 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "mysticartifacts:item/witch_pot"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "mysticartifacts:has_potion": 1
+      },
+      "model": "mysticartifacts:item/witch_pot_effective"
+    }
+  ]
+}

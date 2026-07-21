@@ -1,0 +1,6 @@
+{
+  "parent": "mysticartifacts:item/custom/spear",
+  "textures": {
+    "layer0": "mysticartifacts:item/griefer_spear_handheld"
+  }
+}

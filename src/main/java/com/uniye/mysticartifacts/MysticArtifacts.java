@@ -2,11 +2,13 @@ package com.uniye.mysticartifacts;
 
 import com.mojang.logging.LogUtils;
 import com.uniye.mysticartifacts.client.render.*;
+import com.uniye.mysticartifacts.event.CodexAnvilHandler;
 import com.uniye.mysticartifacts.init.ModCreativeModTabs;
 import com.uniye.mysticartifacts.init.ModEntities;
 import com.uniye.mysticartifacts.init.ModItems;
 import com.uniye.mysticartifacts.init.ModSounds;
 import com.uniye.mysticartifacts.item.impl.MuramasaItem;
+import com.uniye.mysticartifacts.item.impl.WitchPotItem;
 import com.uniye.mysticartifacts.network.NetworkHandler;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +20,7 @@ import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -46,7 +49,11 @@ public class MysticArtifacts
         modEventBus.addListener(this::addCreative);
 
         MinecraftForge.EVENT_BUS.register(this);
-        
+
+        if (ModList.get().isLoaded("quark")) {
+            MinecraftForge.EVENT_BUS.register(new CodexAnvilHandler());
+        }
+
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Config.SPEC);
     }
 
@@ -91,6 +98,21 @@ public class MysticArtifacts
                     ModItems.KATANA.get(),
                     new ResourceLocation(MODID, "enhanced"),
                     (stack, level, holder, seed) -> MuramasaItem.isEnhanced(stack, level, holder) ? 1.0F : 0.0F
+            ));
+            event.enqueueWork(() -> ItemProperties.register(
+                    ModItems.WITCH_POT.get(),
+                    new ResourceLocation(MODID, "has_potion"),
+                    (stack, level, holder, seed) -> WitchPotItem.hasPotionData(stack) ? 1.0F : 0.0F
+            ));
+            event.enqueueWork(() -> ItemProperties.register(
+                    ModItems.SPEAR.get(),
+                    new ResourceLocation(MODID, "using"),
+                    (stack, level, holder, seed) -> holder != null && holder.isUsingItem() && holder.getUseItem() == stack ? 1.0F : 0.0F
+            ));
+            event.enqueueWork(() -> ItemProperties.register(
+                    ModItems.GRIEFER_SPEAR.get(),
+                    new ResourceLocation(MODID, "using"),
+                    (stack, level, holder, seed) -> holder != null && holder.isUsingItem() && holder.getUseItem() == stack ? 1.0F : 0.0F
             ));
         }
     }

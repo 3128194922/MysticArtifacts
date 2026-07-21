@@ -1,0 +1,21 @@
+{
+  "parent": "minecraft:item/handheld",
+  "loader": "forge:separate_transforms",
+  "textures": {
+    "layer0": "mysticartifacts:item/griefer_spear_gui"
+  },
+  "base": {
+    "parent": "mysticartifacts:item/griefer_spear_using_in_hand"
+  },
+  "perspectives": {
+    "gui": {
+      "parent": "mysticartifacts:item/griefer_spear_gui"
+    },
+    "fixed": {
+      "parent": "mysticartifacts:item/griefer_spear_gui"
+    },
+    "ground": {
+      "parent": "mysticartifacts:item/griefer_spear_gui"
+    }
+  }
+}

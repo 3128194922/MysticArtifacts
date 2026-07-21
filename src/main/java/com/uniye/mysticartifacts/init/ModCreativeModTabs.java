@@ -37,8 +37,11 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.SWORD_SWARM_CHARM.get());
                         pOutput.accept(ModItems.QUANTUM_KEY.get());
                         pOutput.accept(ModItems.MANDEL_BRICK.get());
-                        pOutput.accept(ModItems.FIREWORK_GAUNTLET.get());
                         pOutput.accept(ModItems.ARTIFACT_SPIRIT.get());
+                        pOutput.accept(ModItems.GRIEFER_SPEAR.get());
+                        pOutput.accept(ModItems.SPEAR.get());
+                        pOutput.accept(ModItems.CODEX.get());
+                        pOutput.accept(ModItems.WITCH_POT.get());
                     })
                     .build());
 

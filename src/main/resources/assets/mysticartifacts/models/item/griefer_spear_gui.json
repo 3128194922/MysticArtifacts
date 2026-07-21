@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "mysticartifacts:item/griefer_spear_gui"
+  }
+}

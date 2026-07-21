@@ -10,6 +10,6 @@ https://github.com/jiGGO1/ClassicSwordBlocking/tree/1.20
 武士刀格挡粒子
 https://github.com/AlexModGuy/RetroDamageIndicators
 开源协议：https://www.curseforge.com/minecraft/mc-mods/retro-damage-indicators#license
-烟花拳套
-https://github.com/MarbleGateKeeper/RisingUppercut
-开源协议：https://github.com/MarbleGateKeeper/RisingUppercut/blob/main/LICENSE
+长矛
+https://github.com/Jerotes/JerotesWarehouse
+开源协议：https://github.com/Jerotes/JerotesWarehouse?tab=GPL-3.0-1-ov-file

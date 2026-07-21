@@ -174,7 +174,11 @@ public class ArtifactSpiritItem extends Item implements ICurioItem {
             ResourceLocation id = ForgeRegistries.ITEMS.getKey(other.getItem());
             if (id != null) {
                 if (hasStoredWeapon(stack)) {
-                    // Already has a weapon stored — replace it
+                    ResourceLocation oldId = getStoredWeapon(stack);
+                    Item oldWeapon = ForgeRegistries.ITEMS.getValue(oldId);
+                    if (oldWeapon != null) {
+                        player.getInventory().placeItemBackInInventory(new ItemStack(oldWeapon));
+                    }
                     other.shrink(1);
                     setStoredWeapon(stack, id);
                     player.playSound(SoundEvents.ITEM_PICKUP, 0.8F, 1.1F);

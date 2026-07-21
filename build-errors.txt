@@ -1,0 +1,147 @@
+注: SpongePowered MIXIN Annotation Processor Version=0.8.5 (MixinGradle Version=0.7)
+注: Supported obfuscation types: ObfuscationServiceMCP supports [notch] ObfuscationServiceFG3 supports [searge]
+注: Loading searge mappings from E:\Server_mod\MysticArtifacts\build\createMcpToSrg\output.tsrg
+注: Writing refmap to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-refmap.json
+注: Writing refmap to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-refmap.json
+注: Writing searge composite mappings to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-mappings.tsrg
+注: Writing refmap to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-refmap.json
+注: Writing refmap to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-refmap.json
+注: Writing searge composite mappings to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-mappings.tsrg
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\ModArrowRenderer.java:14: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+        this.texture = new ResourceLocation(MysticArtifacts.MODID, "textures/entity/" + textureName + ".png");
+                       ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\TwoDragonsFanRenderer.java:18: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    private static final ResourceLocation FIRE_TEXTURE = new ResourceLocation("mysticartifacts", "textures/entity/two_dragons_play_ball_fire.png");
+                                                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\TwoDragonsFanRenderer.java:19: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    private static final ResourceLocation ICE_TEXTURE = new ResourceLocation("mysticartifacts", "textures/entity/two_dragons_play_ball_ice.png");
+                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\TwoDragonsPlayBallRenderer.java:18: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    private static final ResourceLocation FIRE_TEXTURE = new ResourceLocation("mysticartifacts", "textures/entity/two_dragons_play_ball_fire.png");
+                                                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\TwoDragonsPlayBallRenderer.java:19: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    private static final ResourceLocation ICE_TEXTURE = new ResourceLocation("mysticartifacts", "textures/entity/two_dragons_play_ball_ice.png");
+                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\event\KatanaEvents.java:40: 警告: [removal] ProjectileImpactEvent 中的 setCanceled(boolean) 已过时, 且标记为待删除
+                    event.setCanceled(true);
+                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:12: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> COLLAPSING = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "collapsing"));
+                                                                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:13: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> NOPAL_PRICK = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "nopal_prick"));
+                                                                                                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:14: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> CEASING = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "ceasing"));
+                                                                                                     ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:15: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> TWO_DRAGONS_PLAY_BALL_FIRE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "two_dragons_play_ball_fire"));
+                                                                                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:16: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> TWO_DRAGONS_PLAY_BALL_ICE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "two_dragons_play_ball_ice"));
+                                                                                                                       ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:17: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> TWO_DRAGONS_PLAY_BALL = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "two_dragons_play_ball"));
+                                                                                                                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:18: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> VOID_SLICE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "void_slice"));
+                                                                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:19: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> POKER_SLICE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "poker_slice"));
+                                                                                                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:20: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> PHANTOM_SWORD = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "phantom_sword"));
+                                                                                                           ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:21: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+    public static final ResourceKey<DamageType> IAIDO = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "iaido"));
+                                                                                                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:15: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.ceasing")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:17: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.bell_toll")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:19: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.bell_toll_fail")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:21: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.two_dragons_play_ball_spin")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:23: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.katana_block")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:25: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.poker_throw")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:27: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.poker_recall")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:29: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "item.quantum_key.unlock")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:31: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "item.mandel.open")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\item\impl\SpearItem.java:327: 错误: 找不到符号
+        float reachBonus = entity.getAttribute(ForgeMod.ENTITY_REACH.get()) != null
+                                 ^
+  符号:   方法 getAttribute(Attribute)
+  位置: 类型为Entity的变量 entity
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\item\impl\SpearItem.java:328: 错误: 找不到符号
+                ? (float) Math.max(0, entity.getAttributeValue(ForgeMod.ENTITY_REACH.get()) - 3) : 0;
+                                            ^
+  符号:   方法 getAttributeValue(Attribute)
+  位置: 类型为Entity的变量 entity
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\item\impl\SpearItem.java:337: 错误: 找不到符号
+        if (!entity.hasLineOfSight(entity2)) return false;
+                   ^
+  符号:   方法 hasLineOfSight(Entity)
+  位置: 类型为Entity的变量 entity
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\item\impl\MandelBrickItem.java:61: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+                player.playSound(ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("minecraft", "block.note_block.bass")), 1.0f, 0.5f);
+                                                                       ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\item\impl\MandelBrickItem.java:74: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+                    ResourceLocation lootTableId = new ResourceLocation(MysticArtifacts.MODID, "gameplay/mandel_brick_reward");
+                                                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\item\impl\SwordSwarmCharm.java:113: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+        return def != null ? def : new ResourceLocation("minecraft", "diamond_sword");
+                                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:39: 警告: [removal] FMLJavaModLoadingContext 中的 get() 已过时, 且标记为待删除
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:57: 警告: [removal] ModLoadingContext 中的 get() 已过时, 且标记为待删除
+        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Config.SPEC);
+                                                ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:99: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+                    new ResourceLocation(MODID, "enhanced"),
+                    ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:104: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+                    new ResourceLocation(MODID, "has_potion"),
+                    ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\network\NetworkHandler.java:11: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            new ResourceLocation(MysticArtifacts.MODID, "simple_channel"),
+            ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\util\TagInit.java:13: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            new ResourceLocation(MysticArtifacts.MODID, "master_key")
+            ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\util\TagInit.java:18: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            new ResourceLocation(MysticArtifacts.MODID, "is_sword")
+            ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\util\TagInit.java:23: 警告: [removal] ResourceLocation 中的 ResourceLocation(String,String) 已过时, 且标记为待删除
+            new ResourceLocation("forge", "swords")
+            ^
+注: 某些输入文件使用或覆盖了已过时的 API。
+注: 有关详细信息, 请使用 -Xlint:deprecation 重新编译。
+3 个错误
+36 个警告
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --scan to get full insights.
+
+BUILD FAILED in 17s

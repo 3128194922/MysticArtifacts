@@ -1,0 +1,6 @@
+{
+  "parent": "mysticartifacts:item/custom/spear_using",
+  "textures": {
+    "layer0": "mysticartifacts:item/spear_in_hand"
+  }
+}
