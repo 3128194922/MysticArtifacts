@@ -45,5 +45,23 @@ public class NetworkHandler {
                 SwordSwarmAttackPacket::decode,
                 SwordSwarmAttackPacket::handle
         );
+
+        INSTANCE.registerMessage(id++, RequestPlayerListPacket.class,
+                RequestPlayerListPacket::encode,
+                RequestPlayerListPacket::decode,
+                RequestPlayerListPacket::handle
+        );
+
+        INSTANCE.registerMessage(id++, PlayerListPacket.class,
+                PlayerListPacket::encode,
+                PlayerListPacket::decode,
+                PlayerListPacket::handle
+        );
+
+        INSTANCE.registerMessage(id++, SelectSpectatePacket.class,
+                SelectSpectatePacket::encode,
+                SelectSpectatePacket::decode,
+                SelectSpectatePacket::handle
+        );
     }
 }

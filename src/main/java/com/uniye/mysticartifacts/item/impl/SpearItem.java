@@ -130,7 +130,7 @@ public class SpearItem extends SwordItem {
     protected void pierceAttack(Level level, Player player, ItemStack stack) {
         float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
 
-        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, e -> canHitEntity(player, e))) {
+        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, e -> canHitEntity(player, e) && isWithinRange(player, e))) {
             Entity entity = entityHitResult.getEntity();
 
             if (entity instanceof net.minecraftforge.entity.PartEntity<?> partEntity) {
@@ -263,6 +263,11 @@ public class SpearItem extends SwordItem {
         return maxRange + reachBonus;
     }
 
+    protected boolean isWithinRange(Entity attacker, Entity target) {
+        float range = effectiveMaxRange(attacker) + HITBOX_MARGIN + 1.0F;
+        return attacker.distanceToSqr(target) <= range * range;
+    }
+
     protected static boolean canHitEntity(Entity entity, Entity entity2) {
         if (!entity2.canBeHitByProjectile()) return false;
         if (entity2 instanceof Player player) {
@@ -306,7 +311,7 @@ public class SpearItem extends SwordItem {
         float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
         Vec3 lookVec = getHeadLookAngle(player);
 
-        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, e -> canHitEntity(player, e))) {
+        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, e -> canHitEntity(player, e) && isWithinRange(player, e))) {
             Entity entity = entityHitResult.getEntity();
 
             if (entity instanceof net.minecraftforge.entity.PartEntity<?> partEntity) {

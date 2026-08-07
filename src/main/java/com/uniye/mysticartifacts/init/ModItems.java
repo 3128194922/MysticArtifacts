@@ -110,6 +110,9 @@ public class ModItems {
     public static final RegistryObject<Item> WITCH_POT = ITEMS.register("witch_pot",
             () -> new WitchPotItem(new Item.Properties().stacksTo(1)));
 
+    public static final RegistryObject<Item> ALL_SEEING_EYE = ITEMS.register("all_seeing_eye",
+            () -> new AllSeeingEyeItem(new Item.Properties().stacksTo(1)));
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

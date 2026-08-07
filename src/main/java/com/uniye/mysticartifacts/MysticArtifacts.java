@@ -92,6 +92,8 @@ public class MysticArtifacts
             EntityRenderers.register(ModEntities.ARTIFACT_SPIRIT.get(), ArtifactSpiritRenderer::new);
             EntityRenderers.register(ModEntities.FLAME_PROJECTILE.get(), FlameProjectileRenderer::new);
             
+            
+            
             CuriosRendererRegistry.register(ModItems.SWORD_SWARM_CHARM.get(), SwordSwarmCharmRenderer::new);
 
             event.enqueueWork(() -> ItemProperties.register(

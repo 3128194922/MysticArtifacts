@@ -1,7 +1,9 @@
 package com.uniye.mysticartifacts.item.impl;
 
+import com.uniye.mysticartifacts.init.ModDamageTypes;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -35,7 +37,7 @@ public class GrieferSpearItem extends SpearItem {
 
     @Override
     protected void pierceAttack(Level level, Player player, ItemStack stack) {
-        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, e -> canHitEntity(player, e))) {
+        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, e -> canHitEntity(player, e) && isWithinRange(player, e))) {
             Entity entity = entityHitResult.getEntity();
 
             if (entity instanceof net.minecraftforge.entity.PartEntity<?> partEntity) {
@@ -48,11 +50,16 @@ public class GrieferSpearItem extends SpearItem {
             EnchantmentHelper.doPostDamageEffects(player, entity);
             player.setLastHurtMob(entity);
 
+            DamageSource source = ModDamageTypes.getSource(level, ModDamageTypes.SPEAR, player, player);
+
             level.explode(
                     player,
+                    source,
+                    null,
                     entity.getX(), entity.getY(), entity.getZ(),
                     PIERCE_EXPLOSION_RADIUS,
-                    Level.ExplosionInteraction.MOB
+                    false,
+                    Level.ExplosionInteraction.NONE
             );
 
             player.stopUsingItem();

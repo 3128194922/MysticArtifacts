@@ -42,6 +42,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.SPEAR.get());
                         pOutput.accept(ModItems.CODEX.get());
                         pOutput.accept(ModItems.WITCH_POT.get());
+                        pOutput.accept(ModItems.ALL_SEEING_EYE.get());
                     })
                     .build());
 
