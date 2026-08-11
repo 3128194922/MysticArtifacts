@@ -63,5 +63,11 @@ public class NetworkHandler {
                 SelectSpectatePacket::decode,
                 SelectSpectatePacket::handle
         );
+
+        INSTANCE.registerMessage(id++, SurvivalJadeSyncPacket.class,
+                SurvivalJadeSyncPacket::encode,
+                SurvivalJadeSyncPacket::decode,
+                SurvivalJadeSyncPacket::handle
+        );
     }
 }

@@ -119,6 +119,14 @@ public class Config
             .comment("Artifact Spirit movement speed when attacking")
             .defineInRange("SpiritMoveSpeed", 0.8, 0.1, 3.0);
 
+    private static final ForgeConfigSpec.IntValue SURVIVAL_JADE_DECAY_TICKS = BUILDER
+            .comment("Survival Jade phantom decay period (ticks per 1 HP lost). 20 ticks = 1 second. Default 60 = 3s per 1 HP.")
+            .defineInRange("SurvivalJadeDecayTicks", 60, 1, 6000);
+
+    private static final ForgeConfigSpec.ConfigValue<Double> SURVIVAL_JADE_CONVERSION_RATIO = BUILDER
+            .comment("Survival Jade damage-to-heal conversion ratio (0.0~1.0). Default 0.5 = 50% of dealt damage heals phantom.")
+            .defineInRange("SurvivalJadeConversionRatio", 0.5, 0.0, 1.0);
+
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static int AirBurstNumber;
@@ -163,6 +171,9 @@ public class Config
     public static double SpiritDamage;
     public static int SpiritAttackCooldown;
     public static double SpiritMoveSpeed;
+
+    public static int SurvivalJadeDecayTicks;
+    public static double SurvivalJadeConversionRatio;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
@@ -209,5 +220,8 @@ public class Config
         SpiritDamage = SPIRIT_DAMAGE.get();
         SpiritAttackCooldown = SPIRIT_ATTACK_COOLDOWN.get();
         SpiritMoveSpeed = SPIRIT_MOVE_SPEED.get();
+
+        SurvivalJadeDecayTicks = SURVIVAL_JADE_DECAY_TICKS.get();
+        SurvivalJadeConversionRatio = SURVIVAL_JADE_CONVERSION_RATIO.get();
     }
 }

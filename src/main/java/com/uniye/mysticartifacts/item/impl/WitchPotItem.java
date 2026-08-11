@@ -36,7 +36,12 @@ public class WitchPotItem extends Item implements ICurioItem {
     public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction action, Player player) {
         if (action != ClickAction.SECONDARY) return false;
         ItemStack other = slot.getItem();
-        if (other.isEmpty()) return false;
+
+        // 右键空槽位：释放内部存储的药水
+        if (other.isEmpty()) {
+            if (!hasPotionData(stack)) return false;
+            return releaseStoredPotion(stack, slot, player);
+        }
 
         Item item = other.getItem();
         int potionType = -1;
@@ -82,6 +87,31 @@ public class WitchPotItem extends Item implements ICurioItem {
         for (MobEffectInstance effect : getStoredEffects(stack)) {
             player.removeEffect(effect.getEffect());
         }
+    }
+
+    private static boolean releaseStoredPotion(ItemStack stack, Slot slot, Player player) {
+        int type = getPotionType(stack);
+        List<MobEffectInstance> effects = getStoredEffects(stack);
+        if (effects.isEmpty() || type < 0) return false;
+
+        Item potionItem = switch (type) {
+            case TYPE_NORMAL -> Items.POTION;
+            case TYPE_SPLASH -> Items.SPLASH_POTION;
+            case TYPE_LINGERING -> Items.LINGERING_POTION;
+            default -> null;
+        };
+        if (potionItem == null) return false;
+
+        ItemStack potionStack = new ItemStack(potionItem);
+        PotionUtils.setCustomEffects(potionStack, effects);
+
+        if (!slot.mayPlace(potionStack)) return false;
+        slot.set(potionStack);
+
+        stack.removeTagKey("PotionData");
+
+        player.playSound(SoundEvents.BREWING_STAND_BREW, 1.0f, 1.0f);
+        return true;
     }
 
     public static boolean hasPotionData(ItemStack stack) {
