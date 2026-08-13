@@ -14,7 +14,8 @@ import net.minecraftforge.fml.common.Mod;
 
 /**
  * 求生玉（Survival Instinct）服务端逻辑：
- * - 佩戴者任何形式的实际生命值下降都会等量转化为"残影"暂存（上限=最大生命）。
+ * - 佩戴者任何形式的实际生命值下降都会等量转化为"残影"暂存。
+ * - 残影上限 = 最大生命 - 当前生命，确保 残影 + 当前血量 <= 最大生命（满血时残影为 0）。
  * - 残影缓慢衰减：每 SurvivalJadeDecayTicks tick 衰减 1 点（默认 60 tick = 3 秒/HP，可配置）。
  * - 佩戴者造成伤害时，伤害的 SurvivalJadeConversionRatio（默认 50%，可配置）转化为治疗，
  *   消耗等量残影，治疗不超过最大生命与残影余量。
@@ -62,7 +63,10 @@ public class SurvivalJadeEvents {
         if (currentHP < prevHP) {
             phantom += (prevHP - currentHP);
         }
-        if (phantom > maxHP) phantom = maxHP;
+        // 残影上限 = maxHP - currentHP，确保 残影 + 当前血量 <= 最大生命值
+        // 满血时残影为 0
+        float phantomCap = Math.max(0f, maxHP - currentHP);
+        if (phantom > phantomCap) phantom = phantomCap;
 
         // 残影缓慢衰减：每 SurvivalJadeDecayTicks tick 衰减 1 点
         if (phantom > 0f) {
