@@ -1,0 +1,174 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.8/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :
+MixinGradle did not locate the diffplug APT plugin, skipping eclipse task configuration
+Java: 17.0.14, JVM: 17.0.14+8-LTS-191 (Oracle Corporation), Arch: amd64
+
+> Task :downloadMcpConfig
+> Task :extractSrg UP-TO-DATE
+> Task :createMcpToSrg UP-TO-DATE
+
+> Task :compileJava
+ע: SpongePowered MIXIN Annotation Processor Version=0.8.5 (MixinGradle Version=0.7)
+ע: Supported obfuscation types: ObfuscationServiceMCP supports [notch] ObfuscationServiceFG3 supports [searge]
+ע: Loading searge mappings from E:\Server_mod\MysticArtifacts\build\createMcpToSrg\output.tsrg
+ע: Writing refmap to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-refmap.json
+ע: Writing refmap to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-refmap.json
+ע: Writing searge composite mappings to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-mappings.tsrg
+ע: Writing refmap to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-refmap.json
+ע: Writing refmap to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-refmap.json
+ע: Writing searge composite mappings to E:\Server_mod\MysticArtifacts\build\tmp\compileJava\compileJava-mappings.tsrg
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\event\SurvivalJadeClientHandler.java:40: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    private static final ResourceLocation ICONS = new ResourceLocation("minecraft", "textures/gui/icons.png");
+                                                  ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\ModArrowRenderer.java:14: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+        this.texture = new ResourceLocation(MysticArtifacts.MODID, "textures/entity/" + textureName + ".png");
+                       ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\TwoDragonsFanRenderer.java:18: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    private static final ResourceLocation FIRE_TEXTURE = new ResourceLocation("mysticartifacts", "textures/entity/two_dragons_play_ball_fire.png");
+                                                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\TwoDragonsFanRenderer.java:19: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    private static final ResourceLocation ICE_TEXTURE = new ResourceLocation("mysticartifacts", "textures/entity/two_dragons_play_ball_ice.png");
+                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\TwoDragonsPlayBallRenderer.java:18: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    private static final ResourceLocation FIRE_TEXTURE = new ResourceLocation("mysticartifacts", "textures/entity/two_dragons_play_ball_fire.png");
+                                                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\render\TwoDragonsPlayBallRenderer.java:19: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    private static final ResourceLocation ICE_TEXTURE = new ResourceLocation("mysticartifacts", "textures/entity/two_dragons_play_ball_ice.png");
+                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\client\screen\AllSeeingEyeScreen.java:115: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            skin = new ResourceLocation("minecraft", "textures/entity/steve.png");
+                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\event\KatanaEvents.java:40: ����: [removal] ProjectileImpactEvent �е� setCanceled(boolean) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+                    event.setCanceled(true);
+                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:12: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> COLLAPSING = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "collapsing"));
+                                                                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:13: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> NOPAL_PRICK = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "nopal_prick"));
+                                                                                                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:14: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> CEASING = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "ceasing"));
+                                                                                                     ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:15: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> TWO_DRAGONS_PLAY_BALL_FIRE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "two_dragons_play_ball_fire"));
+                                                                                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:16: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> TWO_DRAGONS_PLAY_BALL_ICE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "two_dragons_play_ball_ice"));
+                                                                                                                       ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:17: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> TWO_DRAGONS_PLAY_BALL = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "two_dragons_play_ball"));
+                                                                                                                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:18: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> VOID_SLICE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "void_slice"));
+                                                                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:19: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> POKER_SLICE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "poker_slice"));
+                                                                                                         ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:20: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> PHANTOM_SWORD = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "phantom_sword"));
+                                                                                                           ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:21: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> IAIDO = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "iaido"));
+                                                                                                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModDamageTypes.java:22: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+    public static final ResourceKey<DamageType> SPEAR = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "spear"));
+                                                                                                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:15: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.ceasing")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:17: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.bell_toll")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:19: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.bell_toll_fail")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:21: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.two_dragons_play_ball_spin")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:23: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.katana_block")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:25: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.poker_throw")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:27: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.poker_recall")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:29: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "item.quantum_key.unlock")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\init\ModSounds.java:31: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "item.mandel.open")));
+                                                      ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\item\impl\MandelBrickItem.java:61: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+                player.playSound(ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("minecraft", "block.note_block.bass")), 1.0f, 0.5f);
+                                                                       ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\item\impl\MandelBrickItem.java:74: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+                    ResourceLocation lootTableId = new ResourceLocation(MysticArtifacts.MODID, "gameplay/mandel_brick_reward");
+                                                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\item\impl\SwordSwarmCharm.java:113: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+        return def != null ? def : new ResourceLocation("minecraft", "diamond_sword");
+                                   ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:39: ����: [removal] FMLJavaModLoadingContext �е� get() �ѹ�ʱ, �ұ��Ϊ��ɾ��
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+                                                        ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:57: ����: [removal] ModLoadingContext �е� get() �ѹ�ʱ, �ұ��Ϊ��ɾ��
+        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Config.SPEC);
+                                                ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:101: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+                    new ResourceLocation(MODID, "enhanced"),
+                    ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:106: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+                    new ResourceLocation(MODID, "has_potion"),
+                    ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:111: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+                    new ResourceLocation(MODID, "using"),
+                    ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\MysticArtifacts.java:116: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+                    new ResourceLocation(MODID, "using"),
+                    ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\network\NetworkHandler.java:11: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            new ResourceLocation(MysticArtifacts.MODID, "simple_channel"),
+            ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\util\TagInit.java:13: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            new ResourceLocation(MysticArtifacts.MODID, "master_key")
+            ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\util\TagInit.java:18: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            new ResourceLocation(MysticArtifacts.MODID, "is_sword")
+            ^
+E:\Server_mod\MysticArtifacts\src\main\java\com\uniye\mysticartifacts\util\TagInit.java:23: ����: [removal] ResourceLocation �е� ResourceLocation(String,String) �ѹ�ʱ, �ұ��Ϊ��ɾ��
+            new ResourceLocation("forge", "swords")
+            ^
+ע: ĳЩ�����ļ�ʹ�û򸲸����ѹ�ʱ�� API��
+ע: �й���ϸ��Ϣ, ��ʹ�� -Xlint:deprecation ���±��롣
+41 ������
+
+> Task :addMixinsToJar
+> Task :processResources
+> Task :classes
+> Task :jar
+> Task :configureReobfTaskForReobfJar
+> Task :reobfJar
+> Task :configureReobfTaskForReobfJarJar
+> Task :addMixinsToJarJar
+> Task :jarJar SKIPPED
+> Task :reobfJarJar SKIPPED
+> Task :assemble
+> Task :compileTestJava NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test NO-SOURCE
+> Task :check UP-TO-DATE
+> Task :build
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.8/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 24s
+11 actionable tasks: 9 executed, 2 up-to-date

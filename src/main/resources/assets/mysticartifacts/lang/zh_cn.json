@@ -67,6 +67,7 @@
     "item.mysticartifacts.codex": "伪抄",
     "item.mysticartifacts.witch_pot": "女巫坩埚",
     "item.mysticartifacts.survival_jade": "求生玉",
+    "item.mysticartifacts.emergency_plan": "紧急预案",
     "death.attack.spear": "%1$s 被长矛刺穿了",
     "death.attack.spear.player": "%1$s 被 %2$s 用长矛刺穿了"
 }

@@ -127,6 +127,13 @@ public class Config
             .comment("Survival Jade damage-to-heal conversion ratio (0.0~1.0). Default 0.5 = 50% of dealt damage heals phantom.")
             .defineInRange("SurvivalJadeConversionRatio", 0.5, 0.0, 1.0);
 
+    private static final ForgeConfigSpec.IntValue SWORD_SWARM_MAX_STORED = BUILDER
+            .comment("Sword Swarm Charm (King's Treasury) max stored swords")
+            .defineInRange("SwordSwarmMaxStored", 100, 1, 10000);
+    private static final ForgeConfigSpec.IntValue SWORD_SWARM_REGEN_INTERVAL = BUILDER
+            .comment("Sword Swarm Charm regen interval (ticks, 20 = 1s). Default 100 = 5s. Each interval restores swords equal to devoured sword count.")
+            .defineInRange("SwordSwarmRegenIntervalTicks", 100, 1, 6000);
+
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static int AirBurstNumber;
@@ -174,6 +181,9 @@ public class Config
 
     public static int SurvivalJadeDecayTicks;
     public static double SurvivalJadeConversionRatio;
+
+    public static int SwordSwarmMaxStored;
+    public static int SwordSwarmRegenIntervalTicks;
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
@@ -223,5 +233,8 @@ public class Config
 
         SurvivalJadeDecayTicks = SURVIVAL_JADE_DECAY_TICKS.get();
         SurvivalJadeConversionRatio = SURVIVAL_JADE_CONVERSION_RATIO.get();
+
+        SwordSwarmMaxStored = SWORD_SWARM_MAX_STORED.get();
+        SwordSwarmRegenIntervalTicks = SWORD_SWARM_REGEN_INTERVAL.get();
     }
 }

@@ -116,6 +116,9 @@ public class ModItems {
     public static final RegistryObject<Item> SURVIVAL_JADE = ITEMS.register("survival_jade",
             () -> new SurvivalJadeItem(new Item.Properties().stacksTo(1)));
 
+    public static final RegistryObject<Item> EMERGENCY_PLAN = ITEMS.register("emergency_plan",
+            () -> new EmergencyPlanItem(new Item.Properties().stacksTo(1)));
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

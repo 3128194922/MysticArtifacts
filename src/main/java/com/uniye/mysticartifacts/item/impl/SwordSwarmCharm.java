@@ -1,5 +1,6 @@
 package com.uniye.mysticartifacts.item.impl;
 
+import com.uniye.mysticartifacts.Config;
 import com.uniye.mysticartifacts.init.ModItems;
 import com.uniye.mysticartifacts.util.TagInit;
 import net.minecraft.nbt.CompoundTag;
@@ -31,6 +32,39 @@ public class SwordSwarmCharm extends Item implements ICurioItem {
     @Override
     public boolean canEquipFromUse(SlotContext context, ItemStack stack) {
         return true;
+    }
+
+    @Override
+    public void curioTick(SlotContext slotContext, ItemStack stack) {
+        LivingEntity entity = slotContext.entity();
+        if (entity == null || entity.level().isClientSide) return;
+
+        int devoured = getDevouredCount(stack);
+        if (devoured <= 0) return;
+
+        int max = Config.SwordSwarmMaxStored;
+        int interval = Config.SwordSwarmRegenIntervalTicks;
+        CompoundTag tag = stack.getOrCreateTag();
+        int current = tag.contains("StoredSwords", Tag.TAG_INT) ? tag.getInt("StoredSwords") : 0;
+
+        if (current >= max) {
+            // 已满，重置 timer 以便消耗后等待完整间隔
+            if (tag.getInt("RegenTimer") != interval) {
+                tag.putInt("RegenTimer", interval);
+            }
+            return;
+        }
+
+        int timer = tag.getInt("RegenTimer");
+        if (timer > 0) {
+            tag.putInt("RegenTimer", timer - 1);
+            return;
+        }
+
+        // timer == 0，恢复 devouredCount 把剑
+        int newCount = Math.min(max, current + devoured);
+        tag.putInt("StoredSwords", newCount);
+        tag.putInt("RegenTimer", interval);
     }
 
     @Override
@@ -88,6 +122,30 @@ public class SwordSwarmCharm extends Item implements ICurioItem {
             return tag.getList("EatenSwords", Tag.TAG_STRING).size();
         }
         return 0;
+    }
+
+    public static int getStoredSwords(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag != null && tag.contains("StoredSwords", Tag.TAG_INT)) {
+            return tag.getInt("StoredSwords");
+        }
+        return 0;
+    }
+
+    public static int getMaxStoredSwords() {
+        return Config.SwordSwarmMaxStored;
+    }
+
+    /**
+     * 消耗1把储存剑，返回是否成功（储存为0时返回false）
+     */
+    public static boolean consumeStoredSword(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return false;
+        int current = tag.contains("StoredSwords", Tag.TAG_INT) ? tag.getInt("StoredSwords") : 0;
+        if (current <= 0) return false;
+        tag.putInt("StoredSwords", current - 1);
+        return true;
     }
 
     public static List<ResourceLocation> getDevouredList(ItemStack stack) {
