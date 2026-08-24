@@ -56,7 +56,14 @@ public class SwordSwarmCharmRenderer implements ICurioRenderer {
         double radiusNoise = 0.25;
         double spinBase = (ageInTicks + partialTicks);
 
-        int count = Math.min(6, queue.size());
+        // 渲染数量与储存剑数量挂钩：按 stored/max 比例缩放各层剑数
+        int stored = SwordSwarmCharm.getStoredSwords(stack);
+        int maxStored = SwordSwarmCharm.getMaxStoredSwords();
+        float storedRatio = maxStored > 0 ? Math.min(1.0f, (float) stored / maxStored) : 0.0f;
+
+        int innerMax = 6;
+        int count = Math.min(queue.size(), Math.round(innerMax * storedRatio));
+        if (count == 0 && stored > 0 && !queue.isEmpty()) count = 1;
         for (int i = 0; i < count; i++) {
             ResourceLocation id = queue.get(i);
             ItemStack visual = new ItemStack(ForgeRegistries.ITEMS.getValue(id));
@@ -86,7 +93,9 @@ public class SwordSwarmCharmRenderer implements ICurioRenderer {
         if (!source.isEmpty()) {
             for (int l = 0; l < layers; l++) {
                 double r = baseRadius + l * layerGap;
-                int perLayer = LAYER_COUNTS[Math.min(l, LAYER_COUNTS.length - 1)];
+                int layerMax = LAYER_COUNTS[Math.min(l, LAYER_COUNTS.length - 1)];
+                int perLayer = Math.round(layerMax * storedRatio);
+                if (perLayer == 0 && stored > 0) perLayer = 1;
                 double spinDeg = spinBase * LAYER_SPIN_SPEED[Math.min(l, LAYER_SPIN_SPEED.length - 1)];
                 double pulseSpeed = LAYER_RADIUS_PULSE_SPEED[Math.min(l, LAYER_RADIUS_PULSE_SPEED.length - 1)];
                 for (int i = 0; i < perLayer; i++) {

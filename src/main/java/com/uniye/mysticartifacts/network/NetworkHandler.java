@@ -69,5 +69,11 @@ public class NetworkHandler {
                 SurvivalJadeSyncPacket::decode,
                 SurvivalJadeSyncPacket::handle
         );
+
+        INSTANCE.registerMessage(id++, AncestorsLetterSyncPacket.class,
+                AncestorsLetterSyncPacket::encode,
+                AncestorsLetterSyncPacket::decode,
+                AncestorsLetterSyncPacket::handle
+        );
     }
 }

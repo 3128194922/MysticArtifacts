@@ -45,6 +45,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.ALL_SEEING_EYE.get());
                         pOutput.accept(ModItems.SURVIVAL_JADE.get());
                         pOutput.accept(ModItems.EMERGENCY_PLAN.get());
+                        pOutput.accept(ModItems.ANCESTORS_LETTER.get());
                     })
                     .build());
 

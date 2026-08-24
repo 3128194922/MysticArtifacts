@@ -24,13 +24,16 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.network.NetworkHooks;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PokerCardEntity extends AbstractArrow implements ItemSupplier {
     private static final EntityDataAccessor<Boolean> RECALLING = SynchedEntityData.defineId(PokerCardEntity.class, EntityDataSerializers.BOOLEAN);
     
     private ItemStack pickupItemStack = new ItemStack(ModItems.POKER_CARD.get());
     private int lifeTime = 0;
+    private final Set<Integer> piercedIds = new HashSet<>();
 
     public PokerCardEntity(EntityType<? extends AbstractArrow> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -195,21 +198,36 @@ public class PokerCardEntity extends AbstractArrow implements ItemSupplier {
     }
     
     @Override
+    protected boolean canHitEntity(Entity pEntity) {
+        // 排除发射者与已命中的实体：127级穿透在 AbstractArrow.tick 的 while 循环中
+        // 会反复调用 findHitEntity，若不排除已命中实体，会无限重复命中同一实体导致 tick 停滞。
+        return super.canHitEntity(pEntity) && pEntity != this.getOwner() && !piercedIds.contains(pEntity.getId());
+    }
+
+    @Override
     protected void onHitEntity(EntityHitResult pResult) {
         if (isRecalling()) return;
         
         Entity entity = pResult.getEntity();
         Entity owner = this.getOwner();
         if (entity == owner) return;
-        
+
+        // 无论目标是否可被伤害，都先记录已命中，确保 while 循环跳过它：
+        // 既实现穿透（包括无敌目标不再被反弹），又避免重复命中同一实体造成死循环
+        piercedIds.add(entity.getId());
+
         float damage = 4.0f;
-        entity.hurt(ModDamageTypes.getSource(this.level(), ModDamageTypes.VOID_SLICE, this, owner), damage);
+        boolean hurt = entity.hurt(ModDamageTypes.getSource(this.level(), ModDamageTypes.VOID_SLICE, this, owner), damage);
         
         if (entity instanceof LivingEntity living) {
              living.invulnerableTime = 0;
         }
 
-        super.onHitEntity(pResult);
+        // 仅当目标确实受到伤害时才调用 super.onHitEntity（保留原版箭矢伤害/音效/穿透记账）；
+        // 目标无敌（hurt 返回 false）时不调用，避免 super 将箭矢反弹而无法穿透
+        if (hurt) {
+            super.onHitEntity(pResult);
+        }
     }
 
     @Override

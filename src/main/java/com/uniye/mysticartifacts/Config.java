@@ -127,6 +127,28 @@ public class Config
             .comment("Survival Jade damage-to-heal conversion ratio (0.0~1.0). Default 0.5 = 50% of dealt damage heals phantom.")
             .defineInRange("SurvivalJadeConversionRatio", 0.5, 0.0, 1.0);
 
+    private static final ForgeConfigSpec.ConfigValue<Double> ANCESTORS_LETTER_VIRTUE_CHANCE = BUILDER
+            .comment("Ancestor's Letter: chance to enter Virtue (otherwise Torment) when a lethal hit is immunized. Default 0.5.")
+            .defineInRange("AncestorsLetterVirtueChance", 0.5, 0.0, 1.0);
+    private static final ForgeConfigSpec.ConfigValue<Double> ANCESTORS_LETTER_VIRTUE_DAMAGE_REDUCTION = BUILDER
+            .comment("Ancestor's Letter: damage taken reduction while in Virtue. Default 0.25 = -25%.")
+            .defineInRange("AncestorsLetterVirtueDamageReduction", 0.25, 0.0, 1.0);
+    private static final ForgeConfigSpec.ConfigValue<Double> ANCESTORS_LETTER_VIRTUE_REFUSE_CHANCE = BUILDER
+            .comment("Ancestor's Letter: chance to refuse death (full heal, back to Normal) when dying in Virtue. Default 0.75.")
+            .defineInRange("AncestorsLetterVirtueRefuseChance", 0.75, 0.0, 1.0);
+    private static final ForgeConfigSpec.IntValue ANCESTORS_LETTER_VIRTUE_DURATION = BUILDER
+            .comment("Ancestor's Letter: Virtue duration in ticks. 24000 = one game day.")
+            .defineInRange("AncestorsLetterVirtueDurationTicks", 24000, 1, 8760000);
+    private static final ForgeConfigSpec.ConfigValue<Double> ANCESTORS_LETTER_TORMENT_DAMAGE_BONUS = BUILDER
+            .comment("Ancestor's Letter: damage taken bonus while in Torment. Default 0.15 = +15%.")
+            .defineInRange("AncestorsLetterTormentDamageBonus", 0.15, 0.0, 10.0);
+    private static final ForgeConfigSpec.ConfigValue<Double> ANCESTORS_LETTER_TORMENT_DEATH_CHANCE = BUILDER
+            .comment("Ancestor's Letter: chance to die instantly (bypasses totem) when hurt in Torment. Default 0.25.")
+            .defineInRange("AncestorsLetterTormentDeathChance", 0.25, 0.0, 1.0);
+    private static final ForgeConfigSpec.IntValue ANCESTORS_LETTER_ICON_Y_OFFSET = BUILDER
+            .comment("Ancestor's Letter: HUD icon Y offset in pixels above the experience bar. Default 36 = two icon heights above XP bar.")
+            .defineInRange("AncestorsLetterIconYOffset", 36, 0, 500);
+
     private static final ForgeConfigSpec.IntValue SWORD_SWARM_MAX_STORED = BUILDER
             .comment("Sword Swarm Charm (King's Treasury) max stored swords")
             .defineInRange("SwordSwarmMaxStored", 100, 1, 10000);
@@ -182,6 +204,13 @@ public class Config
     public static int SurvivalJadeDecayTicks;
     public static double SurvivalJadeConversionRatio;
 
+    public static double AncestorLetterVirtueChance;
+    public static double AncestorLetterVirtueDamageReduction;
+    public static double AncestorLetterVirtueRefuseChance;
+    public static int AncestorLetterVirtueDurationTicks;
+    public static double AncestorLetterTormentDamageBonus;
+    public static double AncestorLetterTormentDeathChance;
+    public static int AncestorLetterIconYOffset;
     public static int SwordSwarmMaxStored;
     public static int SwordSwarmRegenIntervalTicks;
 
@@ -233,6 +262,14 @@ public class Config
 
         SurvivalJadeDecayTicks = SURVIVAL_JADE_DECAY_TICKS.get();
         SurvivalJadeConversionRatio = SURVIVAL_JADE_CONVERSION_RATIO.get();
+
+        AncestorLetterVirtueChance = ANCESTORS_LETTER_VIRTUE_CHANCE.get();
+        AncestorLetterVirtueDamageReduction = ANCESTORS_LETTER_VIRTUE_DAMAGE_REDUCTION.get();
+        AncestorLetterVirtueRefuseChance = ANCESTORS_LETTER_VIRTUE_REFUSE_CHANCE.get();
+        AncestorLetterVirtueDurationTicks = ANCESTORS_LETTER_VIRTUE_DURATION.get();
+        AncestorLetterTormentDamageBonus = ANCESTORS_LETTER_TORMENT_DAMAGE_BONUS.get();
+        AncestorLetterTormentDeathChance = ANCESTORS_LETTER_TORMENT_DEATH_CHANCE.get();
+        AncestorLetterIconYOffset = ANCESTORS_LETTER_ICON_Y_OFFSET.get();
 
         SwordSwarmMaxStored = SWORD_SWARM_MAX_STORED.get();
         SwordSwarmRegenIntervalTicks = SWORD_SWARM_REGEN_INTERVAL.get();
