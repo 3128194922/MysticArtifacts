@@ -77,8 +77,7 @@ public class MysticArtifacts
         public static void onClientSetup(FMLClientSetupEvent event)
         {
             EntityRenderers.register(ModEntities.SCULK_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "sculk_arrow"));
-            EntityRenderers.register(ModEntities.VOID_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "void_arrow"));
-            EntityRenderers.register(ModEntities.TRACKING_ARROW.get(), ThrownItemRenderer::new);
+            EntityRenderers.register(ModEntities.DEMONIC_GESTATION.get(), DemonicGestationRenderer::new);
             EntityRenderers.register(ModEntities.AIRBURST_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "airburst_arrow"));
             EntityRenderers.register(ModEntities.EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "exploding_arrow"));
             EntityRenderers.register(ModEntities.FINAL_EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "final_exploding_arrow"));

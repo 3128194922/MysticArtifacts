@@ -12,20 +12,12 @@ import net.minecraftforge.registries.RegistryObject;
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MysticArtifacts.MODID);
 
-    public static final RegistryObject<EntityType<VoidArrowEntity>> VOID_ARROW = ENTITIES.register("void_arrow",
-            () -> EntityType.Builder.<VoidArrowEntity>of(VoidArrowEntity::new, MobCategory.MISC)
-                    .sized(0.5F, 0.5F)
-                    .clientTrackingRange(4)
-                    .updateInterval(20)
-                    .build("void_arrow")
-    );
-
-    public static final RegistryObject<EntityType<TrackingArrowEntity>> TRACKING_ARROW = ENTITIES.register("tracking_arrow",
-            () -> EntityType.Builder.<TrackingArrowEntity>of(TrackingArrowEntity::new, MobCategory.MISC)
+    public static final RegistryObject<EntityType<DemonicGestationEntity>> DEMONIC_GESTATION = ENTITIES.register("demonic_gestation",
+            () -> EntityType.Builder.<DemonicGestationEntity>of(DemonicGestationEntity::new, MobCategory.MISC)
                     .sized(0.5F, 0.5F)
                     .clientTrackingRange(10)
-                    .updateInterval(3)
-                    .build("tracking_arrow")
+                    .updateInterval(2)
+                    .build("demonic_gestation")
     );
 
     public static final RegistryObject<EntityType<SculkArrow>> SCULK_ARROW = ENTITIES.register("sculk_arrow",

@@ -20,12 +20,8 @@ public class ModItems {
             () -> new SculkArrowItem(new Item.Properties())
     );
 
-    public static final RegistryObject<Item> VOID_ARROW = ITEMS.register("void_arrow",
-            () -> new VoidArrowItem(new Item.Properties())
-    );
-
-    public static final RegistryObject<Item> TRACKING_ARROW = ITEMS.register("tracking_arrow",
-            () -> new TrackingArrowItem(new Item.Properties())
+    public static final RegistryObject<Item> DEMONIC_GESTATION = ITEMS.register("demonic_gestation",
+            () -> new DemonicGestationItem(new Item.Properties().stacksTo(1))
     );
 
     public static final RegistryObject<Item> DEMOCRACY_HELMET = ITEMS.register(
