@@ -113,7 +113,7 @@ public class SpearItem extends SwordItem {
 
     @Override
     public @NotNull UseAnim getUseAnimation(@NotNull ItemStack stack) {
-        return UseAnim.SPEAR;
+        return UseAnim.BOW;
     }
 
     @Override
@@ -366,8 +366,6 @@ public class SpearItem extends SwordItem {
             this.spear = spear;
         }
 
-        private static final HumanoidModel.ArmPose SPEAR_POSE = HumanoidModel.ArmPose.create("MYSTIC_SPEAR", false, (model, entity, arm) -> {});
-
         private static float progress(float f, float f2, float f3) {
             return Mth.clamp(Mth.inverseLerp(f, f2, f3), 0.0f, 1.0f);
         }
@@ -378,18 +376,11 @@ public class SpearItem extends SwordItem {
 
         @Override
         public HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack stack) {
-            if (stack.getItem() instanceof SpearItem) {
-                if (entity.isUsingItem()) {
-                    if (entity.getUsedItemHand() == hand)
-                        return SPEAR_POSE;
-                    else return HumanoidModel.ArmPose.EMPTY;
-                }
-                if (entity.getMainHandItem().getItem() instanceof SpearItem && entity.getOffhandItem().getItem() instanceof SpearItem) {
-                    if (InteractionHand.MAIN_HAND != hand)
-                        return SPEAR_POSE;
-                    else return HumanoidModel.ArmPose.EMPTY;
-                }
-                return SPEAR_POSE;
+            if (stack.getItem() instanceof SpearItem
+                    && entity.isUsingItem()
+                    && entity.getUsedItemHand() == hand) {
+                // 第三人称使用弓箭拉弓的双手动作
+                return HumanoidModel.ArmPose.BOW_AND_ARROW;
             }
             return HumanoidModel.ArmPose.EMPTY;
         }

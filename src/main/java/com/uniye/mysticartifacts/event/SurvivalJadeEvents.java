@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -16,7 +17,7 @@ import net.minecraftforge.fml.common.Mod;
  * 求生玉（Survival Instinct）服务端逻辑：
  * - 佩戴者任何形式的实际生命值下降都会等量转化为"残影"暂存。
  * - 残影上限 = 最大生命 - 当前生命，确保 残影 + 当前血量 <= 最大生命（满血时残影为 0）。
- * - 残影缓慢衰减：每 SurvivalJadeDecayTicks tick 衰减 1 点（默认 60 tick = 3 秒/HP，可配置）。
+ * - 残影缓慢衰减：每 SurvivalJadeDecayTicks tick 衰减 1 点（默认 20 tick = 1 秒/HP，可配置）。
  * - 佩戴者造成伤害时，伤害的 SurvivalJadeConversionRatio（默认 50%，可配置）转化为治疗，
  *   消耗等量残影，治疗不超过最大生命与残影余量。
  * - 取下饰品时清空残影。
@@ -109,13 +110,30 @@ public class SurvivalJadeEvents {
         float heal = Math.min(event.getAmount() * (float) Config.SurvivalJadeConversionRatio, Math.min(phantom, healable));
         if (heal <= 0f) return;
 
+        // heal() 会触发 onLivingHeal，由那处等量扣减残影并同步
+        // 这里不再手动扣减，避免对同一口治疗重复消耗
         attacker.heal(heal);
-        phantom -= heal;
-        data.putFloat(KEY_PHANTOM, phantom);
+    }
 
-        // 即时同步，让 HUD 立刻反映残影消耗
-        if (attacker instanceof ServerPlayer sp) {
-            SurvivalJadeSyncPacket.sendTo(sp, phantom);
+    @SubscribeEvent
+    public static void onLivingHeal(LivingHealEvent event) {
+        if (event.getEntity().level().isClientSide) return;
+        if (!SurvivalJadeItem.isWearing(event.getEntity())) return;
+        float heal = event.getAmount();
+        if (heal <= 0f) return;
+
+        LivingEntity entity = event.getEntity();
+        CompoundTag data = entity.getPersistentData();
+        if (!data.contains(KEY_PHANTOM)) return;
+        float phantom = data.getFloat(KEY_PHANTOM);
+        if (phantom <= 0f) return;
+
+        // 任何来源的 heal() 都会等量消除残影
+        float remaining = Math.max(0f, phantom - heal);
+        data.putFloat(KEY_PHANTOM, remaining);
+
+        if (entity instanceof ServerPlayer sp) {
+            SurvivalJadeSyncPacket.sendTo(sp, remaining);
         }
     }
 }

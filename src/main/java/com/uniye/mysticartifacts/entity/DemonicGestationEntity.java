@@ -3,6 +3,7 @@ package com.uniye.mysticartifacts.entity;
 import com.uniye.mysticartifacts.Config;
 import com.uniye.mysticartifacts.init.ModEntities;
 import com.uniye.mysticartifacts.init.ModItems;
+import com.uniye.mysticartifacts.item.impl.ArtifactSpiritItem;
 import com.uniye.mysticartifacts.item.impl.DemonicGestationItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -32,8 +33,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 public class DemonicGestationEntity extends Entity implements IEntityAdditionalSpawnData {
 
@@ -160,11 +163,13 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
 
     // ========== Follow (matches ArtifactSpirit default position) ==========
 
-    private Vec3 getFollowPosition(Entity owner) {
+    private Vec3 getFollowPosition(LivingEntity owner) {
         Vec3 look = owner.getLookAngle().normalize();
         Vec3 right = new Vec3(-look.z, 0, look.x).normalize();
         double backComponent = -0.5;
-        double rightComponent = 0.866;
+        // When both 器灵(artifact_spirit) and 器魔 are worn, mirror to the left side
+        // so the two spirits do not occupy the same follow point.
+        double rightComponent = (ArtifactSpiritItem.isWearing(owner)) ? -0.866 : 0.866;
         Vec3 rearRight = look.scale(backComponent).add(right.scale(rightComponent)).normalize();
         double dist = Config.SpiritFollowDistance;
         return owner.position()
@@ -172,7 +177,7 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
                 .add(rearRight.scale(dist));
     }
 
-    private void moveToFollowPos(Entity owner) {
+    private void moveToFollowPos(LivingEntity owner) {
         Vec3 goal = getFollowPosition(owner);
         Vec3 cur = this.position();
         double dist = cur.distanceTo(goal);
@@ -188,11 +193,35 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
 
     @Nullable
     private Entity findTarget(Player owner) {
+        boolean dualWorn = ArtifactSpiritItem.isWearing(owner);
+        // When both worn, 器灵 handles the player's active target; prefer 索敌玩家的 targets
+        // for 器魔. Only when no preferred target remains do we fall back (may share a target).
+        LivingEntity excluded = dualWorn ? owner.getLastHurtMob() : null;
         AABB area = owner.getBoundingBox().inflate(Config.DemonicGestationAttackRange);
-        return this.level().getEntitiesOfClass(LivingEntity.class, area, e -> isValidTarget(e, owner))
-                .stream()
-                .min((a, b) -> Double.compare(a.distanceToSqr(owner), b.distanceToSqr(owner)))
-                .orElse(null);
+        List<LivingEntity> candidates = this.level().getEntitiesOfClass(
+                LivingEntity.class, area, e -> isValidTarget(e, owner));
+        if (candidates.isEmpty()) return null;
+
+        if (dualWorn && excluded != null) {
+            LivingEntity preferred = nearest(candidates, owner, e -> e != excluded);
+            if (preferred != null) return preferred;
+        }
+        return nearest(candidates, owner, e -> true);
+    }
+
+    private static LivingEntity nearest(List<LivingEntity> list, Player owner,
+                                        Predicate<LivingEntity> filter) {
+        LivingEntity best = null;
+        double bestDist = Double.MAX_VALUE;
+        for (LivingEntity e : list) {
+            if (!filter.test(e)) continue;
+            double d = e.distanceToSqr(owner);
+            if (d < bestDist) {
+                bestDist = d;
+                best = e;
+            }
+        }
+        return best;
     }
 
     private static boolean isValidTarget(LivingEntity candidate, Player owner) {

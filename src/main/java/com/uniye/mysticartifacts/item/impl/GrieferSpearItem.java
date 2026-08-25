@@ -52,6 +52,9 @@ public class GrieferSpearItem extends SpearItem {
 
             DamageSource source = ModDamageTypes.getSource(level, ModDamageTypes.SPEAR, player, player);
 
+            // 直接伤害固定为 1，剩余伤害由爆炸承担
+            entity.hurt(source, 1.0F);
+
             level.explode(
                     player,
                     source,

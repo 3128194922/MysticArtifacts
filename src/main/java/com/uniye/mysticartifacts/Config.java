@@ -117,8 +117,8 @@ public class Config
             .defineInRange("SpiritMoveSpeed", 0.8, 0.1, 3.0);
 
     private static final ForgeConfigSpec.IntValue SURVIVAL_JADE_DECAY_TICKS = BUILDER
-            .comment("Survival Jade phantom decay period (ticks per 1 HP lost). 20 ticks = 1 second. Default 60 = 3s per 1 HP.")
-            .defineInRange("SurvivalJadeDecayTicks", 60, 1, 6000);
+            .comment("Survival Jade phantom decay period (ticks per 1 HP lost). 20 ticks = 1 second. Default 20 = 1 HP per second.")
+            .defineInRange("SurvivalJadeDecayTicks", 20, 1, 6000);
 
     private static final ForgeConfigSpec.ConfigValue<Double> SURVIVAL_JADE_CONVERSION_RATIO = BUILDER
             .comment("Survival Jade damage-to-heal conversion ratio (0.0~1.0). Default 0.5 = 50% of dealt damage heals phantom.")
