@@ -70,6 +70,15 @@ public class SwordSwarmAttackPacket {
                                 player.getEyeY() + heightOffset,
                                 player.getZ() + offset.z
                         );
+                        // 生成时立即朝向飞行方向，避免初始朝向错误后由tick纠正
+                        Vec3 motion = entity.getDeltaMovement();
+                        double hDist = motion.horizontalDistance();
+                        if (hDist > 1.0E-4D) {
+                            entity.setYRot((float) (Math.atan2(motion.x, motion.z) * (180.0D / Math.PI)));
+                            entity.setXRot((float) (Math.atan2(motion.y, hDist) * (180.0D / Math.PI)));
+                        }
+                        entity.yRotO = entity.getYRot();
+                        entity.xRotO = entity.getXRot();
                         player.level().addFreshEntity(entity);
                     }
                 }
