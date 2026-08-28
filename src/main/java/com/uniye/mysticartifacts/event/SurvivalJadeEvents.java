@@ -15,10 +15,13 @@ import net.minecraftforge.fml.common.Mod;
 
 /**
  * 求生玉（Survival Instinct）服务端逻辑：
- * - 佩戴者任何形式的实际生命值下降都会等量转化为"残影"暂存。
- * - 残影上限 = 最大生命 - 当前生命，确保 残影 + 当前血量 <= 最大生命（满血时残影为 0）。
- * - 残影缓慢衰减：每 SurvivalJadeDecayTicks tick 衰减 1 点（默认 20 tick = 1 秒/HP，可配置）。
- * - 佩戴者造成伤害时，伤害的 SurvivalJadeConversionRatio（默认 50%，可配置）转化为治疗，
+ * - 佩戴者任何形式的实际生命值下降都会等量转化为"残影"暂存（类似 absorption 的独立临时生命值）。
+ * - 残影上限：
+ *   - CAP 模式（默认）：上限 = SurvivalJadeMaxPhantom（默认 20），与当前血量无关，
+ *     满血时也可保有残影；
+ *   - AUTO 模式：无上限，残影自由积累，HUD 显示时按每行 10 心向上换行。
+ * - 残影缓慢衰减：每秒衰减 SurvivalJadeDecayPerSecond 点（默认 2 点/秒，可配置）。
+ * - 佩戴者造成伤害时，伤害的 SurvivalJadeConversionRatio（默认 25%，可配置）转化为治疗，
  *   消耗等量残影，治疗不超过最大生命与残影余量。
  * - 取下饰品时清空残影。
  * - 仅服务端处理，残影量定期同步给玩家客户端用于 HUD。
@@ -55,7 +58,6 @@ public class SurvivalJadeEvents {
         }
 
         float currentHP = entity.getHealth();
-        float maxHP = entity.getMaxHealth();
 
         float prevHP = data.contains(KEY_PREV_HP) ? data.getFloat(KEY_PREV_HP) : currentHP;
         float phantom = data.contains(KEY_PHANTOM) ? data.getFloat(KEY_PHANTOM) : 0f;
@@ -64,21 +66,26 @@ public class SurvivalJadeEvents {
         if (currentHP < prevHP) {
             phantom += (prevHP - currentHP);
         }
-        // 残影上限 = maxHP - currentHP，确保 残影 + 当前血量 <= 最大生命值
-        // 满血时残影为 0
-        float phantomCap = Math.max(0f, maxHP - currentHP);
-        if (phantom > phantomCap) phantom = phantomCap;
+        // 残影上限（类似 absorption 的独立临时生命，与当前血量无关）：
+        // - CAP 模式：上限 = config 值（默认 20）
+        // - AUTO 模式：无上限，HUD 显示时按每行 10 心向上换行
+        if (Config.SurvivalJadePhantomCapMode == Config.PhantomCapMode.CAP) {
+            float phantomCap = Config.SurvivalJadeMaxPhantom;
+            if (phantom > phantomCap) phantom = phantomCap;
+        }
 
-        // 残影缓慢衰减：每 SurvivalJadeDecayTicks tick 衰减 1 点
+        // 残影衰减：每秒（20 tick）衰减 SurvivalJadeDecayPerSecond 点
         if (phantom > 0f) {
-            int decayTicks = Math.max(1, Config.SurvivalJadeDecayTicks);
-            int accum = data.contains(KEY_DECAY_ACCUM) ? data.getInt(KEY_DECAY_ACCUM) : 0;
-            accum++;
-            while (accum >= decayTicks && phantom > 0f) {
-                phantom = Math.max(0f, phantom - 1f);
-                accum -= decayTicks;
+            float decayPerSecond = (float) Config.SurvivalJadeDecayPerSecond;
+            if (decayPerSecond > 0f) {
+                int accum = data.contains(KEY_DECAY_ACCUM) ? data.getInt(KEY_DECAY_ACCUM) : 0;
+                accum++;
+                while (accum >= 20 && phantom > 0f) {
+                    phantom = Math.max(0f, phantom - decayPerSecond);
+                    accum -= 20;
+                }
+                data.putInt(KEY_DECAY_ACCUM, accum);
             }
-            data.putInt(KEY_DECAY_ACCUM, accum);
         } else {
             data.remove(KEY_DECAY_ACCUM);
         }

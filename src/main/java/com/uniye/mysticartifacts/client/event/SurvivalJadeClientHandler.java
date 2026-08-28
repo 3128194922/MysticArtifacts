@@ -1,55 +1,61 @@
 package com.uniye.mysticartifacts.client.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.uniye.mysticartifacts.MysticArtifacts;
 import com.uniye.mysticartifacts.item.impl.SurvivalJadeItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * 求生玉残影 HUD：常态显示（只要佩戴且有残影就渲染）。
+ * 求生玉残影 HUD：渲染在 Thirst-Mod 口渴条相同位置（屏幕右侧，食物栏上方一行）。
  *
- * 残影规则：残影 + 当前血量 <= 最大生命值（满血时残影为 0）。
+ * 位置与错位机制：
+ * - 锚点 left = width/2 + 91，图标从左向右排列（与原版血量方向一致，区域与食物栏/口渴条相同）；
+ * - 通过 Forge GUI overlay 的 rightHeight 堆叠协议实现自动错位：任何在同一位置渲染
+ *   并递增 rightHeight 的 mod（如 Thirst-Mod 口渴条）都会自动把本条上移一行，反之亦然，
+ *   与注册顺序无关，因此不会重叠；
+ * - 未佩戴 / 残影为 0 时不渲染也不递增 rightHeight，不产生空行；
+ * - 骑乘实体时跳过（该区域显示坐骑血条）。
  *
- * 显示方向与原版血条一致：
- * - 残影区域 = [当前生命, 当前生命+残影]，用玉色半透明实心心覆盖在原版空心心上，
- *   表示"待恢复的血量"。恢复时从当前生命右侧向右填充（右侧增加）。
- * - 残影衰减/转化时，区域右端向左收缩（右侧减少）。
- *
- * 支持半心粒度。
- *
- * 兼容 overflowing-bars：
- * - OB 开启 allowLayers 时，底部行始终显示当前 20HP 层（10 心），HP>20 用橙色溢出指示。
- * - 残影按层渲染：当前层内部分渲染在底部行；超出当前层的部分在上一行渲染或延伸到血条右端外侧。
- * - OB 底部行位置与原版一致（screenHeight - 39），无需额外偏移。
- * - 当 OB 渲染吸收心第二行时，跳过上一行渲染以避免与吸收心冲突。
+ * 残影显示（类似 absorption 的独立临时生命值，以灰色心显示）：
+ * - 残影 <= 20：单行显示（<= 10 心），支持半心；
+ * - 残影 > 20：以原版血量超过 20 的方式向上换行堆叠（每行 10 心）；
+ * - 安装 overflowing-bars 且 health.allowLayers 开启时：
+ *   底行只显示当前层余数（(残影-1)%20+1，与 OB 血量层逻辑一致），整行以 OB 橙色心显示，
+ *   并在条右侧以 OB forceFontRenderer 风格的四向描边数字显示总残影计数。
  */
-@Mod.EventBusSubscriber(modid = MysticArtifacts.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class SurvivalJadeClientHandler {
 
     private static final ResourceLocation ICONS = new ResourceLocation("minecraft", "textures/gui/icons.png");
+    private static final ResourceLocation OB_ICONS = new ResourceLocation("overflowingbars", "textures/gui/icons.png");
+    private static final ResourceLocation OB_TINY_NUMBERS = new ResourceLocation("overflowingbars", "textures/font/tiny_numbers.png");
 
-    // 玉色（青绿）半透明
-    private static final float TINT_R = 0.30f;
-    private static final float TINT_G = 0.87f;
-    private static final float TINT_B = 0.62f;
-    private static final float TINT_A = 0.78f;
-
-    // 原版 icons.png 心形 sprite
-    private static final int HEART_FULL_U = 52; // 满心（红）9x9，用于玉色染色覆盖
+    // 原版 icons.png 心形 sprite（非 hardcore 行 v=0）
+    private static final int CONTAINER_U = 16; // 空心轮廓
+    private static final int HEART_FULL_U = 52; // 满心（用于灰色染色）
+    private static final int HEART_HALF_U = 61; // 半心（左半）
     private static final int HEART_V = 0;
     private static final int HEART_SIZE = 9;
-    private static final int HALF_HEART_WIDTH = 5; // 半心=满心左半
+    private static final int HALF_HEART_WIDTH = 5;
+
+    // OB 橙色心 sprite（overflowingbars:textures/gui/icons.png，HeartType.ORANGE）
+    private static final int OB_FULL_U = 0;
+    private static final int OB_HALF_U = 9;
+    private static final int OB_V = 27;
+    private static final int OB_V_HARDCORE = 36;
+
+    // 灰色染色
+    private static final float TINT_GRAY = 0.55f;
+    private static final float TINT_ALPHA = 0.85f;
 
     // 由网络包写入的残影量
     private static float phantom = 0f;
@@ -61,44 +67,137 @@ public class SurvivalJadeClientHandler {
         phantom = value;
     }
 
-    @SubscribeEvent
-    public static void onRenderGuiPost(RenderGuiEvent.Post event) {
+    public static final IGuiOverlay PHANTOM_OVERLAY = (gui, guiGraphics, partialTicks, screenWidth, screenHeight) -> {
         if (phantom <= 0f) return;
-        Minecraft mc = Minecraft.getInstance();
+        Minecraft mc = gui.getMinecraft();
         LocalPlayer player = mc.player;
         if (player == null) return;
-        if (player.isCreative() || player.isSpectator()) return;
+        if (mc.options.hideGui || !gui.shouldDrawSurvivalElements()) return;
+        if (player.getVehicle() instanceof LivingEntity) return; // 骑乘时该区域显示坐骑血条
         if (!SurvivalJadeItem.isWearing(player)) return;
 
-        float currentHP = player.getHealth();
-        float maxHP = player.getMaxHealth();
-        // 残影上限 = maxHP - currentHP，确保 残影 + 当前血量 <= 最大生命值
-        // 服务端已保证此约束，客户端额外裁剪以处理网络同步延迟
-        float effectivePhantom = Math.min(phantom, Math.max(0f, maxHP - currentHP));
-        if (effectivePhantom <= 0f) return;
-
-        // 有效血量末端 = 当前生命 + 残影（不超过最大生命）
-        float effectiveEnd = currentHP + effectivePhantom;
-
-        GuiGraphics gg = event.getGuiGraphics();
-        int screenWidth = gg.guiWidth();
-        int screenHeight = gg.guiHeight();
-
-        // 血条左端与基准 Y（与原版 Gui 绘制一致，OB 也使用此位置作为底部行）
-        int left = screenWidth / 2 - 91;
-        int baseY = screenHeight - 39;
-
+        gui.setupOverlayRenderState(true, false);
         RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(TINT_R, TINT_G, TINT_B, TINT_A);
-
-        if (isOverflowingBarsActive()) {
-            renderPhantomWithLayers(gg, left, baseY, currentHP, maxHP, effectivePhantom, player);
-        } else {
-            renderPhantomVanilla(gg, left, baseY, currentHP, effectiveEnd);
-        }
-
+        render(gui, guiGraphics, screenWidth, screenHeight, player);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         RenderSystem.disableBlend();
+    };
+
+    private static void render(ForgeGui gui, GuiGraphics gg, int screenWidth, int screenHeight, LocalPlayer player) {
+        // 与 Thirst-Mod 口渴条相同的右侧锚点
+        int left = screenWidth / 2 + 91;
+        int top = screenHeight - gui.rightHeight;
+
+        boolean ob = isOverflowingBarsActive();
+        boolean hardcore = player.level().getLevelData().isHardcore();
+
+        int totalHearts = Mth.ceil(phantom / 2.0f);
+        int rows;
+        if (ob && phantom > 20f) {
+            rows = 1; // OB 层模式：只显示底行（当前层余数）+ 总数计数
+        } else {
+            rows = Math.max(1, Mth.ceil(totalHearts / 10.0f));
+        }
+
+        if (ob && phantom > 20f) {
+            renderObRow(gg, left, top, hardcore);
+        } else {
+            renderWrappedRows(gg, left, top, totalHearts, rows);
+        }
+
+        // 递增行高，让氧气泡等后续 overlay 自动上移
+        gui.rightHeight += rows * 10;
+    }
+
+    /**
+     * 原版式换行渲染：底行 10 心，超出向上换行（每行 10 心），从左向右排列。
+     */
+    private static void renderWrappedRows(GuiGraphics gg, int left, int top, int totalHearts, int rows) {
+        for (int r = 0; r < rows; r++) {
+            int y = top - r * 10;
+            int heartsInRow = Math.min(10, totalHearts - r * 10);
+            if (heartsInRow <= 0) break;
+
+            // 底行固定画 10 个容器心；上行只为已占用槽位画容器，避免大面积空轮廓
+            int containers = (r == 0) ? 10 : heartsInRow;
+            for (int c = 0; c < containers; c++) {
+                int x = left - 81 + c * 8;
+                gg.blit(ICONS, x, y, CONTAINER_U, HEART_V, HEART_SIZE, HEART_SIZE);
+            }
+            for (int c = 0; c < heartsInRow; c++) {
+                float fill = Math.min(2f, phantom - 2f * (r * 10 + c));
+                if (fill <= 0f) break;
+                int x = left - 81 + c * 8;
+                blitGrayHeart(gg, x, y, fill);
+            }
+        }
+    }
+
+    /**
+     * OB 层模式渲染：底行只显示当前层余数（(残影-1)%20+1），整行 OB 橙色心，
+     * 条右侧显示总残影描边数字计数。
+     */
+    private static void renderObRow(GuiGraphics gg, int left, int top, boolean hardcore) {
+        int hp = Mth.ceil(phantom);
+        int remainder = (hp - 1) % 20 + 1;
+        int v = hardcore ? OB_V_HARDCORE : OB_V;
+
+        for (int c = 0; c < 10; c++) {
+            int x = left - 81 + c * 8;
+            gg.blit(ICONS, x, top, CONTAINER_U, HEART_V, HEART_SIZE, HEART_SIZE);
+        }
+        int orangeHearts = Mth.ceil(remainder / 2.0f);
+        for (int c = 0; c < orangeHearts; c++) {
+            float fill = Math.min(2f, remainder - 2f * c);
+            int x = left - 81 + c * 8;
+            if (fill > 1.0f) {
+                gg.blit(OB_ICONS, x, top, OB_FULL_U, v, HEART_SIZE, HEART_SIZE);
+            } else {
+                gg.blit(OB_ICONS, x, top, OB_HALF_U, v, HALF_HEART_WIDTH, HEART_SIZE);
+            }
+        }
+
+        // 总残影计数：使用 OB 的 tiny_numbers 微型数字字体（3x5，四向描边），
+        // 与 OB 行计数渲染方式一致，绘制在条右侧
+        drawObTinyNumber(gg, left + 4, top + 2, hp);
+    }
+
+    /**
+     * 以 OB 的 tiny_numbers.png 字体渲染数字（仿 RowCountRenderer.drawBorderedSprite）：
+     * 3x5 像素数字，四方向偏移 1px 的黑色描边 + 白色本体，置于条右侧。
+     */
+    private static void drawObTinyNumber(GuiGraphics gg, int posX, int posY, int value) {
+        if (value <= 0) return;
+        // 逆序拆位：digits[0] 为个位
+        int[] digits = java.util.stream.IntStream
+                .iterate(value, i -> i > 0, i -> i / 10)
+                .map(i -> i % 10)
+                .toArray();
+        posX += 4 * digits.length;
+        for (int i = 0; i < digits.length; i++) {
+            int x = posX - 4 * i;
+            int u = 5 * digits[i];
+            // 四向黑色描边
+            RenderSystem.setShaderColor(0f, 0f, 0f, 1f);
+            gg.blit(OB_TINY_NUMBERS, x - 1, posY, u, 0, 3, 5, 256, 256);
+            gg.blit(OB_TINY_NUMBERS, x + 1, posY, u, 0, 3, 5, 256, 256);
+            gg.blit(OB_TINY_NUMBERS, x, posY - 1, u, 0, 3, 5, 256, 256);
+            gg.blit(OB_TINY_NUMBERS, x, posY + 1, u, 0, 3, 5, 256, 256);
+            // 白色数字本体
+            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+            gg.blit(OB_TINY_NUMBERS, x, posY, u, 0, 3, 5, 256, 256);
+        }
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+    }
+
+    private static void blitGrayHeart(GuiGraphics gg, int x, int y, float fill) {
+        RenderSystem.setShaderColor(TINT_GRAY, TINT_GRAY, TINT_GRAY, TINT_ALPHA);
+        if (fill > 1.0f) {
+            gg.blit(ICONS, x, y, HEART_FULL_U, HEART_V, HEART_SIZE, HEART_SIZE);
+        } else {
+            gg.blit(ICONS, x, y, HEART_HALF_U, HEART_V, HALF_HEART_WIDTH, HEART_SIZE);
+        }
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
     }
 
     /**
@@ -127,117 +226,5 @@ public class SurvivalJadeClientHandler {
             obActiveCache = true;
         }
         return obActiveCache;
-    }
-
-    /**
-     * 原版血条渲染逻辑：残影按绝对 HP 位置渲染，每行 10 心。
-     * 适用于无 OB 或 OB allowLayers=false 的情况。
-     */
-    private static void renderPhantomVanilla(GuiGraphics gg, int left, int baseY, float currentHP, float effectiveEnd) {
-        int totalHeartsToDraw = (int) Math.ceil(effectiveEnd / 2.0f);
-        for (int k = 0; k < totalHeartsToDraw; k++) {
-            float heartStart = 2f * k;
-            float heartEnd = 2f * (k + 1);
-            float fillStart = Math.max(heartStart, currentHP);
-            float fillEnd = Math.min(heartEnd, effectiveEnd);
-            float phantomFill = fillEnd - fillStart;
-            if (phantomFill <= 0f) continue;
-
-            int row = k / 10;
-            int col = k % 10;
-            int x = left + col * 8;
-            int y = baseY - row * 10;
-
-            blitPhantomHeart(gg, x, y, phantomFill);
-        }
-    }
-
-    /**
-     * 兼容 overflowing-bars 的多层血条渲染逻辑。
-     *
-     * OB 显示规则：底部行始终显示当前 20HP 层（10 心），HP>20 时用橙色指示溢出层。
-     * 求生玉残影按层渲染（残影 + 当前血量 <= 最大生命值）：
-     * - 从当前 HP 位置开始，在当前层底部行渲染；
-     * - 若超出当前层，且上一行未被 OB 占用，则剩余部分在上一行渲染；
-     * - 无法在行内显示的剩余部分（大 maxHP 场景）：以玉色心延伸显示在血条右端外侧。
-     */
-    private static void renderPhantomWithLayers(GuiGraphics gg, int left, int baseY,
-                                                float currentHP, float maxHP, float phantom,
-                                                LocalPlayer player) {
-        // 计算当前层起点：currentHP 1-20 -> 层0, 21-40 -> 层1, 41-60 -> 层2...
-        // 这样 currentHP=20 时属于层0（底部行全满），currentHP=21 时属于层1（底部行显示溢出）
-        int layerStart = currentHP <= 20f ? 0 : ((int) Math.floor((currentHP - 1f) / 20f)) * 20;
-        float layerPos = currentHP - layerStart; // 当前层内的 HP 位置（0-20）
-
-        // 判断上一行是否被 OB 占用（吸收心第二行 或 护甲行）
-        boolean obTwoRows = player.getAbsorptionAmount() > 0.0F
-                && player.getMaxHealth() + player.getAbsorptionAmount() > 20.0F;
-        boolean rowAboveOccupied = obTwoRows || player.getArmorValue() > 0;
-        int maxRows = rowAboveOccupied ? 1 : 2;
-
-        float remaining = phantom;
-        int rowOffset = 0;
-
-        while (remaining > 0f && rowOffset < maxRows) {
-            float spaceInLayer = 20f - layerPos;
-            float phantomInRow = Math.min(remaining, spaceInLayer);
-            if (phantomInRow > 0f) {
-                renderPhantomInRow(gg, left, baseY - rowOffset * 10, layerPos, layerPos + phantomInRow);
-            }
-            remaining -= phantomInRow;
-            layerPos = 0f;
-            rowOffset++;
-        }
-
-        // 无法在行内渲染的剩余残影（大 maxHP 场景），延伸到血条右端外侧
-        if (remaining > 0f) {
-            renderPhantomExcess(gg, left, baseY, remaining);
-        }
-    }
-
-    /**
-     * 在单行内渲染残影心（col 0-9）。
-     */
-    private static void renderPhantomInRow(GuiGraphics gg, int left, int y, float startHP, float endHP) {
-        int startHeart = (int) Math.floor(startHP / 2f);
-        int endHeart = (int) Math.ceil(endHP / 2f);
-        for (int k = startHeart; k < endHeart && k < 10; k++) {
-            float heartStart = 2f * k;
-            float heartEnd = 2f * (k + 1);
-            float fillStart = Math.max(heartStart, startHP);
-            float fillEnd = Math.min(heartEnd, endHP);
-            float phantomFill = fillEnd - fillStart;
-            if (phantomFill <= 0f) continue;
-
-            int x = left + k * 8;
-            blitPhantomHeart(gg, x, y, phantomFill);
-        }
-    }
-
-    /**
-     * 渲染溢出残影（超过 maxHP 或无法在行内显示的部分），以玉色心延伸显示在血条右端外侧（col 10+）。
-     */
-    private static void renderPhantomExcess(GuiGraphics gg, int left, int baseY, float excessPhantom) {
-        int excessHearts = (int) Math.ceil(excessPhantom / 2f);
-        for (int k = 0; k < excessHearts; k++) {
-            float heartStart = 2f * k;
-            float heartEnd = 2f * (k + 1);
-            float fillEnd = Math.min(heartEnd, excessPhantom);
-            float phantomFill = fillEnd - heartStart;
-            if (phantomFill <= 0f) continue;
-
-            int x = left + (10 + k) * 8; // col 10, 11, ...（血条右端外侧）
-            blitPhantomHeart(gg, x, baseY, phantomFill);
-        }
-    }
-
-    private static void blitPhantomHeart(GuiGraphics gg, int x, int y, float phantomFill) {
-        if (phantomFill >= 1.5f) {
-            // 满心玉色
-            gg.blit(ICONS, x, y, HEART_FULL_U, HEART_V, HEART_SIZE, HEART_SIZE);
-        } else {
-            // 半心玉色（满心左半）
-            gg.blit(ICONS, x, y, HEART_FULL_U, HEART_V, HALF_HEART_WIDTH, HEART_SIZE);
-        }
     }
 }

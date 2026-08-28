@@ -116,13 +116,23 @@ public class Config
             .comment("Artifact Spirit movement speed when attacking")
             .defineInRange("SpiritMoveSpeed", 0.8, 0.1, 3.0);
 
-    private static final ForgeConfigSpec.IntValue SURVIVAL_JADE_DECAY_TICKS = BUILDER
-            .comment("Survival Jade phantom decay period (ticks per 1 HP lost). 20 ticks = 1 second. Default 20 = 1 HP per second.")
-            .defineInRange("SurvivalJadeDecayTicks", 20, 1, 6000);
+    private static final ForgeConfigSpec.ConfigValue<Double> SURVIVAL_JADE_DECAY_PER_SECOND = BUILDER
+            .comment("Survival Jade phantom decay amount per second. Default 2.0 = 2 phantom lost per second.")
+            .defineInRange("SurvivalJadeDecayPerSecond", 2.0, 0.0, 1000.0);
 
     private static final ForgeConfigSpec.ConfigValue<Double> SURVIVAL_JADE_CONVERSION_RATIO = BUILDER
-            .comment("Survival Jade damage-to-heal conversion ratio (0.0~1.0). Default 0.5 = 50% of dealt damage heals phantom.")
-            .defineInRange("SurvivalJadeConversionRatio", 0.5, 0.0, 1.0);
+            .comment("Survival Jade damage-to-heal conversion ratio (0.0~1.0). Default 0.25 = 25% of dealt damage heals phantom.")
+            .defineInRange("SurvivalJadeConversionRatio", 0.25, 0.0, 1.0);
+
+    public enum PhantomCapMode { CAP, AUTO }
+
+    private static final ForgeConfigSpec.EnumValue<PhantomCapMode> SURVIVAL_JADE_PHANTOM_CAP_MODE = BUILDER
+            .comment("Survival Jade phantom cap mode. CAP: phantom is capped at SurvivalJadeMaxPhantom (absorption-like independent temp HP, capped value independent of current health). AUTO: no cap, phantom stacks freely and the HUD wraps into extra rows of 10 hearts.")
+            .defineEnum("SurvivalJadePhantomCapMode", PhantomCapMode.CAP);
+
+    private static final ForgeConfigSpec.IntValue SURVIVAL_JADE_MAX_PHANTOM = BUILDER
+            .comment("Survival Jade max phantom value in CAP mode (2 per heart, default 20 = 10 hearts).")
+            .defineInRange("SurvivalJadeMaxPhantom", 20, 1, 1000000);
 
     private static final ForgeConfigSpec.ConfigValue<Double> ANCESTORS_LETTER_VIRTUE_CHANCE = BUILDER
             .comment("Ancestor's Letter: chance to enter Virtue (otherwise Torment) when a lethal hit is immunized. Default 0.5.")
@@ -197,8 +207,10 @@ public class Config
     public static int SpiritAttackCooldown;
     public static double SpiritMoveSpeed;
 
-    public static int SurvivalJadeDecayTicks;
+    public static double SurvivalJadeDecayPerSecond;
     public static double SurvivalJadeConversionRatio;
+    public static PhantomCapMode SurvivalJadePhantomCapMode;
+    public static int SurvivalJadeMaxPhantom;
 
     public static double AncestorLetterVirtueChance;
     public static double AncestorLetterVirtueDamageReduction;
@@ -255,8 +267,10 @@ public class Config
         SpiritAttackCooldown = SPIRIT_ATTACK_COOLDOWN.get();
         SpiritMoveSpeed = SPIRIT_MOVE_SPEED.get();
 
-        SurvivalJadeDecayTicks = SURVIVAL_JADE_DECAY_TICKS.get();
+        SurvivalJadeDecayPerSecond = SURVIVAL_JADE_DECAY_PER_SECOND.get();
         SurvivalJadeConversionRatio = SURVIVAL_JADE_CONVERSION_RATIO.get();
+        SurvivalJadePhantomCapMode = SURVIVAL_JADE_PHANTOM_CAP_MODE.get();
+        SurvivalJadeMaxPhantom = SURVIVAL_JADE_MAX_PHANTOM.get();
 
         AncestorLetterVirtueChance = ANCESTORS_LETTER_VIRTUE_CHANCE.get();
         AncestorLetterVirtueDamageReduction = ANCESTORS_LETTER_VIRTUE_DAMAGE_REDUCTION.get();

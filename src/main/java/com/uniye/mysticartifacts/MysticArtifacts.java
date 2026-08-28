@@ -1,6 +1,7 @@
 package com.uniye.mysticartifacts;
 
 import com.mojang.logging.LogUtils;
+import com.uniye.mysticartifacts.client.event.SurvivalJadeClientHandler;
 import com.uniye.mysticartifacts.client.render.*;
 import com.uniye.mysticartifacts.event.CodexAnvilHandler;
 import com.uniye.mysticartifacts.init.ModCreativeModTabs;
@@ -15,6 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -73,6 +76,15 @@ public class MysticArtifacts
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
+        @SubscribeEvent
+        public static void onRegisterGuiOverlays(RegisterGuiOverlaysEvent event)
+        {
+            // 求生玉残影条：注册在食物栏上方，通过 ForgeGui.rightHeight 堆叠协议
+            // 与 Thirst-Mod 口渴条等同位置的 overlay 自动错位（互不重叠）
+            event.registerAbove(VanillaGuiOverlay.FOOD_LEVEL.id(), "survival_jade_phantom",
+                    SurvivalJadeClientHandler.PHANTOM_OVERLAY);
+        }
+
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
