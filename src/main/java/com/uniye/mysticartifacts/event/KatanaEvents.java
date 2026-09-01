@@ -4,8 +4,6 @@ import com.uniye.mysticartifacts.Config;
 import com.uniye.mysticartifacts.MysticArtifacts;
 import com.uniye.mysticartifacts.init.ModSounds;
 import com.uniye.mysticartifacts.item.impl.MuramasaItem;
-import com.uniye.mysticartifacts.util.ParticleTextAPI;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.Entity;
@@ -18,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -40,6 +39,7 @@ public class KatanaEvents {
                     event.setCanceled(true);
                         
                     Projectile projectile = event.getProjectile();
+                    Entity attacker = projectile.getOwner();
                     if (isPerfect) {
                         projectile.setOwner(entity);
 
@@ -53,12 +53,15 @@ public class KatanaEvents {
                         
                     entity.getUseItem().hurtAndBreak(1, entity, (e) -> e.broadcastBreakEvent(entity.getUsedItemHand()));
                         
-                    if (entity instanceof ServerPlayer sp) {
-                        if (isPerfect) {
-                            ParticleTextAPI.sendInFront(sp, "完美弹反！", 0xFFAA00);
-                        } else {
-                            ParticleTextAPI.sendInFront(sp, "格挡！", 0x00FF00);
-                        }
+                    if (!entity.level().isClientSide) {
+                        MinecraftForge.EVENT_BUS.post(new KatanaBlockEvent(
+                                entity,
+                                attacker,
+                                projectile,
+                                null,
+                                0.0F,
+                                isPerfect
+                        ));
                     }
                 }
             }
@@ -101,12 +104,15 @@ public class KatanaEvents {
 
                     entity.getUseItem().hurtAndBreak(1, entity, (e) -> e.broadcastBreakEvent(entity.getUsedItemHand()));
                     entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), ModSounds.KATANA_BLOCK.get(), SoundSource.PLAYERS, 1.0F, 1.0F + (entity.level().random.nextFloat() - entity.level().random.nextFloat()) * 0.2F);
-                    if (entity instanceof ServerPlayer sp) {
-                        if (isPerfect) {
-                            ParticleTextAPI.sendInFront(sp, "完美格挡！", 0xFFAA00);
-                        } else {
-                            ParticleTextAPI.sendInFront(sp, "格挡！", 0x00FF00);
-                        }
+                    if (!entity.level().isClientSide) {
+                        MinecraftForge.EVENT_BUS.post(new KatanaBlockEvent(
+                                entity,
+                                event.getSource().getEntity(),
+                                event.getSource().getDirectEntity() instanceof Projectile projectile ? projectile : null,
+                                event.getSource(),
+                                event.getAmount(),
+                                isPerfect
+                        ));
                     }
                   }
             }

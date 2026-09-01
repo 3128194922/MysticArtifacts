@@ -2,7 +2,6 @@ package com.uniye.mysticartifacts.mixin;
 
 import com.uniye.mysticartifacts.init.ModItems;
 import com.uniye.mysticartifacts.item.impl.EmergencyPlanItem;
-import com.uniye.mysticartifacts.util.ParticleTextAPI;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -45,6 +44,5 @@ public abstract class ItemCooldownsMixin {
 
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.7F, 1.4F);
-        ParticleTextAPI.sendInFront(player, "已抵消冷却", 0x7AE8FF);
     }
 }

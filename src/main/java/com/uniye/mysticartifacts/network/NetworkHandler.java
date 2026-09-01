@@ -22,12 +22,6 @@ public class NetworkHandler {
                 TeleportToKunaiPacket::handle
         );
 
-        INSTANCE.registerMessage(id++, SpawnTextIndicatorPacket.class,
-                SpawnTextIndicatorPacket::encode,
-                SpawnTextIndicatorPacket::decode,
-                SpawnTextIndicatorPacket::handle
-        );
-
         INSTANCE.registerMessage(id++, PokerCardThrowPacket.class,
                 PokerCardThrowPacket::encode,
                 PokerCardThrowPacket::decode,
