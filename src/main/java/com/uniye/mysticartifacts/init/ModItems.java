@@ -1,9 +1,7 @@
 package com.uniye.mysticartifacts.init;
 
 import com.uniye.mysticartifacts.MysticArtifacts;
-import com.uniye.mysticartifacts.item.ModArmorMaterials;
 import com.uniye.mysticartifacts.item.impl.*;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -14,8 +12,6 @@ import net.minecraftforge.registries.RegistryObject;
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MysticArtifacts.MODID);
 
-    public static final RegistryObject<Item> RUBBER = ITEMS.register("rubber", ()-> new Item(new Item.Properties()));
-
     public static final RegistryObject<Item> SCULK_ARROW = ITEMS.register("sculk_arrow",
             () -> new SculkArrowItem(new Item.Properties())
     );
@@ -23,28 +19,6 @@ public class ModItems {
     public static final RegistryObject<Item> DEMONIC_GESTATION = ITEMS.register("demonic_gestation",
             () -> new DemonicGestationItem(new Item.Properties().stacksTo(1))
     );
-
-    public static final RegistryObject<Item> DEMOCRACY_HELMET = ITEMS.register(
-            "democracy_helmet",
-            () -> new ArmorItem(ModArmorMaterials.DEMOCRACY, ArmorItem.Type.HELMET, new Item.Properties())
-    );
-
-    public static final RegistryObject<Item> DEMOCRACY_CHESTPLATE = ITEMS.register(
-            "democracy_chestplate",
-            () -> new ArmorItem(ModArmorMaterials.DEMOCRACY, ArmorItem.Type.CHESTPLATE, new Item.Properties())
-    );
-
-    public static final RegistryObject<Item> DEMOCRACY_LEGGINGS = ITEMS.register(
-            "democracy_leggings",
-            () -> new ArmorItem(ModArmorMaterials.DEMOCRACY, ArmorItem.Type.LEGGINGS, new Item.Properties())
-    );
-
-    public static final RegistryObject<Item> DEMOCRACY_BOOTS = ITEMS.register(
-            "democracy_boots",
-            () -> new ArmorItem(ModArmorMaterials.DEMOCRACY, ArmorItem.Type.BOOTS, new Item.Properties())
-    );
-
-
 
     public static final RegistryObject<Item> NETHER_OF_VOICE = ITEMS.register(
             "nether_of_voice",
@@ -84,12 +58,6 @@ public class ModItems {
 
     public static final RegistryObject<Item> SWORD_SWARM_CHARM = ITEMS.register("sword_swarm_charm",
             () -> new SwordSwarmCharm(new Item.Properties().stacksTo(1)));
-
-    public static final RegistryObject<Item> QUANTUM_KEY = ITEMS.register("quantum_key",
-            () -> new QuantumKeyItem(new Item.Properties().stacksTo(16)));
-
-    public static final RegistryObject<Item> MANDEL_BRICK = ITEMS.register("mandel_brick",
-            () -> new MandelBrickItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> ARTIFACT_SPIRIT = ITEMS.register("artifact_spirit",
             () -> new ArtifactSpiritItem(new Item.Properties().stacksTo(1)));

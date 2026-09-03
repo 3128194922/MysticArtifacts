@@ -37,4 +37,11 @@ Assert-Condition ($pluginText -match 'extends KubeJSPlugin') 'KubeJS plugin must
 Assert-Condition ($payloadText -match 'getPlayer|getBlocker|getAttacker') 'KubeJS payload must expose entity fields'
 Assert-Condition ($pluginList -match 'KubeJSKatanaPlugin') 'KubeJS plugin entrypoint is not registered'
 
+$airburstEntity = Join-Path $sourceRoot 'java\com\uniye\mysticartifacts\entity\AirburstArrowEntity.java'
+$airburstText = Get-Content -Raw $airburstEntity
+Assert-Condition ($airburstText -match 'int numPoints\s*=\s*17') 'Airburst split must use 17 scatter points'
+Assert-Condition ($airburstText -match 'double fullness\s*=\s*0\.8') 'Airburst split must use scatter fullness 0.8'
+Assert-Condition ($airburstText -match 'scale\(0\.35') 'Airburst split must use scatter speed scale 0.35'
+Assert-Condition (-not ($airburstText -match 'Config\.AirBurstNumber\s*\+\s*this\.random\.nextInt')) 'Airburst split must not use the old random count'
+
 Write-Output 'Contract check passed'

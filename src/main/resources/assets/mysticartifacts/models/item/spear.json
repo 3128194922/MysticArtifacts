@@ -16,6 +16,12 @@
     },
     "ground": {
       "parent": "mysticartifacts:item/spear_gui"
+    },
+    "thirdperson_righthand": {
+      "parent": "minecraft:item/trident"
+    },
+    "thirdperson_lefthand": {
+      "parent": "minecraft:item/trident"
     }
   },
   "overrides": [
@@ -27,7 +33,3 @@
     }
   ]
 }
-  },
-
-  },
-

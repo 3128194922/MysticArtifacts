@@ -1,5 +1,4 @@
 {
-    "item.mysticartifacts.rubber": "超薄橡胶",
     "creativetab.mysticartifacts_tab": "奇器玄兵",
     "item.mysticartifacts.sculk_arrow": "幽匿箭",
     "entity.mysticartifacts.sculk_arrow": "幽匿箭",
@@ -9,10 +8,6 @@
     "entity.mysticartifacts.exploding_arrow": "空爆I",
     "item.mysticartifacts.final_exploding_arrow": "空爆II",
     "entity.mysticartifacts.final_exploding_arrow": "空爆II",
-    "item.mysticartifacts.democracy_leggings": "Helldiver leggings",
-    "item.mysticartifacts.democracy_chestplate": "Helldiver chestplate",
-    "item.mysticartifacts.democracy_boots": "Helldiver boots",
-    "item.mysticartifacts.democracy_helmet": "Helldiver helmet",
     "item.mysticartifacts.ender_kunai": "末影苦无",
     "entity.mysticartifacts.ender_kunai": "末影苦无",
 

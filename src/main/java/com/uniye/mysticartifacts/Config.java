@@ -80,10 +80,6 @@ public class Config
             .comment("Death Eye execution line render range")
             .defineInRange("DeathEyeRenderRange", 36.0, 0.0, 255.0);
 
-    private static final ForgeConfigSpec.IntValue QUANTUM_KEY_EXPIRATION = BUILDER
-            .comment("Quantum Key expiration time (ticks)")
-            .defineInRange("QuantumKeyExpiration", 1200, 0, 100000);
-
     private static final ForgeConfigSpec.ConfigValue<Double> DEMONIC_GESTATION_ATTACK_RANGE = BUILDER
             .comment("Demonic Gestation target detection range around the player (blocks)")
             .defineInRange("DemonicGestationAttackRange", 8.0, 1.0, 64.0);
@@ -193,8 +189,6 @@ public class Config
     
     public static double DeathEyeRenderRange;
     
-    public static int QuantumKeyExpiration;
-
     public static double DemonicGestationAttackRange;
     public static double DemonicGestationDamage;
     public static int DemonicGestationAttackCooldown;
@@ -253,8 +247,6 @@ public class Config
         
         DeathEyeRenderRange = DEATH_EYE_RENDER_RANGE.get();
         
-        QuantumKeyExpiration = QUANTUM_KEY_EXPIRATION.get();
-
         DemonicGestationAttackRange = DEMONIC_GESTATION_ATTACK_RANGE.get();
         DemonicGestationDamage = DEMONIC_GESTATION_DAMAGE.get();
         DemonicGestationAttackCooldown = DEMONIC_GESTATION_ATTACK_COOLDOWN.get();

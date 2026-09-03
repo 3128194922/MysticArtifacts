@@ -60,21 +60,5 @@
                 "name": "mysticartifacts:poker_recall"
             }
         ]
-    },
-    "item.quantum_key.unlock": {
-        "subtitle": "subtitle.mysticartifacts.quantum_key_unlock",
-        "sounds": [
-            {
-                "name": "mysticartifacts:quantum_key_unlock"
-            }
-        ]
-    },
-    "item.mandel.open": {
-        "subtitle": "subtitle.mysticartifacts.mandel_open",
-        "sounds": [
-            {
-                "name": "mysticartifacts:mandel_open"
-            }
-        ]
     }
 }

@@ -17,13 +17,8 @@ public class ModCreativeModTabs {
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.KATANA.get()))
                     .title(Component.translatable("creativetab.mysticartifacts_tab"))
                     .displayItems((pParameters, pOutput) -> {
-                        pOutput.accept(ModItems.RUBBER.get());
                         pOutput.accept(ModItems.SCULK_ARROW.get());
                         pOutput.accept(ModItems.DEMONIC_GESTATION.get());
-                        pOutput.accept(ModItems.DEMOCRACY_HELMET.get());
-                        pOutput.accept(ModItems.DEMOCRACY_CHESTPLATE.get());
-                        pOutput.accept(ModItems.DEMOCRACY_LEGGINGS.get());
-                        pOutput.accept(ModItems.DEMOCRACY_BOOTS.get());
                         pOutput.accept(ModItems.NETHER_OF_VOICE.get());
                         pOutput.accept(ModItems.AIRBURST_ARROW.get());
                         pOutput.accept(ModItems.EXPLODING_ARROW.get());
@@ -34,8 +29,6 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.POKER_CARD.get());
                         pOutput.accept(ModItems.DEATH_EYE.get());
                         pOutput.accept(ModItems.SWORD_SWARM_CHARM.get());
-                        pOutput.accept(ModItems.QUANTUM_KEY.get());
-                        pOutput.accept(ModItems.MANDEL_BRICK.get());
                         pOutput.accept(ModItems.ARTIFACT_SPIRIT.get());
                         pOutput.accept(ModItems.GRIEFER_SPEAR.get());
                         pOutput.accept(ModItems.SPEAR.get());

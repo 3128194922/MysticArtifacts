@@ -25,11 +25,6 @@ public class ModSounds {
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.poker_throw")));
     public static final RegistryObject<SoundEvent> POKER_RECALL = SOUNDS.register("entity.poker_recall",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.poker_recall")));
-    public static final RegistryObject<SoundEvent> QUANTUM_KEY_UNLOCK = SOUNDS.register("item.quantum_key.unlock",
-            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "item.quantum_key.unlock")));
-    public static final RegistryObject<SoundEvent> MANDEL_OPEN = SOUNDS.register("item.mandel.open",
-            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "item.mandel.open")));
-
     public static void register(IEventBus eventBus) {
         SOUNDS.register(eventBus);
     }
