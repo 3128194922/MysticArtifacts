@@ -33,6 +33,12 @@ public class KatanaSlashEntity extends Projectile {
 
     private static final EntityDataAccessor<Integer> STYLE =
             SynchedEntityData.defineId(KatanaSlashEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> ROTATION_OFFSET =
+            SynchedEntityData.defineId(KatanaSlashEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> ROTATION_ROLL =
+            SynchedEntityData.defineId(KatanaSlashEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> BASE_SIZE =
+            SynchedEntityData.defineId(KatanaSlashEntity.class, EntityDataSerializers.FLOAT);
     private static final int MAX_LIFETIME = 10;
 
     private ItemStack attackStack = ItemStack.EMPTY;
@@ -51,6 +57,7 @@ public class KatanaSlashEntity extends Projectile {
         slash.attackStack = stack.copy();
         slash.setPos(player.getX(), player.getY() + player.getBbHeight() * 0.55D, player.getZ());
         slash.setYRot(player.getYRot());
+        slash.setXRot(player.getXRot());
         slash.setDeltaMovement(dashVector);
         level.addFreshEntity(slash);
         slash.damageDashTargets(player, dashVector);
@@ -66,6 +73,7 @@ public class KatanaSlashEntity extends Projectile {
         slash.setPos(player.getX() + look.x * 1.5D, player.getEyeY() - 0.5D + look.y * 1.5D,
                 player.getZ() + look.z * 1.5D);
         slash.setYRot(player.getYRot());
+        slash.setXRot(player.getXRot());
         level.addFreshEntity(slash);
         return slash;
     }
@@ -78,9 +86,24 @@ public class KatanaSlashEntity extends Projectile {
         return this.entityData.get(STYLE);
     }
 
+    public float getRotationOffset() {
+        return this.entityData.get(ROTATION_OFFSET);
+    }
+
+    public float getRotationRoll() {
+        return this.entityData.get(ROTATION_ROLL);
+    }
+
+    public float getBaseSize() {
+        return this.entityData.get(BASE_SIZE);
+    }
+
     @Override
     protected void defineSynchedData() {
         this.entityData.define(STYLE, STYLE_DASH);
+        this.entityData.define(ROTATION_OFFSET, 0.0F);
+        this.entityData.define(ROTATION_ROLL, 0.0F);
+        this.entityData.define(BASE_SIZE, 1.0F);
     }
 
     @Override

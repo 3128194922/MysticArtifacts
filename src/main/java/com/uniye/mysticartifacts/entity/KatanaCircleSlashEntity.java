@@ -5,6 +5,9 @@ import com.uniye.mysticartifacts.init.ModEntities;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,6 +27,12 @@ import java.util.UUID;
 
 /** 武士刀开鞘右键的玩家中心三段范围刀光。 */
 public class KatanaCircleSlashEntity extends Projectile {
+    private static final EntityDataAccessor<Float> ROTATION_OFFSET =
+            SynchedEntityData.defineId(KatanaCircleSlashEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> ROTATION_ROLL =
+            SynchedEntityData.defineId(KatanaCircleSlashEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> BASE_SIZE =
+            SynchedEntityData.defineId(KatanaCircleSlashEntity.class, EntityDataSerializers.FLOAT);
     private static final int MAX_LIFETIME = KatanaState.CIRCLE_ATTACK_DURATION_TICKS;
     private static final double RADIUS = 4.0D;
     private static final double DAMAGE_MULTIPLIER = 0.75D;
@@ -43,12 +52,28 @@ public class KatanaCircleSlashEntity extends Projectile {
         slash.attackStack = stack.copy();
         slash.stateStack = stack;
         slash.setPos(player.getX(), player.getY() + player.getBbHeight() * 0.5D, player.getZ());
+        slash.setYRot(player.getYRot() - 22.5F);
         level.addFreshEntity(slash);
         return slash;
     }
 
+    public float getRotationOffset() {
+        return this.entityData.get(ROTATION_OFFSET);
+    }
+
+    public float getRotationRoll() {
+        return this.entityData.get(ROTATION_ROLL);
+    }
+
+    public float getBaseSize() {
+        return this.entityData.get(BASE_SIZE);
+    }
+
     @Override
     protected void defineSynchedData() {
+        this.entityData.define(ROTATION_OFFSET, 0.0F);
+        this.entityData.define(ROTATION_ROLL, 0.0F);
+        this.entityData.define(BASE_SIZE, 1.0F);
     }
 
     @Override

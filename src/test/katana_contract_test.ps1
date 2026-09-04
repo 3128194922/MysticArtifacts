@@ -13,6 +13,8 @@ $slashTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifact
 $circleTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/entity/katana_circle_slash.png'
 $sheathedTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/item/katana_sheathed.png'
 $meshPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/render/KatanaSlashMesh.java'
+$rendererPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/render/KatanaSlashRenderer.java'
+$circleRendererPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/render/KatanaCircleSlashRenderer.java'
 
 $itemText = Get-Content -Raw $itemPath
 $eventsText = Get-Content -Raw $eventsPath
@@ -23,6 +25,8 @@ $mainText = Get-Content -Raw $mainPath
 $modelText = Get-Content -Raw $modelPath
 $mixinText = Get-Content -Raw $mixinPath
 $meshText = if (Test-Path $meshPath) { Get-Content -Raw $meshPath } else { '' }
+$rendererText = if (Test-Path $rendererPath) { Get-Content -Raw $rendererPath } else { '' }
+$circleRendererText = if (Test-Path $circleRendererPath) { Get-Content -Raw $circleRendererPath } else { '' }
 $failures = [System.Collections.Generic.List[string]]::new()
 
 if ($itemText -match 'applyDirectHealthCost') {
@@ -62,8 +66,25 @@ if ($mainText -notmatch 'EntityRenderers\.register\(ModEntities\.KATANA_SLASH' -
     $mainText -notmatch 'EntityRenderers\.register\(ModEntities\.KATANA_CIRCLE_SLASH') {
     $failures.Add('Katana entity renderers are not registered')
 }
-if ($meshText -notmatch 'renderArc' -or $meshText -notmatch 'renderRing' -or $meshText -notmatch 'segments') {
-    $failures.Add('Katana renderer does not use continuous slash mesh geometry')
+if ($meshText -notmatch 'renderSlashBladeLayer' -or $meshText -notmatch 'uvOffset' -or
+    $meshText -notmatch 'triangle\(') {
+    $failures.Add('Katana mesh does not reproduce the SlashBlade layered triangle geometry')
+}
+if ($slashText -notmatch 'getRotationOffset' -or $slashText -notmatch 'getRotationRoll' -or
+    $slashText -notmatch 'getBaseSize') {
+    $failures.Add('Katana slash entity lacks SlashBlade-compatible render state')
+}
+if ($circleText -notmatch 'getRotationOffset' -or $circleText -notmatch 'getRotationRoll' -or
+    $circleText -notmatch 'getBaseSize') {
+    $failures.Add('Katana circle entity lacks SlashBlade-compatible render state')
+}
+if ($rendererText -notmatch 'baseAlpha' -or $rendererText -notmatch 'renderSlashBladeLayer' -or
+    $rendererText -notmatch '135\.0F') {
+    $failures.Add('Katana slash renderer does not reproduce the four-layer SlashBlade animation')
+}
+if ($circleRendererText -notmatch 'baseAlpha' -or $circleRendererText -notmatch 'renderSlashBladeLayer' -or
+    $circleRendererText -notmatch '135\.0F') {
+    $failures.Add('Katana circle renderer does not reproduce the four-layer SlashBlade animation')
 }
 if ($mixinText -notmatch 'KatanaModelMixin' -or $mixinText -notmatch 'KatanaRenderMixin') {
     $failures.Add('Katana first-person guard mixins are not enabled')
