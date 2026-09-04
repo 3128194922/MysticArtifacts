@@ -1,14 +1,14 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "mysticartifacts:item/muramasa"
+    "layer0": "mysticartifacts:item/katana_sheathed"
   },
   "overrides": [
     {
       "predicate": {
-        "mysticartifacts:enhanced": 1.0
+        "mysticartifacts:open": 1.0
       },
-      "model": "mysticartifacts:item/katana_enhanced"
+      "model": "mysticartifacts:item/katana_open"
     }
   ]
 }

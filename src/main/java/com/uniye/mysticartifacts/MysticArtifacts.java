@@ -102,6 +102,8 @@ public class MysticArtifacts
             EntityRenderers.register(ModEntities.SWORD_PHANTOM.get(), SwordPhantomRenderer::new);
             EntityRenderers.register(ModEntities.ARTIFACT_SPIRIT.get(), ArtifactSpiritRenderer::new);
             EntityRenderers.register(ModEntities.FLAME_PROJECTILE.get(), FlameProjectileRenderer::new);
+            EntityRenderers.register(ModEntities.KATANA_SLASH.get(), KatanaSlashRenderer::new);
+            EntityRenderers.register(ModEntities.KATANA_CIRCLE_SLASH.get(), KatanaCircleSlashRenderer::new);
             
             
             
@@ -109,8 +111,8 @@ public class MysticArtifacts
 
             event.enqueueWork(() -> ItemProperties.register(
                     ModItems.KATANA.get(),
-                    new ResourceLocation(MODID, "enhanced"),
-                    (stack, level, holder, seed) -> MuramasaItem.isEnhanced(stack, level, holder) ? 1.0F : 0.0F
+                    new ResourceLocation(MODID, "open"),
+                    (stack, level, holder, seed) -> MuramasaItem.isOpen(stack, level) ? 1.0F : 0.0F
             ));
             event.enqueueWork(() -> ItemProperties.register(
                     ModItems.WITCH_POT.get(),
