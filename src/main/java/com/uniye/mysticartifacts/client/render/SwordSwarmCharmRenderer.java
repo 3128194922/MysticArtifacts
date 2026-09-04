@@ -52,7 +52,8 @@ public class SwordSwarmCharmRenderer implements ICurioRenderer {
         Level level = entity.level();
         List<ResourceLocation> queue = SwordSwarmCharm.getDisplayQueue(stack, level);
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-        float animationTime = ageInTicks + partialTicks;
+        // Curios already includes partialTicks in ageInTicks.
+        float animationTime = ageInTicks;
         float bodyYaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
 
         poseStack.pushPose();

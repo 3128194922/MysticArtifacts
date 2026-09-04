@@ -1,6 +1,7 @@
 package com.uniye.mysticartifacts.entity;
 
 import com.uniye.mysticartifacts.init.ModDamageTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -23,6 +24,7 @@ public class SwordPhantomEntity extends AbstractArrow implements ItemSupplier {
     private static final EntityDataAccessor<ItemStack> DISPLAY_ITEM = SynchedEntityData.defineId(SwordPhantomEntity.class, EntityDataSerializers.ITEM_STACK);
 
     private ItemStack visualItem = ItemStack.EMPTY;
+    private boolean stoppedTracking;
 
     public SwordPhantomEntity(EntityType<? extends AbstractArrow> type, Level level) {
         super(type, level);
@@ -70,7 +72,7 @@ public class SwordPhantomEntity extends AbstractArrow implements ItemSupplier {
     public void tick() {
         super.tick();
 
-        if (!this.level().isClientSide && !this.inGround && !this.isRemoved()) {
+        if (!this.level().isClientSide && !this.inGround && !this.isRemoved() && !this.stoppedTracking) {
             Entity owner = this.getOwner();
             if (owner instanceof Player player) {
                 Vec3 current = this.getDeltaMovement();
@@ -86,6 +88,7 @@ public class SwordPhantomEntity extends AbstractArrow implements ItemSupplier {
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
+        this.stoppedTracking = true;
         Entity target = result.getEntity();
         int i = net.minecraft.util.Mth.ceil(this.getBaseDamage());
         if (this.isCritArrow()) {
@@ -112,6 +115,18 @@ public class SwordPhantomEntity extends AbstractArrow implements ItemSupplier {
         }
     }
     
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putBoolean("StoppedTracking", this.stoppedTracking);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        this.stoppedTracking = tag.getBoolean("StoppedTracking");
+    }
+
     @Override
     protected net.minecraft.sounds.SoundEvent getDefaultHitGroundSoundEvent() {
         return net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_SWEEP;

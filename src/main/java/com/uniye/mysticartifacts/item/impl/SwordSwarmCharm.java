@@ -42,6 +42,9 @@ public class SwordSwarmCharm extends Item implements ICurioItem {
         int devoured = getDevouredCount(stack);
         if (devoured <= 0) return;
 
+        // Seed on the server before full-storage/timer early returns, never during rendering.
+        seedQueue(stack, entity.level());
+
         int max = Config.SwordSwarmMaxStored;
         int interval = Config.SwordSwarmRegenIntervalTicks;
         CompoundTag tag = stack.getOrCreateTag();

@@ -71,7 +71,8 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
     private static final int CLANGING_HOWL_OVERHEAT_TICKS = 40;
     private static final int CLANGING_HOWL_MAX_FUEL = 1600;
     private static final int CLANGING_HOWL_FUEL_PER_CYLINDER = 1600;
-    private static final int CLANGING_HOWL_FUEL_PER_TICK = 5;
+    private static final int CLANGING_HOWL_FUEL_PER_CONSUMPTION = 5;
+    private static final int CLANGING_HOWL_FUEL_INTERVAL_TICKS = 20;
     private static final float CLANGING_HOWL_DAMAGE = 4.0F;
     private static final String CLANGING_HOWL_FUEL_TAG = "ClangingHowlFuel";
 
@@ -362,14 +363,17 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
                 break;
 
             case 2: // FIRING (喷火)
-                // Refuel if needed
-                if (clangingHowlFuel < CLANGING_HOWL_FUEL_PER_TICK) {
-                    if (!refillClangingHowlFuelFromEnderChest(owner)) {
-                        // Out of fuel → OVERHEAT
-                        clangingHowlPhase = 3;
-                        clangingHowlPhaseTimer = CLANGING_HOWL_OVERHEAT_TICKS;
-                        return;
+                // Match ClangingHowl onUseTick: consume on the first firing tick, then every 20 ticks.
+                if (clangingHowlPhaseTimer % CLANGING_HOWL_FUEL_INTERVAL_TICKS == 0) {
+                    if (clangingHowlFuel < CLANGING_HOWL_FUEL_PER_CONSUMPTION) {
+                        if (!refillClangingHowlFuelFromEnderChest(owner)) {
+                            // Out of fuel → OVERHEAT
+                            clangingHowlPhase = 3;
+                            clangingHowlPhaseTimer = CLANGING_HOWL_OVERHEAT_TICKS;
+                            return;
+                        }
                     }
+                    clangingHowlFuel -= CLANGING_HOWL_FUEL_PER_CONSUMPTION;
                 }
 
                 // Shoot flame every tick
@@ -393,7 +397,7 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
     }
 
     private void startClangingHowlFiring(Player owner, Vec3 muzzle) {
-        if (clangingHowlFuel < CLANGING_HOWL_FUEL_PER_TICK && !refillClangingHowlFuelFromEnderChest(owner)) {
+        if (clangingHowlFuel < CLANGING_HOWL_FUEL_PER_CONSUMPTION && !refillClangingHowlFuelFromEnderChest(owner)) {
             this.attackCooldown = 20; // No fuel — wait before retry
             return;
         }
@@ -425,7 +429,6 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
         flame.setDeltaMovement(aim.scale(0.4));
 
         this.level().addFreshEntity(flame);
-        clangingHowlFuel -= CLANGING_HOWL_FUEL_PER_TICK;
 
         // Sound periodically (every 5 ticks)
         if (clangingHowlPhaseTimer % 5 == 0) {
