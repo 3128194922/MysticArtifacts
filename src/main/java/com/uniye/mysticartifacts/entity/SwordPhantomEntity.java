@@ -10,11 +10,13 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 
 public class SwordPhantomEntity extends AbstractArrow implements ItemSupplier {
@@ -62,6 +64,24 @@ public class SwordPhantomEntity extends AbstractArrow implements ItemSupplier {
     @Override
     public ItemStack getItem() {
         return this.getDisplayItem();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if (!this.level().isClientSide && !this.inGround && !this.isRemoved()) {
+            Entity owner = this.getOwner();
+            if (owner instanceof Player player) {
+                Vec3 current = this.getDeltaMovement();
+                if (current.lengthSqr() > 1.0E-7D) {
+                    Vec3 target = player.getLookAngle().normalize();
+                    Vec3 direction = current.normalize().lerp(target, 0.15D).normalize();
+                    this.setDeltaMovement(direction.scale(current.length()));
+                    this.hasImpulse = true;
+                }
+            }
+        }
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.uniye.mysticartifacts.client.render;
 
 import com.uniye.mysticartifacts.item.impl.SwordSwarmCharm;
+import com.uniye.mysticartifacts.client.tuning.SwordSwarmRenderParams;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -19,13 +19,32 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 import net.minecraft.client.model.EntityModel;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SwordSwarmCharmRenderer implements ICurioRenderer {
     private static final int[] LAYER_COUNTS = new int[]{6, 12, 24};
     private static final double[] LAYER_SPIN_SPEED = new double[]{3.0, 4.5, 6.0};
     private static final double[] LAYER_RADIUS_PULSE_SPEED = new double[]{0.0, 0.6, 0.8};
     private static final double RADIUS_PULSE_AMPLITUDE = 0.18;
+    private static final Map<ResourceLocation, ItemStack> ITEM_CACHE = new HashMap<>();
+
+    private static ItemStack getCachedItem(ResourceLocation id) {
+        ItemStack cached = ITEM_CACHE.get(id);
+        if (cached != null) return cached;
+
+        net.minecraft.world.item.Item item = ForgeRegistries.ITEMS.getValue(id);
+        if (item == null) {
+            ITEM_CACHE.put(id, ItemStack.EMPTY);
+            return ItemStack.EMPTY;
+        }
+
+        ItemStack visual = new ItemStack(item);
+        visual.setCount(1);
+        ITEM_CACHE.put(id, visual);
+        return visual;
+    }
 
     @Override
     public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack, SlotContext slotContext, PoseStack poseStack, RenderLayerParent<T, M> renderLayerParent, MultiBufferSource buffer, int light, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
@@ -33,20 +52,20 @@ public class SwordSwarmCharmRenderer implements ICurioRenderer {
         Level level = entity.level();
         List<ResourceLocation> queue = SwordSwarmCharm.getDisplayQueue(stack, level);
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+        float animationTime = ageInTicks + partialTicks;
+        float bodyYaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
 
         poseStack.pushPose();
-        
-        float bodyYaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot);
         poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(-bodyYaw));
 
-        double anchorFactor = 0.5;
-        poseStack.translate(0.0, entity.getBbHeight() * anchorFactor - 1.0, 0.0);
+        poseStack.translate(0.0, entity.getBbHeight() * SwordSwarmRenderParams.anchorFactor
+                - SwordSwarmRenderParams.anchorYOffset, 0.0);
         
-        double radius = 1.0;
-        double floatSpeed = 0.08;
-        double floatAmplitude = 0.08;
-        double phaseStep = 0.7;
-        double spinSpeedDegPerTick = 6.0;
+        double radius = SwordSwarmRenderParams.radius;
+        double floatSpeed = SwordSwarmRenderParams.floatSpeed;
+        double floatAmplitude = SwordSwarmRenderParams.floatAmplitude;
+        double phaseStep = SwordSwarmRenderParams.phaseStep;
+        double spinSpeedDegPerTick = SwordSwarmRenderParams.spinSpeedDegPerTick;
 
         List<ResourceLocation> devoured = SwordSwarmCharm.getDevouredList(stack);
         List<ResourceLocation> source = devoured.isEmpty() ? queue : devoured;
@@ -54,7 +73,7 @@ public class SwordSwarmCharmRenderer implements ICurioRenderer {
         double baseRadius = 1.6;
         double layerGap = 0.8;
         double radiusNoise = 0.25;
-        double spinBase = (ageInTicks + partialTicks);
+        double spinBase = animationTime;
 
         // 渲染数量与储存剑数量挂钩：按 stored/max 比例缩放各层剑数
         int stored = SwordSwarmCharm.getStoredSwords(stack);
@@ -66,23 +85,23 @@ public class SwordSwarmCharmRenderer implements ICurioRenderer {
         if (count == 0 && stored > 0 && !queue.isEmpty()) count = 1;
         for (int i = 0; i < count; i++) {
             ResourceLocation id = queue.get(i);
-            ItemStack visual = new ItemStack(ForgeRegistries.ITEMS.getValue(id));
+            ItemStack visual = getCachedItem(id);
             if (visual.isEmpty()) continue;
             double stepDeg = count > 0 ? (360.0 / count) : 0.0;
-            double spinDeg = (ageInTicks + partialTicks) * spinSpeedDegPerTick;
+            double spinDeg = animationTime * spinSpeedDegPerTick;
             double angleDeg = stepDeg * i + spinDeg;
             double angle = Math.toRadians(angleDeg);
             double x = Math.cos(angle) * radius;
             double z = Math.sin(angle) * radius;
             
-            double t = (ageInTicks + partialTicks) * floatSpeed;
+            double t = animationTime * floatSpeed;
             double dy = Math.sin(t + i * phaseStep) * floatAmplitude;
             poseStack.pushPose();
             poseStack.translate(x, 0.3 + dy, z);
 
             double baseYawDeg = 0.0;
-            double basePitchDeg = -180.0;
-            double baseRollDeg = -45.0;
+            double basePitchDeg = SwordSwarmRenderParams.basePitchDeg;
+            double baseRollDeg = SwordSwarmRenderParams.baseRollDeg;
             poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees((float)(baseYawDeg)));
             poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees((float)basePitchDeg));
             poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees((float)baseRollDeg));
@@ -100,7 +119,7 @@ public class SwordSwarmCharmRenderer implements ICurioRenderer {
                 double pulseSpeed = LAYER_RADIUS_PULSE_SPEED[Math.min(l, LAYER_RADIUS_PULSE_SPEED.length - 1)];
                 for (int i = 0; i < perLayer; i++) {
                     ResourceLocation id = source.get((i + l * perLayer) % source.size());
-                    ItemStack visual = new ItemStack(ForgeRegistries.ITEMS.getValue(id));
+                    ItemStack visual = getCachedItem(id);
                     if (visual.isEmpty()) continue;
                     double stepDeg = 360.0 / perLayer;
                     double angleDeg = stepDeg * i + spinDeg;
@@ -111,13 +130,13 @@ public class SwordSwarmCharmRenderer implements ICurioRenderer {
                     double rr = r + rn * radiusNoise + pulse;
                     double x = Math.cos(angle) * rr;
                     double z = Math.sin(angle) * rr;
-                    double t = (ageInTicks + partialTicks) * floatSpeed;
+                    double t = animationTime * floatSpeed;
                     double dy = Math.sin(t + (i + l) * phaseStep) * floatAmplitude;
                     poseStack.pushPose();
                     poseStack.translate(x, 0.25 + dy + l * 0.08, z);
                     double yawDeg = angleDeg + 90.0;
-                    double basePitchDeg = -180.0;
-                    double baseRollDeg = -45.0;
+                    double basePitchDeg = SwordSwarmRenderParams.basePitchDeg;
+                    double baseRollDeg = SwordSwarmRenderParams.baseRollDeg;
                     poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees((float) yawDeg));
                     poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees((float) basePitchDeg));
                     poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees((float) baseRollDeg));

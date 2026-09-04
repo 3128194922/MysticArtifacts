@@ -185,8 +185,10 @@ public class SwordSwarmCharm extends Item implements ICurioItem {
     }
     
     public static List<ResourceLocation> getDisplayQueue(ItemStack stack, Level level) {
-        CompoundTag tag = stack.getOrCreateTag();
         List<ResourceLocation> queue = new ArrayList<>();
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return queue;
+
         if (tag.contains("DisplayQueue", Tag.TAG_LIST)) {
             ListTag list = tag.getList("DisplayQueue", Tag.TAG_STRING);
             for (int i = 0; i < list.size(); i++) {
@@ -194,17 +196,16 @@ public class SwordSwarmCharm extends Item implements ICurioItem {
                 if (id != null) queue.add(id);
             }
         }
-        if (queue.isEmpty()) {
-            if (getDevouredList(stack).isEmpty()) {
-                return queue;
-            }
-            seedQueue(stack, level);
-            return getDisplayQueue(stack, level);
-        }
         return queue;
     }
     
     public static void seedQueue(ItemStack stack, Level level) {
+        CompoundTag tag = stack.getOrCreateTag();
+        if (tag.contains("DisplayQueue", Tag.TAG_LIST)
+                && !tag.getList("DisplayQueue", Tag.TAG_STRING).isEmpty()) {
+            return;
+        }
+
         List<ResourceLocation> devoured = getDevouredList(stack);
         if (devoured.isEmpty()) return;
         net.minecraft.util.RandomSource random = level.getRandom();
@@ -222,7 +223,7 @@ public class SwordSwarmCharm extends Item implements ICurioItem {
             ResourceLocation pick = pool.get(random.nextInt(pool.size()));
             list.add(StringTag.valueOf(pick.toString()));
         }
-        stack.getOrCreateTag().put("DisplayQueue", list);
+        tag.put("DisplayQueue", list);
     }
     
     public static ResourceLocation popNextAndAppendRandom(ItemStack stack, Level level) {
