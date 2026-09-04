@@ -77,31 +77,15 @@ public class AirburstArrowEntity extends AbstractArrow {
 
         ServerLevel serverLevel = (ServerLevel) this.level();
 
+        int count = Config.AirBurstNumber + this.random.nextInt(Config.AirBurstNumberRandom);
         Entity ownerEntity = this.getOwner();
         LivingEntity owner = null;
         if (ownerEntity instanceof LivingEntity living) {
             owner = living;
         }
 
-        float turnFraction = (1.0F + (float) Math.sqrt(5.0)) / 2.0F;
-        int numPoints = 17;
-        double fullness = 0.8;
-
-        for (int i = 1; i <= numPoints; i++) {
-            double dst = i / (double) numPoints;
-            double inclination = Math.acos(1.0 - fullness * dst);
-            double azimuth = 2.0 * Math.PI * (this.random.nextFloat() + turnFraction * i);
-
-            Vec3 finalVec = new Vec3(
-                    Math.sin(inclination) * Math.cos(azimuth),
-                    Math.cos(inclination),
-                    Math.sin(inclination) * Math.sin(azimuth)
-            );
-
-            if (i == 1) {
-                finalVec = finalVec.add(0.0, 1.0, 0.0).scale(0.5);
-            }
-            finalVec = finalVec.scale(0.35);
+        for (int i = 1; i <= count; i++) {
+            Vec3 finalVec = ScatterArrowDirection.create(this.random, i, count);
 
             ExplodingArrowEntity childArrow;
             if (owner != null) {

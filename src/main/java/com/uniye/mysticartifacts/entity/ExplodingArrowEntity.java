@@ -42,17 +42,13 @@ public class ExplodingArrowEntity extends AbstractArrow {
 
         serverLevel.explode(null, this.getX(), this.getY(), this.getZ(), 2.0f, Level.ExplosionInteraction.NONE);
 
-        int count = Config.AirBurstNumber2 + this.random.nextInt(Config.AirBurstNumber2Random);
+        int count = Config.AirBurstNumber2 + this.random.nextInt(Config.AirBurstNumber2Random + 1);
         Entity ownerEntity = this.getOwner();
         LivingEntity owner = null;
         if (ownerEntity instanceof LivingEntity living) owner = living;
 
-        for (int i = 0; i < count; i++) {
-            double dx = (random.nextDouble() - 0.5) * 0.3;
-            double dy = (random.nextDouble() * 0.2 + 0.05);
-            double dz = (random.nextDouble() - 0.5) * 0.3;
-
-            Vec3 randomDir = new Vec3(dx, dy, dz);
+        for (int i = 1; i <= count; i++) {
+            Vec3 randomDir = ScatterArrowDirection.create(this.random, i, count);
 
             FinalExplodingArrowEntity smallArrow;
             if (owner != null) {

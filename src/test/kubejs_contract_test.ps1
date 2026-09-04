@@ -39,9 +39,23 @@ Assert-Condition ($pluginList -match 'KubeJSKatanaPlugin') 'KubeJS plugin entryp
 
 $airburstEntity = Join-Path $sourceRoot 'java\com\uniye\mysticartifacts\entity\AirburstArrowEntity.java'
 $airburstText = Get-Content -Raw $airburstEntity
-Assert-Condition ($airburstText -match 'int numPoints\s*=\s*17') 'Airburst split must use 17 scatter points'
-Assert-Condition ($airburstText -match 'double fullness\s*=\s*0\.8') 'Airburst split must use scatter fullness 0.8'
-Assert-Condition ($airburstText -match 'scale\(0\.35') 'Airburst split must use scatter speed scale 0.35'
-Assert-Condition (-not ($airburstText -match 'Config\.AirBurstNumber\s*\+\s*this\.random\.nextInt')) 'Airburst split must not use the old random count'
+Assert-Condition ($airburstText -match 'int count\s*=\s*Config\.AirBurstNumber\s*\+\s*this\.random\.nextInt\(Config\.AirBurstNumberRandom\)') 'Airburst split must use the configured 12 plus random 0-7 count'
+Assert-Condition ($airburstText -match 'ScatterArrowDirection\.create\(this\.random,\s*i,\s*count\)') 'Airburst split must use shared scatter directions'
+
+$explodingEntity = Join-Path $sourceRoot 'java\com\uniye\mysticartifacts\entity\ExplodingArrowEntity.java'
+$explodingText = Get-Content -Raw $explodingEntity
+Assert-Condition ($explodingText -match 'int count\s*=\s*Config\.AirBurstNumber2\s*\+\s*this\.random\.nextInt\(Config\.AirBurstNumber2Random\s*\+\s*1\)') 'Airburst I split must use the configured 3-6 count'
+Assert-Condition ($explodingText -match 'ScatterArrowDirection\.create\(this\.random,\s*i,\s*count\)') 'Airburst I split must use shared scatter directions'
+
+$scatterDirection = Join-Path $sourceRoot 'java\com\uniye\mysticartifacts\entity\ScatterArrowDirection.java'
+$scatterText = Get-Content -Raw $scatterDirection
+Assert-Condition ($scatterText -match 'double fullness\s*=\s*0\.8') 'Shared scatter direction must use fullness 0.8'
+Assert-Condition ($scatterText -match 'turnFraction') 'Shared scatter direction must use golden-ratio distribution'
+Assert-Condition ($scatterText -match 'add\(0\.0,\s*1\.0,\s*0\.0\)\.scale\(0\.5\)') 'Shared scatter direction must raise the first direction'
+Assert-Condition ($scatterText -match 'scale\(0\.35\)') 'Shared scatter direction must use speed scale 0.35'
+
+$finalExplodingEntity = Join-Path $sourceRoot 'java\com\uniye\mysticartifacts\entity\FinalExplodingArrowEntity.java'
+$finalExplodingText = Get-Content -Raw $finalExplodingEntity
+Assert-Condition (-not ($finalExplodingText -match 'addFreshEntity')) 'Airburst II must not scatter child entities'
 
 Write-Output 'Contract check passed'
