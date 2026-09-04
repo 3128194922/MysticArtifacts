@@ -1,8 +1,5 @@
 {
-  "parent": "item/handheld",
-  "textures": {
-    "layer0": "mysticartifacts:item/katana_sheathed"
-  },
+  "parent": "mysticartifacts:item/katana_sheathed",
   "overrides": [
     {
       "predicate": {

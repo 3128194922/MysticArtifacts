@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class KatanaCircleSlashRenderer extends EntityRenderer<KatanaCircleSlashEntity> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(
-            MysticArtifacts.MODID, "textures/entity/katana_slash.png");
+            MysticArtifacts.MODID, "textures/entity/katana_circle_slash.png");
 
     public KatanaCircleSlashRenderer(EntityRendererProvider.Context context) {
         super(context);
