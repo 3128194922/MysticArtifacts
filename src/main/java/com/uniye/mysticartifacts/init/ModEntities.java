@@ -116,6 +116,22 @@ public class ModEntities {
                     .build("artifact_spirit")
     );
 
+    public static final RegistryObject<EntityType<KatanaSlashEntity>> KATANA_SLASH = ENTITIES.register("katana_slash",
+            () -> EntityType.Builder.<KatanaSlashEntity>of(KatanaSlashEntity::new, MobCategory.MISC)
+                    .sized(4.0F, 4.0F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("katana_slash")
+    );
+
+    public static final RegistryObject<EntityType<KatanaCircleSlashEntity>> KATANA_CIRCLE_SLASH = ENTITIES.register("katana_circle_slash",
+            () -> EntityType.Builder.<KatanaCircleSlashEntity>of(KatanaCircleSlashEntity::new, MobCategory.MISC)
+                    .sized(4.0F, 4.0F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("katana_circle_slash")
+    );
+
     public static void register(IEventBus eventBus) {
         ENTITIES.register(eventBus);
     }
