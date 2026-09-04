@@ -86,14 +86,21 @@ public class KatanaSlashEntity extends Projectile {
     @Override
     public void tick() {
         super.tick();
-        Entity owner = this.getOwner();
-        if (!(owner instanceof Player player) || !player.isAlive() || this.tickCount > MAX_LIFETIME) {
+        if (this.tickCount > MAX_LIFETIME) {
             this.discard();
             return;
         }
 
-        if (getStyle() == STYLE_OPEN_SLASH && !this.level().isClientSide && this.tickCount == 1) {
-            damageOpenTargets(player);
+        if (!this.level().isClientSide) {
+            Entity owner = this.getOwner();
+            if (!(owner instanceof Player player) || !player.isAlive()) {
+                this.discard();
+                return;
+            }
+
+            if (getStyle() == STYLE_OPEN_SLASH && this.tickCount == 1) {
+                damageOpenTargets(player);
+            }
         }
 
         if (getStyle() == STYLE_DASH) {

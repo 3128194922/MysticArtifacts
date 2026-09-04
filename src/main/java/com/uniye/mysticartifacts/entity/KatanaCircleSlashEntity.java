@@ -54,17 +54,24 @@ public class KatanaCircleSlashEntity extends Projectile {
     @Override
     public void tick() {
         super.tick();
-        Entity owner = this.getOwner();
-        if (!(owner instanceof Player player) || !player.isAlive() || this.tickCount > MAX_LIFETIME) {
+        if (this.tickCount > MAX_LIFETIME) {
             this.discard();
             return;
         }
 
-        this.setPos(player.getX(), player.getY() + player.getBbHeight() * 0.5D, player.getZ());
-        if (!this.level().isClientSide && (this.tickCount == 1 || this.tickCount == 4 || this.tickCount == 7)) {
-            pulse(player);
-            if (this.tickCount == 7) {
-                KatanaState.close(this.stateStack.isEmpty() ? player.getMainHandItem() : this.stateStack);
+        if (!this.level().isClientSide) {
+            Entity owner = this.getOwner();
+            if (!(owner instanceof Player player) || !player.isAlive()) {
+                this.discard();
+                return;
+            }
+
+            this.setPos(player.getX(), player.getY() + player.getBbHeight() * 0.5D, player.getZ());
+            if (this.tickCount == 1 || this.tickCount == 4 || this.tickCount == 7) {
+                pulse(player);
+                if (this.tickCount == 7) {
+                    KatanaState.close(this.stateStack.isEmpty() ? player.getMainHandItem() : this.stateStack);
+                }
             }
         }
     }

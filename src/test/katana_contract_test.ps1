@@ -8,6 +8,7 @@ $circlePath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/entity
 $entitiesPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/init/ModEntities.java'
 $mainPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/MysticArtifacts.java'
 $modelPath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/models/item/katana.json'
+$mixinPath = Join-Path $projectRoot 'main/resources/mysticartifacts.mixins.json'
 $slashTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/entity/katana_slash.png'
 $circleTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/entity/katana_circle_slash.png'
 $sheathedTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/item/katana_sheathed.png'
@@ -20,6 +21,7 @@ $circleText = if (Test-Path $circlePath) { Get-Content -Raw $circlePath } else {
 $entitiesText = Get-Content -Raw $entitiesPath
 $mainText = Get-Content -Raw $mainPath
 $modelText = Get-Content -Raw $modelPath
+$mixinText = Get-Content -Raw $mixinPath
 $meshText = if (Test-Path $meshPath) { Get-Content -Raw $meshPath } else { '' }
 $failures = [System.Collections.Generic.List[string]]::new()
 
@@ -62,6 +64,15 @@ if ($mainText -notmatch 'EntityRenderers\.register\(ModEntities\.KATANA_SLASH' -
 }
 if ($meshText -notmatch 'renderArc' -or $meshText -notmatch 'renderRing' -or $meshText -notmatch 'segments') {
     $failures.Add('Katana renderer does not use continuous slash mesh geometry')
+}
+if ($mixinText -notmatch 'KatanaModelMixin' -or $mixinText -notmatch 'KatanaRenderMixin') {
+    $failures.Add('Katana first-person guard mixins are not enabled')
+}
+if ($slashText -notmatch 'if \(!this\.level\(\)\.isClientSide\)') {
+    $failures.Add('Katana slash entity can be discarded on the client before it renders')
+}
+if ($circleText -notmatch 'if \(!this\.level\(\)\.isClientSide\)') {
+    $failures.Add('Katana circle entity can be discarded on the client before it renders')
 }
 if ($modelText -notmatch 'mysticartifacts:open' -or $modelText -notmatch 'katana_sheathed' -or
     $modelText -notmatch 'katana_open') {

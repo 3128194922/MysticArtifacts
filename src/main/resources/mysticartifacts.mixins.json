@@ -9,7 +9,9 @@
     "ServerItemCooldownsAccessor"
   ],
   "client": [
-    "LocalPlayerMixin"
+    "LocalPlayerMixin",
+    "KatanaModelMixin",
+    "KatanaRenderMixin"
   ],
   "injectors": {
     "defaultRequire": 1

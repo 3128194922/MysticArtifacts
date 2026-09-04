@@ -28,6 +28,8 @@ public class KatanaCircleSlashRenderer extends EntityRenderer<KatanaCircleSlashE
         float rotation = (entity.tickCount + partialTicks) * 18.0F;
 
         poseStack.pushPose();
+        poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.scale(1.0F, 0.38F, 1.0F);
         RenderType renderType = RenderType.entityTranslucent(TEXTURE);

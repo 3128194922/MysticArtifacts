@@ -29,8 +29,8 @@ public class KatanaSlashRenderer extends EntityRenderer<KatanaSlashEntity> {
         float scale = entity.getStyle() == KatanaSlashEntity.STYLE_DASH ? 1.8F : 1.5F;
 
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(-entity.getYRot() - 90.0F));
-        poseStack.mulPose(Axis.XP.rotationDegrees(entity.getXRot()));
+        poseStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.scale(scale, scale * 0.28F, scale);
 
