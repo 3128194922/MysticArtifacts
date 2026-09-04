@@ -21,7 +21,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /** MysticArtifacts 自己的刀光实体；伤害源始终是持刀玩家。 */
 public class KatanaSlashEntity extends Projectile {
@@ -33,6 +36,7 @@ public class KatanaSlashEntity extends Projectile {
     private static final int MAX_LIFETIME = 10;
 
     private ItemStack attackStack = ItemStack.EMPTY;
+    private final Set<UUID> hitTargets = new HashSet<>();
 
     public KatanaSlashEntity(EntityType<? extends Projectile> type, Level level) {
         super(type, level);
@@ -105,9 +109,12 @@ public class KatanaSlashEntity extends Projectile {
         }
         AABB hitBox = player.getBoundingBox().expandTowards(dashVector).inflate(1.0D, 0.8D, 1.0D);
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, hitBox,
-                target -> target != player && target.isAlive() && !target.isAlliedTo(player));
+                target -> target != player && target.isAlive() && !target.isSpectator() && !target.isAlliedTo(player)
+                        && !this.hitTargets.contains(target.getUUID()));
         for (LivingEntity target : targets) {
-            damageTarget(player, target, Config.KatanaDashDamageMultiplier);
+            if (damageTarget(player, target, Config.KatanaDashDamageMultiplier)) {
+                this.hitTargets.add(target.getUUID());
+            }
         }
     }
 
@@ -116,19 +123,24 @@ public class KatanaSlashEntity extends Projectile {
         Vec3 center = player.getEyePosition().add(look.scale(2.0D));
         AABB hitBox = new AABB(center, center).inflate(2.5D, 1.5D, 2.5D);
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, hitBox,
-                target -> target != player && target.isAlive() && !target.isAlliedTo(player)
+                target -> target != player && target.isAlive() && !target.isSpectator() && !target.isAlliedTo(player)
+                        && !this.hitTargets.contains(target.getUUID())
                         && target.position().subtract(player.position()).normalize().dot(look) > -0.25D);
         for (LivingEntity target : targets) {
-            damageTarget(player, target, 1.0D);
+            if (damageTarget(player, target, 1.0D)) {
+                this.hitTargets.add(target.getUUID());
+            }
         }
     }
 
-    private void damageTarget(Player player, LivingEntity target, double multiplier) {
+    private boolean damageTarget(Player player, LivingEntity target, double multiplier) {
         float damage = (float) (player.getAttributeValue(Attributes.ATTACK_DAMAGE) * multiplier
                 + EnchantmentHelper.getDamageBonus(this.attackStack, target.getMobType()));
         if (target.hurt(player.damageSources().playerAttack(player), damage)) {
             EnchantmentHelper.doPostHurtEffects(target, player);
+            return true;
         }
+        return false;
     }
 
     @Override

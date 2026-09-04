@@ -17,7 +17,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.network.NetworkHooks;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 /** 武士刀开鞘右键的玩家中心三段范围刀光。 */
 public class KatanaCircleSlashEntity extends Projectile {
@@ -26,6 +29,7 @@ public class KatanaCircleSlashEntity extends Projectile {
     private static final double DAMAGE_MULTIPLIER = 0.75D;
 
     private ItemStack attackStack = ItemStack.EMPTY;
+    private ItemStack stateStack = ItemStack.EMPTY;
 
     public KatanaCircleSlashEntity(EntityType<? extends Projectile> type, Level level) {
         super(type, level);
@@ -37,6 +41,7 @@ public class KatanaCircleSlashEntity extends Projectile {
         KatanaCircleSlashEntity slash = new KatanaCircleSlashEntity(ModEntities.KATANA_CIRCLE_SLASH.get(), level);
         slash.setOwner(player);
         slash.attackStack = stack.copy();
+        slash.stateStack = stack;
         slash.setPos(player.getX(), player.getY() + player.getBbHeight() * 0.5D, player.getZ());
         level.addFreshEntity(slash);
         return slash;
@@ -59,7 +64,7 @@ public class KatanaCircleSlashEntity extends Projectile {
         if (!this.level().isClientSide && (this.tickCount == 1 || this.tickCount == 4 || this.tickCount == 7)) {
             pulse(player);
             if (this.tickCount == 7) {
-                KatanaState.close(player.getMainHandItem());
+                KatanaState.close(this.stateStack.isEmpty() ? player.getMainHandItem() : this.stateStack);
             }
         }
     }
@@ -67,8 +72,12 @@ public class KatanaCircleSlashEntity extends Projectile {
     private void pulse(Player player) {
         AABB hitBox = player.getBoundingBox().inflate(RADIUS, 2.0D, RADIUS);
         List<LivingEntity> targets = this.level().getEntitiesOfClass(LivingEntity.class, hitBox,
-                target -> target != player && target.isAlive() && !target.isAlliedTo(player));
+                target -> target != player && target.isAlive() && !target.isSpectator() && !target.isAlliedTo(player));
+        Set<UUID> hitTargets = new HashSet<>();
         for (LivingEntity target : targets) {
+            if (!hitTargets.add(target.getUUID())) {
+                continue;
+            }
             float damage = (float) (player.getAttributeValue(Attributes.ATTACK_DAMAGE) * DAMAGE_MULTIPLIER
                     + EnchantmentHelper.getDamageBonus(this.attackStack, target.getMobType()));
             if (target.hurt(player.damageSources().playerAttack(player), damage)) {
