@@ -8,7 +8,6 @@ import com.mojang.math.Axis;
 import com.uniye.mysticartifacts.init.ModDamageTypes;
 import com.uniye.mysticartifacts.util.Ease;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -113,7 +112,7 @@ public class SpearItem extends SwordItem {
 
     @Override
     public @NotNull UseAnim getUseAnimation(@NotNull ItemStack stack) {
-        return UseAnim.BOW;
+        return UseAnim.SPEAR;
     }
 
     @Override
@@ -372,17 +371,6 @@ public class SpearItem extends SwordItem {
 
         private static float hitFeedbackAmount(float f) {
             return 0.4f * (Ease.outQuart(progress(f, 1.0f, 3.0f)) - Ease.inOutSine(progress(f, 3.0f, 10.0f)));
-        }
-
-        @Override
-        public HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack stack) {
-            if (stack.getItem() instanceof SpearItem
-                    && entity.isUsingItem()
-                    && entity.getUsedItemHand() == hand) {
-                // 第三人称使用弓箭拉弓的双手动作
-                return HumanoidModel.ArmPose.BOW_AND_ARROW;
-            }
-            return HumanoidModel.ArmPose.EMPTY;
         }
 
         private void applyItemArmTransform(PoseStack poseStack, HumanoidArm arm, float equipProcess) {

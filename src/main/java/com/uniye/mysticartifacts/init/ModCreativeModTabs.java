@@ -19,7 +19,6 @@ public class ModCreativeModTabs {
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModItems.SCULK_ARROW.get());
                         pOutput.accept(ModItems.DEMONIC_GESTATION.get());
-                        pOutput.accept(ModItems.NETHER_OF_VOICE.get());
                         pOutput.accept(ModItems.AIRBURST_ARROW.get());
                         pOutput.accept(ModItems.EXPLODING_ARROW.get());
                         pOutput.accept(ModItems.FINAL_EXPLODING_ARROW.get());

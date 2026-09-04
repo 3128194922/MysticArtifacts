@@ -38,16 +38,6 @@ public class Config
             .comment("Slime Arrow glowing effect radius")
             .defineInRange("TNTArrowGlowRadius", 10.0, 0.0, 255.0);
 
-    private static final ForgeConfigSpec.ConfigValue<Double> NETHER_OF_VOICE_SPEED = BUILDER
-            .comment("Nether of Voice movement speed")
-            .defineInRange("NetherOfVoiceSpeed", 0.5, 0.0, 10.0);
-    private static final ForgeConfigSpec.ConfigValue<Double> NETHER_OF_VOICE_TURN_RATE = BUILDER
-            .comment("Nether of Voice turn rate")
-            .defineInRange("NetherOfVoiceTurnRate", 0.15, 0.0, 1.0);
-    private static final ForgeConfigSpec.ConfigValue<Double> NETHER_OF_VOICE_DAMAGE = BUILDER
-            .comment("Nether of Voice base damage")
-            .defineInRange("NetherOfVoiceDamage", 10.0, 0.0, 1000.0);
-
     private static final ForgeConfigSpec.ConfigValue<Double> ENDER_KUNAI_MAX_DISTANCE = BUILDER
             .comment("Ender Kunai max teleport distance (blocks)")
             .defineInRange("EnderKunaiMaxDistance", 1000.0, 0.0, 100000.0);
@@ -171,10 +161,6 @@ public class Config
     public static double TNTArrowMinVelocity;
     public static double TNTArrowGlowRadius;
     
-    public static double NetherOfVoiceSpeed;
-    public static double NetherOfVoiceTurnRate;
-    public static double NetherOfVoiceDamage;
-    
     public static double EnderKunaiMaxDistance;
     
     public static int TwoDragonsMaxBounces;
@@ -228,10 +214,6 @@ public class Config
         TNTArrowDamage = TNT_ARROW_DAMAGE.get();
         TNTArrowMinVelocity = TNT_ARROW_MIN_VELOCITY.get();
         TNTArrowGlowRadius = TNT_ARROW_GLOW_RADIUS.get();
-        
-        NetherOfVoiceSpeed = NETHER_OF_VOICE_SPEED.get();
-        NetherOfVoiceTurnRate = NETHER_OF_VOICE_TURN_RATE.get();
-        NetherOfVoiceDamage = NETHER_OF_VOICE_DAMAGE.get();
         
         EnderKunaiMaxDistance = ENDER_KUNAI_MAX_DISTANCE.get();
         

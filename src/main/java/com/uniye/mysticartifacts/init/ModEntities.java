@@ -28,14 +28,6 @@ public class ModEntities {
                     .build("sculk_arrow")
     );
 
-    public static final RegistryObject<EntityType<NetherOfVoiceEntity>> NETHER_OF_VOICE = ENTITIES.register("nether_of_voice",
-            () -> EntityType.Builder.<NetherOfVoiceEntity>of(NetherOfVoiceEntity::new, MobCategory.MISC)
-                    .sized(0.5F, 0.5F)
-                    .clientTrackingRange(4)
-                    .updateInterval(20)
-                    .build("nether_of_voice")
-    );
-
     public static final RegistryObject<EntityType<AirburstArrowEntity>> AIRBURST_ARROW = ENTITIES.register("airburst_arrow",
             () -> EntityType.Builder.<AirburstArrowEntity>of(AirburstArrowEntity::new, MobCategory.MISC)
                     .sized(0.5F, 0.5F)

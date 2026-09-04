@@ -20,11 +20,6 @@ public class ModItems {
             () -> new DemonicGestationItem(new Item.Properties().stacksTo(1))
     );
 
-    public static final RegistryObject<Item> NETHER_OF_VOICE = ITEMS.register(
-            "nether_of_voice",
-            () -> new NetherOfVoiceItem(new Item.Properties())
-    );
-
     public static final RegistryObject<Item> AIRBURST_ARROW = ITEMS.register(
             "airburst_arrow",
             () -> new AirburstArrowItem(new Item.Properties())
