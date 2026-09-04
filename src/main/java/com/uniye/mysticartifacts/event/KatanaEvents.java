@@ -4,6 +4,7 @@ import com.uniye.mysticartifacts.Config;
 import com.uniye.mysticartifacts.MysticArtifacts;
 import com.uniye.mysticartifacts.init.ModSounds;
 import com.uniye.mysticartifacts.item.impl.MuramasaItem;
+import com.uniye.mysticartifacts.item.impl.KatanaState;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.Entity;
@@ -54,6 +55,7 @@ public class KatanaEvents {
                     entity.getUseItem().hurtAndBreak(1, entity, (e) -> e.broadcastBreakEvent(entity.getUsedItemHand()));
                         
                     if (!entity.level().isClientSide) {
+                        KatanaState.addEnergy(stack, KatanaState.BLOCK_ENERGY);
                         MinecraftForge.EVENT_BUS.post(new KatanaBlockEvent(
                                 entity,
                                 attacker,
@@ -71,13 +73,6 @@ public class KatanaEvents {
     @SubscribeEvent
     public static void onLivingAttack(LivingAttackEvent event) {
         LivingEntity entity = event.getEntity();
-        
-        if (entity.getMainHandItem().getItem() instanceof MuramasaItem) {
-             if (MuramasaItem.isInIaido(entity.getMainHandItem())) {
-                 event.setCanceled(true);
-                 return;
-             }
-        }
         
         if (entity.isUsingItem() && entity.getUseItem().getItem() instanceof MuramasaItem) {
             ItemStack stack = entity.getUseItem();
@@ -105,6 +100,7 @@ public class KatanaEvents {
                     entity.getUseItem().hurtAndBreak(1, entity, (e) -> e.broadcastBreakEvent(entity.getUsedItemHand()));
                     entity.level().playSound(null, entity.getX(), entity.getY(), entity.getZ(), ModSounds.KATANA_BLOCK.get(), SoundSource.PLAYERS, 1.0F, 1.0F + (entity.level().random.nextFloat() - entity.level().random.nextFloat()) * 0.2F);
                     if (!entity.level().isClientSide) {
+                        KatanaState.addEnergy(entity.getUseItem(), KatanaState.BLOCK_ENERGY);
                         MinecraftForge.EVENT_BUS.post(new KatanaBlockEvent(
                                 entity,
                                 event.getSource().getEntity(),
