@@ -23,10 +23,12 @@ import net.minecraftforge.network.NetworkHooks;
 import java.util.UUID;
 
 public class EnderKunaiEntity extends AbstractArrow {
+    private static final int MAX_LIFETIME_TICKS = 100;
     private static final EntityDataAccessor<Boolean> IS_GLOWING_KUNAI = SynchedEntityData.defineId(EnderKunaiEntity.class, EntityDataSerializers.BOOLEAN);
     private static final String TAG_ITEM = "Item";
     private static final String TAG_OWNER_UUID = "OwnerUUID";
     private int groundTimer = 0;
+    private int lifetimeTicks = 0;
     private ItemStack pickupItemStack = new ItemStack(ModItems.ENDER_KUNAI.get());
     private UUID ownerUuid;
     private boolean timedOut;
@@ -64,17 +66,18 @@ public class EnderKunaiEntity extends AbstractArrow {
     @Override
     public void tick() {
         super.tick();
+        if (!this.level().isClientSide && ++this.lifetimeTicks >= MAX_LIFETIME_TICKS) {
+            this.timedOut = true;
+            this.discard();
+            return;
+        }
+
         if (this.inGround) {
             this.groundTimer++;
             
             if (!this.level().isClientSide && !this.entityData.get(IS_GLOWING_KUNAI)) {
                 this.entityData.set(IS_GLOWING_KUNAI, true);
                 this.setGlowingTag(true);
-            }
-            
-            if (this.groundTimer > 1200) {
-                this.timedOut = true;
-                this.discard();
             }
             
             if (this.level().isClientSide && this.groundTimer % 2 == 0) {
@@ -122,6 +125,7 @@ public class EnderKunaiEntity extends AbstractArrow {
             tag.putUUID(TAG_OWNER_UUID, this.ownerUuid);
         }
         tag.putInt("GroundTimer", this.groundTimer);
+        tag.putInt("LifetimeTicks", this.lifetimeTicks);
     }
 
     @Override
@@ -136,6 +140,7 @@ public class EnderKunaiEntity extends AbstractArrow {
             this.ownerUuid = this.getOwner().getUUID();
         }
         this.groundTimer = tag.getInt("GroundTimer");
+        this.lifetimeTicks = tag.getInt("LifetimeTicks");
     }
 
     @Override
