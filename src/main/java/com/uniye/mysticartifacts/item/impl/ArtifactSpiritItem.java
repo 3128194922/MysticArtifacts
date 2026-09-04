@@ -30,8 +30,8 @@ import java.util.List;
 public class ArtifactSpiritItem extends Item implements ICurioItem {
 
     private static final String TAG_STORED_WEAPON = "StoredWeapon";
-    private static final ResourceLocation SCORCHER_ID = ResourceLocation.fromNamespaceAndPath("dungeonnowloading", "scorcher");
-    private static final ResourceLocation SOUL_SCORCHER_ID = ResourceLocation.fromNamespaceAndPath("dungeonnowloading", "soul_scorcher");
+    private static final ResourceLocation CLANGING_HOWL_FLAMETHROWER_ID = ResourceLocation.fromNamespaceAndPath("clanginghowl", "flamethrower");
+    private static final ResourceLocation CLANGING_HOWL_BLAZE_FUEL_CYLINDER_ID = ResourceLocation.fromNamespaceAndPath("clanginghowl", "blaze_fuel_cylinder");
 
     public ArtifactSpiritItem(Properties properties) {
         super(properties);
@@ -53,22 +53,15 @@ public class ArtifactSpiritItem extends Item implements ICurioItem {
             return true;
         }
 
-        // Scorcher from DungeonNowLoading — safe check without compile dependency
-        if (isScorcher(stack)) return true;
+        if (isClangingHowlFlamethrower(stack)) return true;
 
         return false;
     }
 
-    private static boolean isScorcher(ItemStack stack) {
-        if (!ModList.get().isLoaded("dungeonnowloading") || stack.isEmpty()) return false;
+    private static boolean isClangingHowlFlamethrower(ItemStack stack) {
+        if (!ModList.get().isLoaded("clanginghowl") || stack.isEmpty()) return false;
         ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
-        return SCORCHER_ID.equals(id) || SOUL_SCORCHER_ID.equals(id);
-    }
-
-    private static boolean isSoulScorcher(ItemStack stack) {
-        if (!ModList.get().isLoaded("dungeonnowloading") || stack.isEmpty()) return false;
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
-        return SOUL_SCORCHER_ID.equals(id);
+        return CLANGING_HOWL_FLAMETHROWER_ID.equals(id);
     }
 
     // ========== NBT Helpers ==========
@@ -94,6 +87,12 @@ public class ArtifactSpiritItem extends Item implements ICurioItem {
 
     public static boolean isAmmoForWeapon(ItemStack ammo, ResourceLocation weaponId) {
         if (ammo.isEmpty() || weaponId == null) return false;
+
+        if (CLANGING_HOWL_FLAMETHROWER_ID.equals(weaponId)) {
+            return ModList.get().isLoaded("clanginghowl")
+                    && CLANGING_HOWL_BLAZE_FUEL_CYLINDER_ID.equals(ForgeRegistries.ITEMS.getKey(ammo.getItem()));
+        }
+
         Item weaponItem = ForgeRegistries.ITEMS.getValue(weaponId);
         if (weaponItem == null) return false;
 
@@ -119,11 +118,6 @@ public class ArtifactSpiritItem extends Item implements ICurioItem {
         // Here we do a loose pre-check: Create must be loaded and item must not be empty
         if ("create".equals(weaponId.getNamespace()) && "potato_cannon".equals(weaponId.getPath())) {
             return !ammo.isEmpty() && ModList.get().isLoaded("create");
-        }
-        // Scorcher → coal/charcoal
-        if (SCORCHER_ID.equals(weaponId) || SOUL_SCORCHER_ID.equals(weaponId)) {
-            return ammo.is(net.minecraft.world.item.Items.COAL)
-                    || ammo.is(net.minecraft.world.item.Items.CHARCOAL);
         }
         return false;
     }

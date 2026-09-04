@@ -48,8 +48,8 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
     private static final EntityDataAccessor<Boolean> IS_ATTACKING = SynchedEntityData.defineId(ArtifactSpiritEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> TARGET_ID = SynchedEntityData.defineId(ArtifactSpiritEntity.class, EntityDataSerializers.INT);
 
-    private static final ResourceLocation SCORCHER_ID = ResourceLocation.fromNamespaceAndPath("dungeonnowloading", "scorcher");
-    private static final ResourceLocation SOUL_SCORCHER_ID = ResourceLocation.fromNamespaceAndPath("dungeonnowloading", "soul_scorcher");
+    private static final ResourceLocation CLANGING_HOWL_FLAMETHROWER_ID = ResourceLocation.fromNamespaceAndPath("clanginghowl", "flamethrower");
+    private static final ResourceLocation CLANGING_HOWL_BLAZE_FUEL_CYLINDER_ID = ResourceLocation.fromNamespaceAndPath("clanginghowl", "blaze_fuel_cylinder");
     private static final ResourceLocation POTATO_CANNON_ID = ResourceLocation.fromNamespaceAndPath("create", "potato_cannon");
 
     @Nullable
@@ -59,19 +59,21 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
     @Nullable
     private UUID ownerUUID;
 
-    // Scorcher flamethrower state machine
+    // ClangingHowl flamethrower state machine
     // 0=IDLE, 1=STARTUP (预热), 2=FIRING (喷火), 3=OVERHEAT (过热冷却)
-    private int scorcherPhase = 0;
-    private int scorcherPhaseTimer = 0;
-    private int scorcherFuelTicks = 0;
-    private boolean scorcherIsSoul = false;
-    private int scorcherLastTargetId = -1;
+    private int clangingHowlPhase = 0;
+    private int clangingHowlPhaseTimer = 0;
+    private int clangingHowlFuel = 0;
+    private int clangingHowlLastTargetId = -1;
 
-    private static final int SCORCHER_STARTUP_TICKS = 20;
-    private static final int SCORCHER_MAX_FIRING_TICKS = 120;
-    private static final int SCORCHER_OVERHEAT_TICKS = 40;
-    private static final float SCORCHER_DAMAGE = 4.0F;
-    private static final float SOUL_SCORCHER_DAMAGE = 5.0F;
+    private static final int CLANGING_HOWL_STARTUP_TICKS = 20;
+    private static final int CLANGING_HOWL_MAX_FIRING_TICKS = 120;
+    private static final int CLANGING_HOWL_OVERHEAT_TICKS = 40;
+    private static final int CLANGING_HOWL_MAX_FUEL = 1600;
+    private static final int CLANGING_HOWL_FUEL_PER_CYLINDER = 1600;
+    private static final int CLANGING_HOWL_FUEL_PER_TICK = 5;
+    private static final float CLANGING_HOWL_DAMAGE = 4.0F;
+    private static final String CLANGING_HOWL_FUEL_TAG = "ClangingHowlFuel";
 
     public ArtifactSpiritEntity(EntityType<? extends ArtifactSpiritEntity> type, Level level) {
         super(type, level);
@@ -165,8 +167,8 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
                 }
             }
 
-            // Tick cooldown (only for non-scorcher weapons)
-            if (!isScorcherWeapon() && attackCooldown > 0) {
+            // Tick cooldown (only for non-flamethrower weapons)
+            if (!isClangingHowlFlamethrower() && attackCooldown > 0) {
                 attackCooldown--;
             }
 
@@ -174,9 +176,9 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
             Entity ownerTarget = getOwnerTarget(owner);
             if (ownerTarget != null) {
                 if (this.target == null || this.target.getId() != ownerTarget.getId()) {
-                    // Target switched — reset scorcher state if needed
-                    if (isScorcherWeapon() && scorcherPhase > 0) {
-                        resetScorcherState();
+                    // Target switched — reset flamethrower state if needed
+                    if (isClangingHowlFlamethrower() && clangingHowlPhase > 0) {
+                        resetClangingHowlState();
                     }
                     this.target = ownerTarget;
                     this.entityData.set(TARGET_ID, this.target.getId());
@@ -193,14 +195,14 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
                     this.setAttacking(false);
                     this.target = null;
                     this.entityData.set(TARGET_ID, -1);
-                    if (isScorcherWeapon()) resetScorcherState();
+                    if (isClangingHowlFlamethrower()) resetClangingHowlState();
                     this.returnTimer = 10;
                 }
             } else {
                 if (returnTimer > 0) {
                     returnTimer--;
                 }
-                if (isScorcherWeapon()) resetScorcherState();
+                if (isClangingHowlFlamethrower()) resetClangingHowlState();
             }
         }
 
@@ -290,17 +292,15 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
 
     // ========== Ranged Attack ==========
 
-    private boolean isScorcherWeapon() {
+    private boolean isClangingHowlFlamethrower() {
         ResourceLocation weaponId = getStoredWeaponId();
-        return SCORCHER_ID.equals(weaponId) || SOUL_SCORCHER_ID.equals(weaponId);
+        return ModList.get().isLoaded("clanginghowl") && CLANGING_HOWL_FLAMETHROWER_ID.equals(weaponId);
     }
 
-    private void resetScorcherState() {
-        scorcherPhase = 0;
-        scorcherPhaseTimer = 0;
-        scorcherFuelTicks = 0;
-        scorcherIsSoul = false;
-        scorcherLastTargetId = -1;
+    private void resetClangingHowlState() {
+        clangingHowlPhase = 0;
+        clangingHowlPhaseTimer = 0;
+        clangingHowlLastTargetId = -1;
     }
 
     private void handleRangedAttack(Player owner) {
@@ -308,13 +308,13 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
         ResourceLocation weaponId = getStoredWeaponId();
         if (weaponId == null) return;
 
-        // === Scorcher state machine (per-tick) ===
-        if (isScorcherWeapon()) {
-            tickScorcherStateMachine(owner);
+        // === ClangingHowl flamethrower state machine (per-tick) ===
+        if (isClangingHowlFlamethrower()) {
+            tickClangingHowlStateMachine(owner);
             return;
         }
 
-        // === Non-scorcher weapons (single shot per cooldown) ===
+        // === Non-flamethrower weapons (single shot per cooldown) ===
         if (attackCooldown > 0) return;
 
         ItemStack consumedAmmo = ItemStack.EMPTY;
@@ -322,11 +322,11 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
         // Potato cannon has its own ammo validation via level.registryAccess()
         if (weaponId.equals(POTATO_CANNON_ID)) {
             consumedAmmo = consumePotatoCannonAmmo(owner);
-        } else if (!isScorcherWeapon()) {
+        } else if (!isClangingHowlFlamethrower()) {
             consumedAmmo = consumeAmmoFromEnderChest(owner, weaponId);
         }
 
-        if (!weaponId.equals(POTATO_CANNON_ID) && !isScorcherWeapon() && consumedAmmo.isEmpty()) {
+        if (!weaponId.equals(POTATO_CANNON_ID) && !isClangingHowlFlamethrower() && consumedAmmo.isEmpty()) {
             this.setAttacking(false);
             this.target = null;
             this.entityData.set(TARGET_ID, -1);
@@ -338,24 +338,24 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
         fireSingleProjectile(owner, weaponId, consumedAmmo);
     }
 
-    // ========== Scorcher State Machine ==========
+    // ========== ClangingHowl Flamethrower State Machine ==========
 
-    private void tickScorcherStateMachine(Player owner) {
+    private void tickClangingHowlStateMachine(Player owner) {
         ResourceLocation weaponId = getStoredWeaponId();
         if (weaponId == null) return;
 
         Vec3 muzzle = this.position().add(0, 0.25, 0);
 
-        switch (scorcherPhase) {
+        switch (clangingHowlPhase) {
             case 0: // IDLE → STARTUP
-                startScorcherFiring(owner, muzzle, weaponId);
+                startClangingHowlFiring(owner, muzzle);
                 break;
 
             case 1: // STARTUP (预热)
-                scorcherPhaseTimer--;
-                if (scorcherPhaseTimer <= 0) {
-                    scorcherPhase = 2;
-                    scorcherPhaseTimer = SCORCHER_MAX_FIRING_TICKS;
+                clangingHowlPhaseTimer--;
+                if (clangingHowlPhaseTimer <= 0) {
+                    clangingHowlPhase = 2;
+                    clangingHowlPhaseTimer = CLANGING_HOWL_MAX_FIRING_TICKS;
                     this.level().playSound(null, muzzle.x, muzzle.y, muzzle.z,
                             SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 0.8F, 0.5F);
                 }
@@ -363,54 +363,50 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
 
             case 2: // FIRING (喷火)
                 // Refuel if needed
-                if (scorcherFuelTicks <= 0) {
-                    if (consumeAmmoFromEnderChest(owner, weaponId).isEmpty()) {
+                if (clangingHowlFuel < CLANGING_HOWL_FUEL_PER_TICK) {
+                    if (!refillClangingHowlFuelFromEnderChest(owner)) {
                         // Out of fuel → OVERHEAT
-                        scorcherPhase = 3;
-                        scorcherPhaseTimer = SCORCHER_OVERHEAT_TICKS;
+                        clangingHowlPhase = 3;
+                        clangingHowlPhaseTimer = CLANGING_HOWL_OVERHEAT_TICKS;
                         return;
                     }
-                    scorcherFuelTicks = 30; // coal/charcoal both give ~30 ticks (simplified from DNL)
                 }
 
                 // Shoot flame every tick
-                shootScorcherFlame(owner, muzzle, weaponId);
-                scorcherFuelTicks--;
-                scorcherPhaseTimer--;
+                shootClangingHowlFlame(owner, muzzle);
+                clangingHowlPhaseTimer--;
 
-                if (scorcherPhaseTimer <= 0) {
+                if (clangingHowlPhaseTimer <= 0) {
                     // Max firing duration → OVERHEAT
-                    scorcherPhase = 3;
-                    scorcherPhaseTimer = SCORCHER_OVERHEAT_TICKS;
+                    clangingHowlPhase = 3;
+                    clangingHowlPhaseTimer = CLANGING_HOWL_OVERHEAT_TICKS;
                 }
                 break;
 
             case 3: // OVERHEAT (过热冷却)
-                scorcherPhaseTimer--;
-                if (scorcherPhaseTimer <= 0) {
-                    scorcherPhase = 0; // Return to IDLE — can restart
+                clangingHowlPhaseTimer--;
+                if (clangingHowlPhaseTimer <= 0) {
+                    clangingHowlPhase = 0; // Return to IDLE — can restart
                 }
                 break;
         }
     }
 
-    private void startScorcherFiring(Player owner, Vec3 muzzle, ResourceLocation weaponId) {
-        if (consumeAmmoFromEnderChest(owner, weaponId).isEmpty()) {
+    private void startClangingHowlFiring(Player owner, Vec3 muzzle) {
+        if (clangingHowlFuel < CLANGING_HOWL_FUEL_PER_TICK && !refillClangingHowlFuelFromEnderChest(owner)) {
             this.attackCooldown = 20; // No fuel — wait before retry
             return;
         }
 
-        scorcherIsSoul = SOUL_SCORCHER_ID.equals(weaponId);
-        scorcherFuelTicks = 30;
-        scorcherPhase = 1;
-        scorcherPhaseTimer = SCORCHER_STARTUP_TICKS;
-        scorcherLastTargetId = this.target != null ? this.target.getId() : -1;
+        clangingHowlPhase = 1;
+        clangingHowlPhaseTimer = CLANGING_HOWL_STARTUP_TICKS;
+        clangingHowlLastTargetId = this.target != null ? this.target.getId() : -1;
 
         this.level().playSound(null, muzzle.x, muzzle.y, muzzle.z,
                 SoundEvents.FIRECHARGE_USE, SoundSource.PLAYERS, 0.6F, 0.8F);
     }
 
-    private void shootScorcherFlame(Player owner, Vec3 muzzle, ResourceLocation weaponId) {
+    private void shootClangingHowlFlame(Player owner, Vec3 muzzle) {
         Vec3 targetPos = this.target.position().add(0, this.target.getBbHeight() * 0.5, 0);
         Vec3 aim = targetPos.subtract(muzzle).normalize();
 
@@ -424,14 +420,15 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
 
         FlameProjectileEntity flame = new FlameProjectileEntity(owner, this.level());
         flame.setPos(muzzle.x, muzzle.y, muzzle.z);
-        flame.setDamage(scorcherIsSoul ? SOUL_SCORCHER_DAMAGE : SCORCHER_DAMAGE);
-        flame.setSoul(scorcherIsSoul);
+        flame.setDamage(CLANGING_HOWL_DAMAGE);
+        flame.setSoul(false);
         flame.setDeltaMovement(aim.scale(0.4));
 
         this.level().addFreshEntity(flame);
+        clangingHowlFuel -= CLANGING_HOWL_FUEL_PER_TICK;
 
         // Sound periodically (every 5 ticks)
-        if (scorcherPhaseTimer % 5 == 0) {
+        if (clangingHowlPhaseTimer % 5 == 0) {
             this.level().playSound(null, muzzle.x, muzzle.y, muzzle.z,
                     SoundEvents.FIRECHARGE_USE, SoundSource.PLAYERS, 0.4F,
                     0.5F + this.random.nextFloat() * 0.5F);
@@ -615,6 +612,28 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
 
     // ========== Ammo from Ender Chest ==========
 
+    /** Refill flamethrower fuel from the first matching ender chest slot. */
+    private boolean refillClangingHowlFuelFromEnderChest(@Nullable Player player) {
+        if (!ModList.get().isLoaded("clanginghowl") || player == null) return false;
+
+        var enderChest = player.getEnderChestInventory();
+        if (enderChest == null) return false;
+
+        for (int i = 0; i < enderChest.getContainerSize(); i++) {
+            ItemStack stack = enderChest.getItem(i);
+            if (!stack.isEmpty() && CLANGING_HOWL_BLAZE_FUEL_CYLINDER_ID.equals(ForgeRegistries.ITEMS.getKey(stack.getItem()))) {
+                stack.shrink(1);
+                if (stack.isEmpty()) {
+                    enderChest.setItem(i, ItemStack.EMPTY);
+                }
+                clangingHowlFuel = Math.min(CLANGING_HOWL_MAX_FUEL,
+                        clangingHowlFuel + CLANGING_HOWL_FUEL_PER_CYLINDER);
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** Consume one matching ammo from ender chest. Returns the consumed stack (copy), or EMPTY. */
     private ItemStack consumeAmmoFromEnderChest(Player player, @Nullable ResourceLocation weaponId) {
         if (weaponId == null) return ItemStack.EMPTY;
@@ -700,11 +719,10 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
             this.setItemId(tag.getString("ItemId"));
         }
         this.attackCooldown = tag.getInt("AttackCooldown");
-        this.scorcherPhase = tag.getInt("ScorcherPhase");
-        this.scorcherPhaseTimer = tag.getInt("ScorcherPhaseTimer");
-        this.scorcherFuelTicks = tag.getInt("ScorcherFuelTicks");
-        this.scorcherIsSoul = tag.getBoolean("ScorcherIsSoul");
-        this.scorcherLastTargetId = tag.getInt("ScorcherLastTargetId");
+        this.clangingHowlPhase = tag.getInt("ClangingHowlPhase");
+        this.clangingHowlPhaseTimer = tag.getInt("ClangingHowlPhaseTimer");
+        this.clangingHowlFuel = Mth.clamp(tag.getInt(CLANGING_HOWL_FUEL_TAG), 0, CLANGING_HOWL_MAX_FUEL);
+        this.clangingHowlLastTargetId = tag.getInt("ClangingHowlLastTargetId");
     }
 
     @Override
@@ -714,11 +732,10 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
         }
         tag.putString("ItemId", getItemIdString());
         tag.putInt("AttackCooldown", attackCooldown);
-        tag.putInt("ScorcherPhase", scorcherPhase);
-        tag.putInt("ScorcherPhaseTimer", scorcherPhaseTimer);
-        tag.putInt("ScorcherFuelTicks", scorcherFuelTicks);
-        tag.putBoolean("ScorcherIsSoul", scorcherIsSoul);
-        tag.putInt("ScorcherLastTargetId", scorcherLastTargetId);
+        tag.putInt("ClangingHowlPhase", clangingHowlPhase);
+        tag.putInt("ClangingHowlPhaseTimer", clangingHowlPhaseTimer);
+        tag.putInt(CLANGING_HOWL_FUEL_TAG, clangingHowlFuel);
+        tag.putInt("ClangingHowlLastTargetId", clangingHowlLastTargetId);
     }
 
     @Override
