@@ -11,6 +11,7 @@ $modelPath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/model
 $slashTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/entity/katana_slash.png'
 $circleTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/entity/katana_circle_slash.png'
 $sheathedTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/item/katana_sheathed.png'
+$meshPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/render/KatanaSlashMesh.java'
 
 $itemText = Get-Content -Raw $itemPath
 $eventsText = Get-Content -Raw $eventsPath
@@ -19,6 +20,7 @@ $circleText = if (Test-Path $circlePath) { Get-Content -Raw $circlePath } else {
 $entitiesText = Get-Content -Raw $entitiesPath
 $mainText = Get-Content -Raw $mainPath
 $modelText = Get-Content -Raw $modelPath
+$meshText = if (Test-Path $meshPath) { Get-Content -Raw $meshPath } else { '' }
 $failures = [System.Collections.Generic.List[string]]::new()
 
 if ($itemText -match 'applyDirectHealthCost') {
@@ -57,6 +59,9 @@ if (-not (Test-Path $slashTexturePath) -or -not (Test-Path $circleTexturePath) -
 if ($mainText -notmatch 'EntityRenderers\.register\(ModEntities\.KATANA_SLASH' -or
     $mainText -notmatch 'EntityRenderers\.register\(ModEntities\.KATANA_CIRCLE_SLASH') {
     $failures.Add('Katana entity renderers are not registered')
+}
+if ($meshText -notmatch 'renderArc' -or $meshText -notmatch 'renderRing' -or $meshText -notmatch 'segments') {
+    $failures.Add('Katana renderer does not use continuous slash mesh geometry')
 }
 if ($modelText -notmatch 'mysticartifacts:open' -or $modelText -notmatch 'katana_sheathed' -or
     $modelText -notmatch 'katana_open') {
