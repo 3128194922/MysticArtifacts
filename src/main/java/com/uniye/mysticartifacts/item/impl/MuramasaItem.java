@@ -1,5 +1,7 @@
 package com.uniye.mysticartifacts.item.impl;
 
+import com.uniye.mysticartifacts.entity.KatanaCircleSlashEntity;
+import com.uniye.mysticartifacts.entity.KatanaSlashEntity;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -14,6 +16,7 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
 
@@ -55,6 +58,7 @@ public class MuramasaItem extends SwordItem {
                 Vec3 look = player.getLookAngle();
                 Vec3 dashVector = new Vec3(look.x, 0.0D, look.z).normalize().scale(2.0D);
                 KatanaState.consumeDash(stack);
+                KatanaSlashEntity.createDash((ServerLevel) level, player, stack, dashVector);
                 player.push(dashVector.x, dashVector.y, dashVector.z);
                 player.hurtMarked = true;
                 addDashStepHeight(player);
@@ -69,6 +73,14 @@ public class MuramasaItem extends SwordItem {
         }
 
         if (KatanaState.isOpen(stack, level)) {
+            if (!level.isClientSide && level instanceof ServerLevel serverLevel) {
+                KatanaCircleSlashEntity.create(serverLevel, player, stack);
+                KatanaState.setCircleAttackUntil(stack,
+                        level.getGameTime() + KatanaState.CIRCLE_ATTACK_DURATION_TICKS);
+                player.getCooldowns().addCooldown(this, KatanaState.CIRCLE_ATTACK_DURATION_TICKS);
+            }
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 1.0F, 0.8F);
             player.swing(hand);
             return InteractionResultHolder.success(stack);
         }
@@ -105,6 +117,22 @@ public class MuramasaItem extends SwordItem {
 
     public static boolean isEnhanced(ItemStack stack, Level level, Entity holder) {
         return KatanaState.isOpen(stack, level, holder);
+    }
+
+    public static boolean triggerOpenSlash(Player player) {
+        if (player.level().isClientSide || !(player.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        ItemStack stack = player.getMainHandItem();
+        if (!(stack.getItem() instanceof MuramasaItem)
+                || !KatanaState.isOpen(stack, player.level())
+                || player.getCooldowns().isOnCooldown(stack.getItem())) {
+            return false;
+        }
+        KatanaSlashEntity.createOpenSlash(serverLevel, player, stack);
+        player.getCooldowns().addCooldown(stack.getItem(), 5);
+        player.swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        return true;
     }
 
     @Override

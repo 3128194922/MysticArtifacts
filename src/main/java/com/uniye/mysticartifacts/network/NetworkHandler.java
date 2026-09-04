@@ -69,5 +69,11 @@ public class NetworkHandler {
                 AncestorsLetterSyncPacket::decode,
                 AncestorsLetterSyncPacket::handle
         );
+
+        INSTANCE.registerMessage(id++, KatanaSwingPacket.class,
+                KatanaSwingPacket::encode,
+                KatanaSwingPacket::decode,
+                KatanaSwingPacket::handle
+        );
     }
 }
