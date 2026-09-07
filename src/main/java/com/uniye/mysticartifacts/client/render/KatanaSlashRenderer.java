@@ -18,6 +18,7 @@ public class KatanaSlashRenderer extends EntityRenderer<KatanaSlashEntity> {
     private static final RenderType COLOR = KatanaRenderTypes.blend(TEXTURE);
     private static final RenderType COLOR_WRITE = KatanaRenderTypes.colorWrite(TEXTURE);
     private static final RenderType LUMINOUS = KatanaRenderTypes.luminous(TEXTURE);
+    private static final float FORWARD_ALIGNMENT_DEGREES = 180.0F;
 
     public KatanaSlashRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -35,7 +36,8 @@ public class KatanaSlashRenderer extends EntityRenderer<KatanaSlashEntity> {
 
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(
-                -Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
+                -Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F
+                        + FORWARD_ALIGNMENT_DEGREES));
         poseStack.mulPose(Axis.ZP.rotationDegrees(
                 Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())));
         poseStack.mulPose(Axis.XP.rotationDegrees(entity.getRotationRoll()));
