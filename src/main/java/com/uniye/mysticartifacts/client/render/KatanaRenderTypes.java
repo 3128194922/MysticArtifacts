@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
-/** SlashBlade 普通混合与发光混合渲染状态的 MysticArtifacts 独立实现。 */
+/** 武士刀普通混合与发光混合的独立渲染状态。 */
 public final class KatanaRenderTypes extends RenderStateShard {
     private static final RenderStateShard.TransparencyStateShard ADDITIVE_TRANSPARENCY =
             new RenderStateShard.TransparencyStateShard("katana_additive_transparency", () -> {

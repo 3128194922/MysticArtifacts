@@ -10,7 +10,6 @@ $mainPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/MysticAr
 $modelPath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/models/item/katana.json'
 $mixinPath = Join-Path $projectRoot 'main/resources/mysticartifacts.mixins.json'
 $slashTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/entity/katana_slash.png'
-$circleTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/entity/katana_circle_slash.png'
 $sheathedTexturePath = Join-Path $projectRoot 'main/resources/assets/mysticartifacts/textures/item/katana_sheathed.png'
 $meshPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/render/KatanaSlashMesh.java'
 $rendererPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/render/KatanaSlashRenderer.java'
@@ -59,16 +58,16 @@ if ($itemText -notmatch 'triggerOpenSlash') {
 if ($eventsText -notmatch 'AttackEntityEvent') {
     $failures.Add('KatanaEvents does not handle open left-click entity attacks')
 }
-if (-not (Test-Path $slashTexturePath) -or -not (Test-Path $circleTexturePath) -or -not (Test-Path $sheathedTexturePath)) {
-    $failures.Add('Katana texture resources are incomplete')
+if (-not (Test-Path $slashTexturePath) -or -not (Test-Path $sheathedTexturePath)) {
+    $failures.Add('Katana slash or sheathed texture resource is missing')
 }
 if ($mainText -notmatch 'EntityRenderers\.register\(ModEntities\.KATANA_SLASH' -or
     $mainText -notmatch 'EntityRenderers\.register\(ModEntities\.KATANA_CIRCLE_SLASH') {
     $failures.Add('Katana entity renderers are not registered')
 }
-if ($meshText -notmatch 'renderSlashBladeLayer' -or $meshText -notmatch 'uvOffset' -or
-    $meshText -notmatch 'triangle\(') {
-    $failures.Add('Katana mesh does not reproduce the SlashBlade layered triangle geometry')
+if ($meshText -notmatch 'renderHalfMoonLayer' -or $meshText -notmatch 'uvOffset' -or
+    $meshText -notmatch 'ARC_SEGMENTS' -or $meshText -notmatch 'HALF_MOON_ANGLE_DEGREES') {
+    $failures.Add('Katana mesh does not generate the procedural half-moon geometry')
 }
 if ($slashText -notmatch 'getRotationOffset' -or $slashText -notmatch 'getRotationRoll' -or
     $slashText -notmatch 'getBaseSize') {
@@ -78,13 +77,11 @@ if ($circleText -notmatch 'getRotationOffset' -or $circleText -notmatch 'getRota
     $circleText -notmatch 'getBaseSize') {
     $failures.Add('Katana circle entity lacks SlashBlade-compatible render state')
 }
-if ($rendererText -notmatch 'baseAlpha' -or $rendererText -notmatch 'renderSlashBladeLayer' -or
-    $rendererText -notmatch '135\.0F') {
-    $failures.Add('Katana slash renderer does not reproduce the four-layer SlashBlade animation')
+if ($rendererText -notmatch 'baseAlpha' -or $rendererText -notmatch 'renderHalfMoonLayer') {
+    $failures.Add('Katana slash renderer does not render the four-layer half-moon animation')
 }
-if ($circleRendererText -notmatch 'baseAlpha' -or $circleRendererText -notmatch 'renderSlashBladeLayer' -or
-    $circleRendererText -notmatch '135\.0F') {
-    $failures.Add('Katana circle renderer does not reproduce the four-layer SlashBlade animation')
+if ($circleRendererText -notmatch 'baseAlpha' -or $circleRendererText -notmatch 'renderHalfMoonLayer') {
+    $failures.Add('Katana circle renderer does not render the four-layer half-moon animation')
 }
 if ($mixinText -notmatch 'KatanaModelMixin' -or $mixinText -notmatch 'KatanaRenderMixin') {
     $failures.Add('Katana first-person guard mixins are not enabled')
