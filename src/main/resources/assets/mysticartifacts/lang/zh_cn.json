@@ -39,6 +39,8 @@
     "entity.mysticartifacts.sword_phantom": "幻影剑",
     "death.attack.mysticartifacts.phantom_sword": "%1$s 被 %2$s 的幻影剑斩杀了。",
     "death.attack.mysticartifacts.iaido": "%1$s 被 %2$s 的居合斩作两断。",
+    "death.attack.katana_ghost_slash": "%1$s 被剑气斩碎了。",
+    "death.attack.katana_ghost_slash.player": "%1$s 被 %2$s 的鬼刀剑气斩碎了。",
     "subtitle.mysticartifacts.katana_block": "振刀格挡",
     "subtitle.mysticartifacts.poker_throw": "牌叠飞出",
     "subtitle.mysticartifacts.poker_recall": "牌叠收回",

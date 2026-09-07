@@ -40,7 +40,7 @@ public class ModItems {
             () -> new TwoDragonsPlayBallItem(new Item.Properties()));
 
     public static final RegistryObject<Item> KATANA = ITEMS.register("katana",
-            () -> new MuramasaItem(new Item.Properties()));
+            () -> new MuramasaItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> POKER_CARD = ITEMS.register("poker_card",
             () -> new PokerCardItem(new Item.Properties().stacksTo(54)));

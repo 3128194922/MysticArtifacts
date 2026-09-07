@@ -1,35 +1,52 @@
 package com.uniye.mysticartifacts.item.impl;
 
+import com.uniye.mysticartifacts.Config;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+/**
+ * 武士刀（Muramasa）双模式状态：普通模式 / 鬼刀模式。
+ *
+ * <p>充能显示在耐久条上；充能满时潜行右键居合进入鬼刀模式。
+ * 鬼刀模式下剑气与居合消耗充能，充能耗尽立即退出。</p>
+ */
 public final class KatanaState {
-    public static final int MAX_ENERGY = 100;
-    public static final int DASH_COST = 100;
-    public static final int HIT_ENERGY = 1;
-    public static final int BLOCK_ENERGY = 10;
-    public static final int OPEN_DURATION_TICKS = 200;
+    public static final int CHARGE_PER_HIT = 1;
+    public static final int CHARGE_PER_PARRY = 1;
+    public static final int CHARGE_PER_USE = 1;
+    /** 保留常量供 KatanaCircleSlashEntity 引用（圆斩已不再由武士刀触发）。 */
     public static final int CIRCLE_ATTACK_DURATION_TICKS = 9;
 
     private static final String ENERGY_TAG = "KatanaEnergy";
-    private static final String OPEN_UNTIL_TAG = "KatanaOpenUntil";
-    private static final String CIRCLE_ATTACK_UNTIL_TAG = "KatanaCircleAttackUntil";
+    /** 鬼刀结束时间戳（沿用旧 tag key，兼容已有存档的开鞘状态语义）。 */
+    private static final String GHOST_UNTIL_TAG = "KatanaOpenUntil";
+    private static final String AUTO_PARRY_TAG = "KatanaAutoParryLeft";
 
     private KatanaState() {
     }
 
+    public static int maxCharge() {
+        return Config.KatanaMaxCharge;
+    }
+
     public static int clampEnergy(int energy) {
-        return Math.max(0, Math.min(MAX_ENERGY, energy));
+        return Math.max(0, Math.min(maxCharge(), energy));
     }
 
+    public static boolean isFull(ItemStack stack) {
+        return getEnergy(stack) >= maxCharge();
+    }
+
+    /** 居合冲刺条件（纯函数）：充能满且不在鬼刀模式。 */
     public static boolean canDash(int energy, boolean open) {
-        return !open && energy >= DASH_COST;
+        return energy >= maxCharge() && !open;
     }
 
-    public static int consumeEnergy(int energy, int amount) {
-        return clampEnergy(energy - Math.max(0, amount));
+    /** 从能量数值中扣除消耗（纯函数），不足时归零。 */
+    public static int consumeEnergy(int energy, int cost) {
+        return clampEnergy(energy - Math.max(0, cost));
     }
 
     public static int getEnergy(ItemStack stack) {
@@ -46,36 +63,42 @@ public final class KatanaState {
         return newEnergy;
     }
 
-    public static long getOpenUntil(ItemStack stack) {
-        return getLongTag(stack, OPEN_UNTIL_TAG);
+    /** 消耗充能，不足时返回 false。 */
+    public static boolean consumeCharge(ItemStack stack, int amount) {
+        if (getEnergy(stack) < Math.max(0, amount)) {
+            return false;
+        }
+        setEnergy(stack, clampEnergy(getEnergy(stack) - Math.max(0, amount)));
+        return true;
     }
 
-    public static long getCircleAttackUntil(ItemStack stack) {
-        return getLongTag(stack, CIRCLE_ATTACK_UNTIL_TAG);
-    }
+    // ---- 鬼刀模式状态 ----
 
     public static boolean isOpen(ItemStack stack, Level level) {
-        long openUntil = getOpenUntil(stack);
+        long ghostUntil = getGhostUntil(stack);
         long currentTick = level != null ? level.getGameTime() : 0L;
-        return openUntil > currentTick;
+        return ghostUntil > currentTick;
     }
 
     public static boolean isOpen(ItemStack stack, Level level, Entity holder) {
-        long openUntil = getOpenUntil(stack);
+        long ghostUntil = getGhostUntil(stack);
         long currentTick = level != null ? level.getGameTime()
                 : holder != null ? holder.level().getGameTime() : 0L;
-        return openUntil > currentTick;
+        return ghostUntil > currentTick;
     }
 
-    public static void open(ItemStack stack, Level level, int durationTicks) {
+    /** 无 Level 环境（属性计算等）使用：tag 存在即视为鬼刀，过期由 clearExpired 清理。 */
+    public static boolean hasGhostTag(ItemStack stack) {
+        return stack.hasTag() && stack.getTag().contains(GHOST_UNTIL_TAG);
+    }
+
+    /** 进入鬼刀模式，同时重置本次的自动完美弹反次数。 */
+    public static void openGhost(ItemStack stack, Level level) {
         if (level == null) {
             return;
         }
-        stack.getOrCreateTag().putLong(OPEN_UNTIL_TAG, level.getGameTime() + Math.max(0, durationTicks));
-    }
-
-    public static void setCircleAttackUntil(ItemStack stack, long gameTime) {
-        stack.getOrCreateTag().putLong(CIRCLE_ATTACK_UNTIL_TAG, gameTime);
+        stack.getOrCreateTag().putLong(GHOST_UNTIL_TAG, level.getGameTime() + Math.max(1, Config.KatanaGhostDurationTicks));
+        stack.getOrCreateTag().putInt(AUTO_PARRY_TAG, Math.max(0, Config.KatanaGhostAutoParryMax));
     }
 
     public static void close(ItemStack stack) {
@@ -83,20 +106,8 @@ public final class KatanaState {
         if (tag == null) {
             return;
         }
-        tag.remove(OPEN_UNTIL_TAG);
-        tag.remove(CIRCLE_ATTACK_UNTIL_TAG);
-    }
-
-    public static boolean canDash(ItemStack stack, Level level) {
-        return canDash(getEnergy(stack), isOpen(stack, level));
-    }
-
-    public static boolean consumeDash(ItemStack stack) {
-        if (getEnergy(stack) < DASH_COST) {
-            return false;
-        }
-        setEnergy(stack, consumeEnergy(getEnergy(stack), DASH_COST));
-        return true;
+        tag.remove(GHOST_UNTIL_TAG);
+        tag.remove(AUTO_PARRY_TAG);
     }
 
     public static void clearExpired(ItemStack stack, long gameTime) {
@@ -104,16 +115,27 @@ public final class KatanaState {
         if (tag == null) {
             return;
         }
-        if (tag.getLong(OPEN_UNTIL_TAG) <= gameTime) {
-            tag.remove(OPEN_UNTIL_TAG);
-        }
-        if (tag.getLong(CIRCLE_ATTACK_UNTIL_TAG) <= gameTime) {
-            tag.remove(CIRCLE_ATTACK_UNTIL_TAG);
+        if (tag.getLong(GHOST_UNTIL_TAG) <= gameTime) {
+            tag.remove(GHOST_UNTIL_TAG);
+            tag.remove(AUTO_PARRY_TAG);
         }
         setEnergy(stack, getEnergy(stack));
     }
 
-    private static long getLongTag(ItemStack stack, String key) {
-        return stack.hasTag() ? stack.getTag().getLong(key) : 0L;
+    // ---- 鬼刀自动完美弹反 ----
+
+    public static int getAutoParryLeft(ItemStack stack) {
+        return stack.hasTag() ? stack.getTag().getInt(AUTO_PARRY_TAG) : 0;
+    }
+
+    public static void consumeAutoParry(ItemStack stack) {
+        if (!stack.hasTag()) {
+            return;
+        }
+        stack.getTag().putInt(AUTO_PARRY_TAG, Math.max(0, getAutoParryLeft(stack) - 1));
+    }
+
+    private static long getGhostUntil(ItemStack stack) {
+        return stack.hasTag() ? stack.getTag().getLong(GHOST_UNTIL_TAG) : 0L;
     }
 }

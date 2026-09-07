@@ -56,8 +56,20 @@ public class Config
             .comment("Katana perfect block window (ticks)")
             .defineInRange("KatanaPerfectBlockWindow", 20, 0, 100);
     private static final ForgeConfigSpec.ConfigValue<Double> KATANA_DASH_DAMAGE_MULTIPLIER = BUILDER
-            .comment("Katana dash damage multiplier")
-            .defineInRange("KatanaDashDamageMultiplier", 10.0, 0.0, 1000.0);
+            .comment("Katana iaido dash damage multiplier (1.0 = one normal attack)")
+            .defineInRange("KatanaDashDamageMultiplier", 1.0, 0.0, 1000.0);
+    private static final ForgeConfigSpec.IntValue KATANA_MAX_CHARGE = BUILDER
+            .comment("Katana max charge (shown on durability bar). Left click hits and perfect parries add charge; a full charge is required for the iaido dash that enters Ghost mode.")
+            .defineInRange("KatanaMaxCharge", 15, 1, 1000);
+    private static final ForgeConfigSpec.IntValue KATANA_GHOST_DURATION_TICKS = BUILDER
+            .comment("Katana Ghost mode duration in ticks. Default 300 = 15s.")
+            .defineInRange("KatanaGhostDurationTicks", 300, 1, 12000);
+    private static final ForgeConfigSpec.IntValue KATANA_GHOST_AUTO_PARRY_MAX = BUILDER
+            .comment("Katana Ghost mode auto perfect-parry uses per activation. 0 disables auto parry.")
+            .defineInRange("KatanaGhostAutoParryMax", 3, 0, 100);
+    private static final ForgeConfigSpec.ConfigValue<Double> KATANA_IMPERFECT_PARRY_REDUCTION = BUILDER
+            .comment("Katana imperfect parry damage reduction (0.0~1.0). Default 0.5 = take 50% damage while blocking outside the perfect window.")
+            .defineInRange("KatanaImperfectParryReduction", 0.5, 0.0, 1.0);
 
     private static final ForgeConfigSpec.ConfigValue<Double> POKER_CARD_RETRIEVAL_DISTANCE = BUILDER
             .comment("Poker Card retrieval distance")
@@ -169,6 +181,10 @@ public class Config
     
     public static int KatanaPerfectBlockWindow;
     public static double KatanaDashDamageMultiplier;
+    public static int KatanaMaxCharge;
+    public static int KatanaGhostDurationTicks;
+    public static int KatanaGhostAutoParryMax;
+    public static double KatanaImperfectParryReduction;
     
     public static double PokerCardRetrievalDistance;
     public static int PokerCardCooldown;
@@ -223,6 +239,10 @@ public class Config
         
         KatanaPerfectBlockWindow = KATANA_PERFECT_BLOCK_WINDOW.get();
         KatanaDashDamageMultiplier = KATANA_DASH_DAMAGE_MULTIPLIER.get();
+        KatanaMaxCharge = KATANA_MAX_CHARGE.get();
+        KatanaGhostDurationTicks = KATANA_GHOST_DURATION_TICKS.get();
+        KatanaGhostAutoParryMax = KATANA_GHOST_AUTO_PARRY_MAX.get();
+        KatanaImperfectParryReduction = KATANA_IMPERFECT_PARRY_REDUCTION.get();
         
         PokerCardRetrievalDistance = POKER_CARD_RETRIEVAL_DISTANCE.get();
         PokerCardCooldown = POKER_CARD_COOLDOWN.get();

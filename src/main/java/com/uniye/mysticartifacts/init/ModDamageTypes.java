@@ -19,6 +19,7 @@ public class ModDamageTypes {
     public static final ResourceKey<DamageType> POKER_SLICE = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "poker_slice"));
     public static final ResourceKey<DamageType> PHANTOM_SWORD = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "phantom_sword"));
     public static final ResourceKey<DamageType> IAIDO = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "iaido"));
+    public static final ResourceKey<DamageType> KATANA_GHOST_SLASH = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "katana_ghost_slash"));
     public static final ResourceKey<DamageType> SPEAR = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "spear"));
 
     public static DamageSource getSimpleDamageSource(Level level, ResourceKey<DamageType> type) {

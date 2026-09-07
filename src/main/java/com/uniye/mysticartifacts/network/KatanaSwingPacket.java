@@ -7,7 +7,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-/** 客户端空挥开鞘左键请求；真正的生成与伤害在服务器执行。 */
+/** 客户端空挥鬼刀左键请求；真正的剑气生成与伤害在服务器执行。 */
 public class KatanaSwingPacket {
     public KatanaSwingPacket() {
     }
@@ -24,7 +24,7 @@ public class KatanaSwingPacket {
         context.enqueueWork(() -> {
             ServerPlayer player = context.getSender();
             if (player != null) {
-                MuramasaItem.triggerOpenSlash(player);
+                MuramasaItem.fireGhostSlash(player);
             }
         });
         context.setPacketHandled(true);
