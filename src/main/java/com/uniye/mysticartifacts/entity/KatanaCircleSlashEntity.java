@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -36,6 +37,10 @@ public class KatanaCircleSlashEntity extends Projectile {
     private static final int MAX_LIFETIME = KatanaState.CIRCLE_ATTACK_DURATION_TICKS;
     private static final double RADIUS = 4.0D;
     private static final double DAMAGE_MULTIPLIER = 0.75D;
+    private static final float VISUAL_ROLL_RANGE_DEGREES = 45.0F;
+    private static final float VISUAL_OFFSET_RANGE_DEGREES = 20.0F;
+    private static final float VISUAL_SIZE_MIN = 0.92F;
+    private static final float VISUAL_SIZE_MAX = 1.08F;
 
     private ItemStack attackStack = ItemStack.EMPTY;
     private ItemStack stateStack = ItemStack.EMPTY;
@@ -47,10 +52,14 @@ public class KatanaCircleSlashEntity extends Projectile {
     }
 
     public static KatanaCircleSlashEntity create(Level level, Player player, ItemStack stack) {
+        RandomSource random = level.random;
         KatanaCircleSlashEntity slash = new KatanaCircleSlashEntity(ModEntities.KATANA_CIRCLE_SLASH.get(), level);
         slash.setOwner(player);
         slash.attackStack = stack.copy();
         slash.stateStack = stack;
+        slash.setRotationRoll(randomSymmetric(random, VISUAL_ROLL_RANGE_DEGREES));
+        slash.setRotationOffset(randomSymmetric(random, VISUAL_OFFSET_RANGE_DEGREES));
+        slash.setBaseSize(randomBetween(random, VISUAL_SIZE_MIN, VISUAL_SIZE_MAX));
         slash.setPos(player.getX(), player.getY() + player.getBbHeight() * 0.5D, player.getZ());
         slash.setYRot(player.getYRot() - 22.5F);
         level.addFreshEntity(slash);
@@ -61,12 +70,32 @@ public class KatanaCircleSlashEntity extends Projectile {
         return this.entityData.get(ROTATION_OFFSET);
     }
 
+    public void setRotationRoll(float roll) {
+        this.entityData.set(ROTATION_ROLL, roll);
+    }
+
+    public void setRotationOffset(float offset) {
+        this.entityData.set(ROTATION_OFFSET, offset);
+    }
+
     public float getRotationRoll() {
         return this.entityData.get(ROTATION_ROLL);
     }
 
     public float getBaseSize() {
         return this.entityData.get(BASE_SIZE);
+    }
+
+    public void setBaseSize(float size) {
+        this.entityData.set(BASE_SIZE, size);
+    }
+
+    private static float randomSymmetric(RandomSource random, float range) {
+        return (random.nextFloat() * 2.0F - 1.0F) * range;
+    }
+
+    private static float randomBetween(RandomSource random, float minimum, float maximum) {
+        return minimum + random.nextFloat() * (maximum - minimum);
     }
 
     @Override

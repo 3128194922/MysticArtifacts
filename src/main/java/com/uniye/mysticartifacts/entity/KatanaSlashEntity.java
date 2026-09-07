@@ -51,6 +51,10 @@ public class KatanaSlashEntity extends Projectile {
     private static final int MAX_LIFETIME = 10;
     private static final double GHOST_RANGE = 5.0D;
     private static final double GHOST_SPEED = 1.0D;
+    private static final float VISUAL_ROLL_RANGE_DEGREES = 45.0F;
+    private static final float VISUAL_OFFSET_RANGE_DEGREES = 20.0F;
+    private static final float VISUAL_SIZE_MIN = 0.92F;
+    private static final float VISUAL_SIZE_MAX = 1.08F;
 
     private ItemStack attackStack = ItemStack.EMPTY;
     private final Set<UUID> hitTargets = new HashSet<>();
@@ -64,10 +68,14 @@ public class KatanaSlashEntity extends Projectile {
 
     public static KatanaSlashEntity createDash(Level level, Player player, ItemStack stack,
                                                Vec3 dashVector, boolean damageTargets) {
+        RandomSource random = level.random;
         KatanaSlashEntity slash = new KatanaSlashEntity(ModEntities.KATANA_SLASH.get(), level);
         slash.setOwner(player);
         slash.setStyle(STYLE_DASH);
         slash.attackStack = stack.copy();
+        slash.setRotationRoll(randomSymmetric(random, VISUAL_ROLL_RANGE_DEGREES));
+        slash.setRotationOffset(randomSymmetric(random, VISUAL_OFFSET_RANGE_DEGREES));
+        slash.setBaseSize(randomBetween(random, VISUAL_SIZE_MIN, VISUAL_SIZE_MAX));
         slash.setPos(player.getX(), player.getY() + player.getBbHeight() * 0.55D, player.getZ());
         slash.setYRot(player.getYRot());
         slash.setXRot(player.getXRot());
@@ -89,8 +97,9 @@ public class KatanaSlashEntity extends Projectile {
         slash.setOwner(player);
         slash.setStyle(STYLE_GHOST);
         slash.attackStack = stack.copy();
-        slash.setRotationRoll((random.nextFloat() - 0.5F) * 90.0F);
-        slash.setBaseSize(0.9F + random.nextFloat() * 0.5F);
+        slash.setRotationRoll(randomSymmetric(random, VISUAL_ROLL_RANGE_DEGREES));
+        slash.setRotationOffset(randomSymmetric(random, VISUAL_OFFSET_RANGE_DEGREES));
+        slash.setBaseSize(randomBetween(random, VISUAL_SIZE_MIN, VISUAL_SIZE_MAX));
 
         Vec3 look = player.getLookAngle();
         slash.setPos(player.getX() + look.x * 1.0D,
@@ -117,6 +126,10 @@ public class KatanaSlashEntity extends Projectile {
         this.entityData.set(ROTATION_ROLL, roll);
     }
 
+    public void setRotationOffset(float offset) {
+        this.entityData.set(ROTATION_OFFSET, offset);
+    }
+
     public float getRotationOffset() {
         return this.entityData.get(ROTATION_OFFSET);
     }
@@ -131,6 +144,14 @@ public class KatanaSlashEntity extends Projectile {
 
     public float getBaseSize() {
         return this.entityData.get(BASE_SIZE);
+    }
+
+    private static float randomSymmetric(RandomSource random, float range) {
+        return (random.nextFloat() * 2.0F - 1.0F) * range;
+    }
+
+    private static float randomBetween(RandomSource random, float minimum, float maximum) {
+        return minimum + random.nextFloat() * (maximum - minimum);
     }
 
     @Override
