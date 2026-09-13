@@ -6,7 +6,7 @@ public final class TrailSightClientConfig {
     public static final ForgeConfigSpec SPEC;
 
     public static final ForgeConfigSpec.IntValue RANGE;
-    public static final ForgeConfigSpec.IntValue RETENTION_TICKS;
+    public static final ForgeConfigSpec.IntValue RETENTION_SECONDS;
     public static final ForgeConfigSpec.IntValue SAMPLE_INTERVAL;
     public static final ForgeConfigSpec.IntValue MAX_ENTITIES;
 
@@ -15,8 +15,8 @@ public final class TrailSightClientConfig {
         builder.push("trailSight");
         RANGE = builder.comment("Maximum client-side tracking distance in blocks.")
                 .defineInRange("trailSightRange", 48, 8, 128);
-        RETENTION_TICKS = builder.comment("How long trail samples remain visible, in ticks; default is 30 seconds.")
-                .defineInRange("trailSightRetentionTicks", 600, 20, 2400);
+        RETENTION_SECONDS = builder.comment("How long trail samples remain visible, in seconds; default is 30 seconds.")
+                .defineInRange("trailSightRetentionSeconds", 30, 1, 120);
         SAMPLE_INTERVAL = builder.comment("Client ticks between entity sampling passes.")
                 .defineInRange("trailSightSampleInterval", 2, 1, 20);
         MAX_ENTITIES = builder.comment("Maximum number of entity trails kept at once.")
@@ -26,9 +26,7 @@ public final class TrailSightClientConfig {
     }
 
     public static int retentionTicks() {
-        int configured = RETENTION_TICKS.get();
-        if (configured == 100 || configured == 300) return 600;
-        return configured;
+        return Math.max(1, RETENTION_SECONDS.get()) * 20;
     }
 
     private TrailSightClientConfig() {

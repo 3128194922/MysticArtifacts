@@ -87,7 +87,7 @@ git commit -m "test: add trail sight buffer coverage"
 
 **Interfaces:**
 - `TrailSightItem.isWearing(LivingEntity)` 查询 Curios 是否装备该物品。
-- `TrailSightClientConfig.RANGE`, `RETENTION_TICKS`, `SAMPLE_INTERVAL`, `MAX_ENTITIES` 提供客户端配置值；`RETENTION_TICKS` 默认 600，允许配置到 2400，并将旧默认值 100/300 自动迁移为 600。
+- `TrailSightClientConfig.RANGE`, `RETENTION_SECONDS`, `SAMPLE_INTERVAL`, `MAX_ENTITIES` 提供客户端配置值；`RETENTION_SECONDS` 默认 30，允许配置到 120。旧的 tick 配置项不再读取，避免旧配置覆盖新默认值。
 
 - [ ] **Step 1: Write the failing test**
 

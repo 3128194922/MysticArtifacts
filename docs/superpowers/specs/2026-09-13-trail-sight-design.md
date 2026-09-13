@@ -2,7 +2,7 @@
 
 ## 目标
 
-为 MysticArtifacts 新增一个 Curios 饰品 `trail_sight`（中文名“猎迹之眼”）。玩家佩戴后，客户端渲染当前已加载实体最近 15 秒的移动轨迹，以左右脚印形式显示，并在实体离开范围、卸下饰品或切换世界时及时清理数据。
+为 MysticArtifacts 新增一个 Curios 饰品 `trail_sight`（中文名“猎迹之眼”）。玩家佩戴后，客户端渲染当前已加载实体最近 30 秒的移动轨迹，以左右脚印形式显示，并在实体离开范围、卸下饰品或切换世界时及时清理数据。
 
 ## 约束
 
@@ -73,7 +73,7 @@
 | 配置项 | 默认值 | 作用 |
 | --- | ---: | --- |
 | `trailSightRange` | 48 | 最大追踪距离 |
-| `trailSightRetentionTicks` | 600 | 轨迹保留时间，默认 30 秒，范围 1–120 秒 |
+| `trailSightRetentionSeconds` | 30 | 轨迹保留时间，默认 30 秒，范围 1–120 秒 |
 | `trailSightSampleInterval` | 2 | 采样间隔 |
 | `trailSightMaxEntities` | 256 | 最大追踪实体数 |
 

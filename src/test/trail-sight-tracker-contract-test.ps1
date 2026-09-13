@@ -41,10 +41,12 @@ if (-not (Test-Path $configPath)) {
 
 if (-not (Test-Path $configPath)) {
     $failures += 'missing retention config source'
-} elseif ($configText -notlike '*trailSightRetentionTicks", 600, 20, 2400*') {
-    $failures += 'trail retention must default to 600 ticks and allow up to 2400 ticks'
-} elseif ($configText -notlike '*configured == 100 || configured == 300*') {
-    $failures += 'legacy retention defaults must migrate to 600 ticks'
+} elseif ($configText -notlike '*trailSightRetentionSeconds", 30, 1, 120*') {
+    $failures += 'trail retention must default to 30 seconds and allow up to 120 seconds'
+} elseif ($configText -like '*trailSightRetentionTicks*') {
+    $failures += 'legacy tick-based retention config must not be read'
+} elseif ($configText -notlike '*RETENTION_SECONDS*') {
+    $failures += 'retention config must expose seconds-based value'
 }
 
 if ($failures.Count -gt 0) {
