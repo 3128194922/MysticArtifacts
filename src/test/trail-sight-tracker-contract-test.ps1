@@ -38,6 +38,12 @@ if (-not (Test-Path $configPath)) {
     $failures += 'minimum movement distance must default to zero'
 }
 
+if (-not (Test-Path $configPath)) {
+    $failures += 'missing retention config source'
+} elseif ($configText -notlike '*trailSightRetentionTicks", 300, 20, 1200*') {
+    $failures += 'trail retention must default to 300 ticks and allow up to 1200 ticks'
+}
+
 if ($failures.Count -gt 0) {
     $failures | ForEach-Object { Write-Error $_ }
     exit 1

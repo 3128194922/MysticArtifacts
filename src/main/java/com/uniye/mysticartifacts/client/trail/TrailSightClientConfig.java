@@ -17,7 +17,7 @@ public final class TrailSightClientConfig {
         RANGE = builder.comment("Maximum client-side tracking distance in blocks.")
                 .defineInRange("trailSightRange", 48, 8, 128);
         RETENTION_TICKS = builder.comment("How long trail samples remain visible, in ticks.")
-                .defineInRange("trailSightRetentionTicks", 100, 20, 400);
+                .defineInRange("trailSightRetentionTicks", 300, 20, 1200);
         SAMPLE_INTERVAL = builder.comment("Client ticks between entity sampling passes.")
                 .defineInRange("trailSightSampleInterval", 2, 1, 20);
         MIN_STEP = builder.comment("Minimum horizontal movement required to add a sample; zero records every non-zero movement.")
