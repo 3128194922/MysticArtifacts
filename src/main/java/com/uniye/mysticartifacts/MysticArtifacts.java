@@ -3,6 +3,7 @@ package com.uniye.mysticartifacts;
 import com.mojang.logging.LogUtils;
 import com.uniye.mysticartifacts.client.event.SurvivalJadeClientHandler;
 import com.uniye.mysticartifacts.client.render.*;
+import com.uniye.mysticartifacts.client.trail.TrailSightClientConfig;
 import com.uniye.mysticartifacts.event.CodexAnvilHandler;
 import com.uniye.mysticartifacts.init.ModCreativeModTabs;
 import com.uniye.mysticartifacts.init.ModEntities;
@@ -46,6 +47,10 @@ public class MysticArtifacts
         ModEntities.register(modEventBus);
         ModSounds.register(modEventBus);
         ModCreativeModTabs.register(modEventBus);
+        com.uniye.mysticartifacts.revolver.RevolverRegistries.MENUS.register(modEventBus);
+        com.uniye.mysticartifacts.revolver.RevolverRegistries.SOUNDS.register(modEventBus);
+        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.SERVER,
+                com.uniye.mysticartifacts.revolver.RevolverConfig.SPEC, "mysticartifacts-revolver-server.toml");
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::addCreative);
@@ -57,6 +62,8 @@ public class MysticArtifacts
         }
 
         net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Config.SPEC);
+        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.CLIENT,
+                TrailSightClientConfig.SPEC, "mysticartifacts-trail-sight-client.toml");
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

@@ -17,6 +17,9 @@ public class ModCreativeModTabs {
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.KATANA.get()))
                     .title(Component.translatable("creativetab.mysticartifacts_tab"))
                     .displayItems((pParameters, pOutput) -> {
+                        pOutput.accept(ModItems.JIBA_REVOLVER.get());
+                        pOutput.accept(ModItems.REVOLVER_CARTRIDGE.get());
+                        pOutput.accept(ModItems.REVOLVER_CASING.get());
                         pOutput.accept(ModItems.SCULK_ARROW.get());
                         pOutput.accept(ModItems.DEMONIC_GESTATION.get());
                         pOutput.accept(ModItems.AIRBURST_ARROW.get());
@@ -37,6 +40,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.SURVIVAL_JADE.get());
                         pOutput.accept(ModItems.EMERGENCY_PLAN.get());
                         pOutput.accept(ModItems.ANCESTORS_LETTER.get());
+                        pOutput.accept(ModItems.TRAIL_SIGHT.get());
                     })
                     .build());
 

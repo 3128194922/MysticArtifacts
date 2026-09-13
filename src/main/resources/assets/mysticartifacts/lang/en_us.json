@@ -1,0 +1,15 @@
+{
+    "item.mysticartifacts.trail_sight": "Trail Sight",
+    "item.mysticartifacts.jiba_revolver": "Brass Tyrant Revolver",
+    "item.mysticartifacts.revolver_cartridge": "Revolver Cartridge",
+    "item.mysticartifacts.revolver_casing": "Spent Revolver Casing",
+    "container.mysticartifacts.revolver": "Brass Tyrant - Cylinder",
+    "tooltip.mysticartifacts.revolver.ammo": "Loaded: %s / 6",
+    "tooltip.mysticartifacts.revolver.controls": "Attack: fire | Use: unload and reload",
+    "entity.mysticartifacts.revolver_bullet": "Revolver Bullet",
+    "subtitle.mysticartifacts.revolver.fire": "Revolver fires",
+    "subtitle.mysticartifacts.revolver.dry_fire": "Hammer clicks",
+    "subtitle.mysticartifacts.revolver.open": "Cylinder opens",
+    "subtitle.mysticartifacts.revolver.close": "Cylinder closes",
+    "subtitle.mysticartifacts.revolver.load": "Cartridge moves"
+}

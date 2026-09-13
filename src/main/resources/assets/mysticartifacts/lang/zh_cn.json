@@ -10,16 +10,13 @@
     "entity.mysticartifacts.final_exploding_arrow": "空爆II",
     "item.mysticartifacts.ender_kunai": "末影苦无",
     "entity.mysticartifacts.ender_kunai": "末影苦无",
-
     "death.attack.collapsing": "%1$s 感受到震动",
     "death.attack.collapsing.player": "%1$s 没收到 %2$s 的通知",
     "death.attack.ceasing": "%1$s 没有意识到事态的严重性",
     "death.attack.ceasing.player": "%1$s 在与 %2$s 战斗时心跳停止了",
-
     "subtitle.mysticartifacts.ceasing": "心跳",
     "subtitle.mysticartifacts.bell_toll": "时日无多",
     "subtitle.mysticartifacts.bell_toll_fail": "灵魂被回收",
-
     "item.mysticartifacts.two_dragons_play_ball": "霜烬",
     "entity.mysticartifacts.two_dragons_play_ball": "霜烬",
     "death.attack.mysticartifacts.two_dragons_play_ball_fire": "%1$s 被 %2$s 的霜扇烧焦了。",
@@ -34,8 +31,8 @@
     "item.mysticartifacts.all_seeing_eye": "占卜球",
     "item.mysticartifacts.all_seeing_eye.no_players": "没有其他在线玩家",
     "item.mysticartifacts.all_seeing_eye.exit": "退出观察",
-    "item.mysticartifacts.all_seeing_eye.spectating": "正在观看 %s，再次右键取消",    
-	"item.mysticartifacts.sword_swarm_charm": "王之宝库",
+    "item.mysticartifacts.all_seeing_eye.spectating": "正在观看 %s，再次右键取消",
+    "item.mysticartifacts.sword_swarm_charm": "王之宝库",
     "entity.mysticartifacts.sword_phantom": "幻影剑",
     "death.attack.mysticartifacts.phantom_sword": "%1$s 被 %2$s 的幻影剑斩杀了。",
     "death.attack.mysticartifacts.iaido": "%1$s 被 %2$s 的居合斩作两断。",
@@ -56,6 +53,19 @@
     "item.mysticartifacts.survival_jade": "咒翼安卡",
     "item.mysticartifacts.emergency_plan": "患难之交",
     "item.mysticartifacts.ancestors_letter": "圣焰",
+    "item.mysticartifacts.trail_sight": "猎迹之眼",
     "death.attack.spear": "%1$s 被长矛刺穿了",
-    "death.attack.spear.player": "%1$s 被 %2$s 用长矛刺穿了"
+    "death.attack.spear.player": "%1$s 被 %2$s 用长矛刺穿了",
+    "item.mysticartifacts.jiba_revolver": "机霸左轮",
+    "item.mysticartifacts.revolver_cartridge": "左轮实弹",
+    "item.mysticartifacts.revolver_casing": "左轮弹壳",
+    "container.mysticartifacts.revolver": "机霸左轮 · 弹巢",
+    "tooltip.mysticartifacts.revolver.ammo": "实弹：%s / 6",
+    "tooltip.mysticartifacts.revolver.controls": "左键击发 · 右键取壳装弹",
+    "entity.mysticartifacts.revolver_bullet": "左轮弹丸",
+    "subtitle.mysticartifacts.revolver.fire": "左轮开火",
+    "subtitle.mysticartifacts.revolver.dry_fire": "击锤空响",
+    "subtitle.mysticartifacts.revolver.open": "弹巢打开",
+    "subtitle.mysticartifacts.revolver.close": "弹巢闭合",
+    "subtitle.mysticartifacts.revolver.load": "弹药装卸"
 }
