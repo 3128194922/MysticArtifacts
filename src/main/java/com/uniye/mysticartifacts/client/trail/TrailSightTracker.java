@@ -68,17 +68,8 @@ public final class TrailSightTracker {
 
         double range = TrailSightClientConfig.RANGE.get();
         double rangeSqr = range * range;
-        List<Entity> candidates = new ArrayList<>();
-        for (Entity entity : level.entitiesForRendering()) {
-            if (entity.isRemoved() || entity.distanceToSqr(player) > rangeSqr) continue;
-            candidates.add(entity);
-        }
-
-        candidates.sort(Comparator.comparingDouble(player::distanceToSqr));
         int maxEntities = Math.max(1, TrailSightClientConfig.MAX_ENTITIES.get());
-        if (candidates.size() > maxEntities) {
-            candidates = candidates.subList(0, maxEntities);
-        }
+        List<Entity> candidates = selectNearestEntities(level, player, rangeSqr, maxEntities);
 
         Set<UUID> selected = new HashSet<>(candidates.size());
         for (Entity entity : candidates) {
@@ -95,9 +86,7 @@ public final class TrailSightTracker {
             }
 
             Vec3 delta = position.subtract(previous);
-            double horizontalDistanceSqr = delta.x * delta.x + delta.z * delta.z;
-            double minStep = TrailSightClientConfig.MIN_STEP.get();
-            if (horizontalDistanceSqr < minStep * minStep) {
+            if (!shouldRecordMovement(delta)) {
                 trail.prune(currentTick);
                 continue;
             }
@@ -124,6 +113,27 @@ public final class TrailSightTracker {
 
     public static Map<UUID, TrailBuffer> getTracks() {
         return READ_ONLY_TRACKS;
+    }
+
+    private static List<Entity> selectNearestEntities(ClientLevel level, LocalPlayer player,
+                                                      double rangeSqr, int maxEntities) {
+        List<Entity> candidates = new ArrayList<>();
+        for (Entity entity : level.entitiesForRendering()) {
+            if (entity.isRemoved() || entity.distanceToSqr(player) > rangeSqr) continue;
+            candidates.add(entity);
+        }
+
+        candidates.sort(Comparator.comparingDouble(player::distanceToSqr));
+        if (candidates.size() <= maxEntities) return candidates;
+        return new ArrayList<>(candidates.subList(0, maxEntities));
+    }
+
+    private static boolean shouldRecordMovement(Vec3 delta) {
+        double horizontalDistanceSqr = delta.x * delta.x + delta.z * delta.z;
+        if (horizontalDistanceSqr <= 0.0D) return false;
+
+        double minStep = TrailSightClientConfig.MIN_STEP.get();
+        return minStep <= 0.0D || horizontalDistanceSqr >= minStep * minStep;
     }
 
     private static int maxSamples() {

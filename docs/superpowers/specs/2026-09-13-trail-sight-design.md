@@ -33,7 +33,7 @@
 采样策略如下：
 
 1. 每 2 tick 检查一次实体位置。
-2. 与上一个点的位移小于 0.30 格时不新增点。
+2. 水平位移为 0 时不新增点；只要水平位移不是 0 就记录。
 3. 轨迹点年龄超过 100 tick（5 秒）立即删除。
 4. 只保留距离玩家 48 格内的实体。
 5. 全局最多保留 256 个实体轨迹；超出时保留距离玩家最近的实体。
@@ -75,7 +75,7 @@
 | `trailSightRange` | 48 | 最大追踪距离 |
 | `trailSightRetentionTicks` | 100 | 轨迹保留时间 |
 | `trailSightSampleInterval` | 2 | 采样间隔 |
-| `trailSightMinStep` | 0.30 | 最小移动记录距离 |
+| `trailSightMinStep` | 0.0 | 最小移动记录距离，默认记录所有非零水平位移 |
 | `trailSightMaxEntities` | 256 | 最大追踪实体数 |
 
 配置注册为 Forge `CLIENT` 类型，避免把仅客户端的渲染参数同步到服务器。

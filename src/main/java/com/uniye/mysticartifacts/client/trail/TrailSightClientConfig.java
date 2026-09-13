@@ -20,8 +20,8 @@ public final class TrailSightClientConfig {
                 .defineInRange("trailSightRetentionTicks", 100, 20, 400);
         SAMPLE_INTERVAL = builder.comment("Client ticks between entity sampling passes.")
                 .defineInRange("trailSightSampleInterval", 2, 1, 20);
-        MIN_STEP = builder.comment("Minimum horizontal movement required to add a sample.")
-                .defineInRange("trailSightMinStep", 0.30D, 0.05D, 4.0D);
+        MIN_STEP = builder.comment("Minimum horizontal movement required to add a sample; zero records every non-zero movement.")
+                .defineInRange("trailSightMinStep", 0.0D, 0.0D, 4.0D);
         MAX_ENTITIES = builder.comment("Maximum number of entity trails kept at once.")
                 .defineInRange("trailSightMaxEntities", 256, 16, 2048);
         builder.pop();

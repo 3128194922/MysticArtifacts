@@ -2,7 +2,9 @@ $ErrorActionPreference = 'Stop'
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $trackerPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/trail/TrailSightTracker.java'
+$configPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/trail/TrailSightClientConfig.java'
 $text = if (Test-Path $trackerPath) { Get-Content -Raw $trackerPath } else { '' }
+$configText = if (Test-Path $configPath) { Get-Content -Raw $configPath } else { '' }
 $checks = @(
     '*ClientLevel*',
     '*LocalPlayer*',
@@ -14,6 +16,9 @@ $checks = @(
     '*RANGE*',
     '*MAX_ENTITIES*',
     '*TrailSightItem.isWearing*',
+    '*shouldRecordMovement*',
+    '*horizontalDistanceSqr <= 0.0D*',
+    '*selectNearestEntities*',
     '*clear()*',
     '*getTracks*'
 )
@@ -25,6 +30,12 @@ if (-not (Test-Path $trackerPath)) {
     foreach ($check in $checks) {
         if ($text -notlike $check) { $failures += "missing tracker contract: $check" }
     }
+}
+
+if (-not (Test-Path $configPath)) {
+    $failures += 'missing client config source'
+} elseif ($configText -notlike '*trailSightMinStep", 0.0D, 0.0D*') {
+    $failures += 'minimum movement distance must default to zero'
 }
 
 if ($failures.Count -gt 0) {
