@@ -47,7 +47,7 @@ public final class TrailSightRenderer {
         if (tracks.isEmpty()) return;
 
         long currentTick = level.getGameTime();
-        int retentionTicks = Math.max(1, TrailSightClientConfig.RETENTION_TICKS.get());
+        int retentionTicks = Math.max(1, TrailSightClientConfig.retentionTicks());
         Vec3 cameraPos = minecraft.gameRenderer.getMainCamera().getPosition();
         MultiBufferSource.BufferSource buffer = minecraft.renderBuffers().bufferSource();
         VertexConsumer consumer = buffer.getBuffer(RenderType.debugQuads());

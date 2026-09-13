@@ -12,6 +12,7 @@ $checks = @(
     '*getTracks*',
     '*directionX*',
     '*directionZ*',
+    '*TrailSightClientConfig.retentionTicks()*',
     '*retention*',
     '*alpha*',
     '*endBatch*'

@@ -12,13 +12,14 @@ $checks = @(
     '*UUID*',
     '*entitiesForRendering*',
     '*SAMPLE_INTERVAL*',
-    '*MIN_STEP*',
     '*RANGE*',
     '*MAX_ENTITIES*',
     '*TrailSightItem.isWearing*',
     '*shouldRecordMovement*',
     '*horizontalDistanceSqr <= 0.0D*',
+    '*return horizontalDistanceSqr > 0.0D*',
     '*selectNearestEntities*',
+    '*TrailSightClientConfig.retentionTicks()*',
     '*clear()*',
     '*getTracks*'
 )
@@ -34,14 +35,16 @@ if (-not (Test-Path $trackerPath)) {
 
 if (-not (Test-Path $configPath)) {
     $failures += 'missing client config source'
-} elseif ($configText -notlike '*trailSightMinStep", 0.0D, 0.0D*') {
-    $failures += 'minimum movement distance must default to zero'
+} elseif ($configText -like '*trailSightMinStep*') {
+    $failures += 'minimum movement config must not filter slow non-zero movement'
 }
 
 if (-not (Test-Path $configPath)) {
     $failures += 'missing retention config source'
-} elseif ($configText -notlike '*trailSightRetentionTicks", 300, 20, 1200*') {
-    $failures += 'trail retention must default to 300 ticks and allow up to 1200 ticks'
+} elseif ($configText -notlike '*trailSightRetentionTicks", 600, 20, 2400*') {
+    $failures += 'trail retention must default to 600 ticks and allow up to 2400 ticks'
+} elseif ($configText -notlike '*configured == 100 || configured == 300*') {
+    $failures += 'legacy retention defaults must migrate to 600 ticks'
 }
 
 if ($failures.Count -gt 0) {

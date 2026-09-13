@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 在 MysticArtifacts 中新增一个 Curios 饰品，客户端以高性能方式记录并渲染所有已加载实体最近 15 秒的脚印轨迹。
+**Goal:** 在 MysticArtifacts 中新增一个 Curios 饰品，客户端以高性能方式记录并渲染所有已加载实体最近 30 秒的脚印轨迹。
 
-**Architecture:** 饰品只负责 Curios 装备状态；客户端 tick handler 负责从 `ClientLevel` 采样实体并写入按 UUID 分组的有界轨迹缓存；世界渲染 handler 负责将缓存中的轨迹点渲染为随时间淡出的左右脚印。轨迹不经过服务器、不持久化，并通过采样间隔、距离、位移阈值和实体上限控制性能。
+**Architecture:** 饰品只负责 Curios 装备状态；客户端 tick handler 负责从 `ClientLevel` 采样实体并写入按 UUID 分组的有界轨迹缓存；世界渲染 handler 负责将缓存中的轨迹点渲染为随时间淡出的左右脚印。轨迹不经过服务器、不持久化，并通过采样间隔、距离和实体上限控制性能。
 
 **Tech Stack:** Minecraft 1.20.1、Forge 47.4.6、Curios 5.14.1+1.20.1 API、Java 17、Forge CLIENT 配置、`RenderLevelStageEvent`。
 
@@ -16,7 +16,7 @@
 - 不增加第三方依赖；复用现有 Curios API。
 - 包路径只能使用 `com.uniye.mysticartifacts`，不得出现 `example`。
 - 客户端类必须隔离，专用服务器不能加载 `net.minecraft.client` 类型。
-- 默认轨迹寿命为 300 tick，采样间隔为 2 tick，最小位移为 0 格（记录所有非零水平位移），最大距离为 48 格，最大实体数为 256。
+- 默认轨迹寿命为 600 tick，采样间隔为 2 tick，任何非零水平位移都会记录，最大距离为 48 格，最大实体数为 256。
 - 生产代码先有失败测试，再实现最小通过版本。
 
 ### Task 1: 轨迹纯逻辑缓存
@@ -38,7 +38,7 @@
 在 PowerShell 测试中编译并运行一个只依赖 JDK 的 Java harness，直接调用 `TrailBuffer`，断言以下行为：
 
 ```java
-TrailBuffer buffer = new TrailBuffer(2, 300);
+TrailBuffer buffer = new TrailBuffer(2, 600);
 buffer.add(new TrailSample(0, 0, 0, 1, 0, 0));
 buffer.add(new TrailSample(1, 0, 0, 1, 0, 50));
 buffer.add(new TrailSample(2, 0, 0, 1, 0, 101));
@@ -87,7 +87,7 @@ git commit -m "test: add trail sight buffer coverage"
 
 **Interfaces:**
 - `TrailSightItem.isWearing(LivingEntity)` 查询 Curios 是否装备该物品。
-- `TrailSightClientConfig.RANGE`, `RETENTION_TICKS`, `SAMPLE_INTERVAL`, `MIN_STEP`, `MAX_ENTITIES` 提供客户端配置值；`RETENTION_TICKS` 默认 300，允许配置到 1200。
+- `TrailSightClientConfig.RANGE`, `RETENTION_TICKS`, `SAMPLE_INTERVAL`, `MAX_ENTITIES` 提供客户端配置值；`RETENTION_TICKS` 默认 600，允许配置到 2400，并将旧默认值 100/300 自动迁移为 600。
 
 - [ ] **Step 1: Write the failing test**
 
@@ -237,7 +237,7 @@ git commit -m "feat: wire trail sight client events"
 
 ## Plan Self-Review
 
-- 设计文档中的饰品注册、客户端采样、15 秒保留、范围限制、实体上限、左右脚印渲染、透明度衰减、客户端隔离和测试覆盖均有对应任务。
+- 设计文档中的饰品注册、客户端采样、30 秒保留、范围限制、实体上限、左右脚印渲染、透明度衰减、客户端隔离和测试覆盖均有对应任务。
 - 未使用第三方测试框架；纯逻辑测试只使用 JDK 和 PowerShell，符合依赖约束。
 - 所有跨任务接口在任务定义中明确，`TrailBuffer` 只负责单实体数据，`TrailSightTracker` 负责实体生命周期，`TrailSightRenderer` 只负责绘制。
 - 计划中无 `TBD`、`TODO` 或未定义的占位文件。

@@ -78,7 +78,7 @@ public final class TrailSightTracker {
             Vec3 position = entity.position();
             Vec3 previous = LAST_POSITIONS.put(id, position);
             TrailBuffer trail = TRACKS.computeIfAbsent(id,
-                    ignored -> new TrailBuffer(maxSamples(), TrailSightClientConfig.RETENTION_TICKS.get()));
+                    ignored -> new TrailBuffer(maxSamples(), TrailSightClientConfig.retentionTicks()));
 
             if (previous == null) {
                 trail.prune(currentTick);
@@ -131,14 +131,12 @@ public final class TrailSightTracker {
     private static boolean shouldRecordMovement(Vec3 delta) {
         double horizontalDistanceSqr = delta.x * delta.x + delta.z * delta.z;
         if (horizontalDistanceSqr <= 0.0D) return false;
-
-        double minStep = TrailSightClientConfig.MIN_STEP.get();
-        return minStep <= 0.0D || horizontalDistanceSqr >= minStep * minStep;
+        return horizontalDistanceSqr > 0.0D;
     }
 
     private static int maxSamples() {
         int interval = Math.max(1, TrailSightClientConfig.SAMPLE_INTERVAL.get());
-        int retention = Math.max(1, TrailSightClientConfig.RETENTION_TICKS.get());
+        int retention = Math.max(1, TrailSightClientConfig.retentionTicks());
         return Math.max(2, (retention + interval - 1) / interval + 2);
     }
 
