@@ -6,7 +6,7 @@ $text = if (Test-Path $handlerPath) { Get-Content -Raw $handlerPath } else { '' 
 $checks = @(
     '*ClientPlayerNetworkEvent.LoggingOut*',
     '*LevelEvent.Unload*',
-    '*TrailSightTracker.clear()*',
+    '*SculkSymbioteClientState.clear()*',
     '*Dist.CLIENT*',
     '*Bus.FORGE*'
 )

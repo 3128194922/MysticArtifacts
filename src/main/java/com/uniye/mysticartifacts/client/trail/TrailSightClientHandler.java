@@ -1,5 +1,6 @@
 package com.uniye.mysticartifacts.client.trail;
 
+import com.uniye.mysticartifacts.client.sculk.SculkSymbioteClientState;
 import com.uniye.mysticartifacts.MysticArtifacts;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.level.LevelEvent;
@@ -14,13 +15,13 @@ public final class TrailSightClientHandler {
 
     @SubscribeEvent
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
-        TrailSightTracker.clear();
+        SculkSymbioteClientState.clear();
     }
 
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel().isClientSide()) {
-            TrailSightTracker.clear();
+            SculkSymbioteClientState.clear();
         }
     }
 }

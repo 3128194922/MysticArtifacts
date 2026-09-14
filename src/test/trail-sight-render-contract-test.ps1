@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$rendererPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/trail/TrailSightRenderer.java'
+$rendererPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/sculk/SculkSymbioteRenderer.java'
 $text = if (Test-Path $rendererPath) { Get-Content -Raw $rendererPath } else { '' }
 $checks = @(
     '*RenderLevelStageEvent*',
@@ -9,13 +9,12 @@ $checks = @(
     '*PoseStack*',
     '*getMainCamera*',
     '*RenderType.debugQuads*',
-    '*getTracks*',
-    '*directionX*',
-    '*directionZ*',
-    '*TrailSightClientConfig.retentionTicks()*',
-    '*retention*',
+    '*SculkSymbioteClientState.snapshot*',
+    '*MARKER_LIFETIME*',
+    '*lifetime*',
     '*alpha*',
-    '*endBatch*'
+    '*endBatch*',
+    '*color(38, 255, 210*'
 )
 $failures = @()
 

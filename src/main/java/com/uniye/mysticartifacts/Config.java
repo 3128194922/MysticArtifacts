@@ -176,6 +176,9 @@ public class Config
     public static final ForgeConfigSpec.IntValue SCULK_MAX_TRACKED_SOURCES = BUILDER
             .comment("Maximum vibration sources tracked by one Sculk Symbiote.")
             .defineInRange("SculkSymbioteMaxTrackedSources", 128, 1, 4096);
+    public static final ForgeConfigSpec.IntValue SCULK_MAX_MARKERS_PER_TICK = BUILDER
+            .comment("Maximum vibration markers sent to one Sculk Symbiote wearer per tick.")
+            .defineInRange("SculkSymbioteMaxMarkersPerTick", 32, 1, 256);
 
     static final ForgeConfigSpec SPEC = BUILDER.build();
 

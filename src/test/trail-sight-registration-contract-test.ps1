@@ -25,14 +25,13 @@ if ($itemText -notlike '*implements ICurioItem*') { $failures += 'missing ICurio
 if ($itemText -notlike '*canEquipFromUse*') { $failures += 'missing auto equip' }
 if (-not (Test-Path $configPath)) { $failures += 'missing client config' }
 if ($configText -notlike '*ForgeConfigSpec*') { $failures += 'missing ForgeConfigSpec' }
-if ($configText -notlike '*RANGE*') { $failures += 'missing range config' }
-if ($configText -notlike '*MAX_ENTITIES*') { $failures += 'missing entity limit config' }
+if ($configText -notlike '*MARKER_LIFETIME*') { $failures += 'missing marker lifetime config' }
 if ($mainText -notlike '*ModConfig.Type.CLIENT*') { $failures += 'missing client config registration' }
 if ($mainText -notlike '*TrailSightClientConfig.SPEC*') { $failures += 'missing config spec registration' }
 if ($tabsText -notlike '*ModItems.TRAIL_SIGHT.get()*') { $failures += 'missing creative tab item' }
 if (-not (Test-Path $modelPath)) { $failures += 'missing item model' }
-if ($zhText -notlike '*item.mysticartifacts.trail_sight*') { $failures += 'missing zh translation' }
-if ($enText -notlike '*item.mysticartifacts.trail_sight*') { $failures += 'missing en translation' }
+if ($zhText -notlike '*幽匿共生体*') { $failures += 'missing zh sculk symbiote name' }
+if ($enText -notlike '*Sculk Symbiote*') { $failures += 'missing en sculk symbiote name' }
 
 if ($failures.Count -gt 0) {
     $failures | ForEach-Object { Write-Error $_ }

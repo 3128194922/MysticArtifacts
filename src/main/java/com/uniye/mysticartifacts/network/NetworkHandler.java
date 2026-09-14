@@ -6,7 +6,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public class NetworkHandler {
-    private static final String PROTOCOL_VERSION = "1.0";
+    private static final String PROTOCOL_VERSION = "1.1";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(MysticArtifacts.MODID, "simple_channel"),
             () -> PROTOCOL_VERSION,
@@ -16,6 +16,10 @@ public class NetworkHandler {
 
     public static void register() {
         int id = 0;
+        INSTANCE.registerMessage(id++, RevolverFirePacket.class, RevolverFirePacket::encode, RevolverFirePacket::decode,
+                RevolverFirePacket::handle, java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER));
+        INSTANCE.registerMessage(id++, RevolverFeedbackPacket.class, RevolverFeedbackPacket::encode, RevolverFeedbackPacket::decode,
+                RevolverFeedbackPacket::handle, java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT));
         INSTANCE.registerMessage(id++, TeleportToKunaiPacket.class,
                 TeleportToKunaiPacket::encode,
                 TeleportToKunaiPacket::decode,
@@ -58,6 +62,13 @@ public class NetworkHandler {
                 SelectSpectatePacket::handle
         );
 
+        INSTANCE.registerMessage(id++, SpectateStatePacket.class,
+                SpectateStatePacket::encode,
+                SpectateStatePacket::decode,
+                SpectateStatePacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
+        );
+
         INSTANCE.registerMessage(id++, SurvivalJadeSyncPacket.class,
                 SurvivalJadeSyncPacket::encode,
                 SurvivalJadeSyncPacket::decode,
@@ -74,6 +85,20 @@ public class NetworkHandler {
                 KatanaSwingPacket::encode,
                 KatanaSwingPacket::decode,
                 KatanaSwingPacket::handle
+        );
+
+        INSTANCE.registerMessage(id++, DeathEyeProgressPacket.class,
+                DeathEyeProgressPacket::encode,
+                DeathEyeProgressPacket::decode,
+                DeathEyeProgressPacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
+        );
+
+        INSTANCE.registerMessage(id++, SculkSymbioteVibrationPacket.class,
+                SculkSymbioteVibrationPacket::encode,
+                SculkSymbioteVibrationPacket::decode,
+                SculkSymbioteVibrationPacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
         );
     }
 }
