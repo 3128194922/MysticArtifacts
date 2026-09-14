@@ -161,6 +161,22 @@ public class Config
             .comment("Sword Swarm Charm regen interval (ticks, 20 = 1s). Default 100 = 5s. Each interval restores swords equal to devoured sword count.")
             .defineInRange("SwordSwarmRegenIntervalTicks", 100, 1, 6000);
 
+    public static final ForgeConfigSpec.IntValue SCULK_VIBRATION_RADIUS = BUILDER
+            .comment("Sculk Symbiote vibration listener radius in blocks.")
+            .defineInRange("SculkSymbioteVibrationRadius", 16, 1, 64);
+    public static final ForgeConfigSpec.IntValue SCULK_EXPOSURE_PER_EVENT = BUILDER
+            .comment("Sculk Symbiote exposure added by each vibration from a living entity.")
+            .defineInRange("SculkSymbioteExposurePerEvent", 10, 1, 100);
+    public static final ForgeConfigSpec.IntValue SCULK_EXPOSURE_MAX = BUILDER
+            .comment("Sculk Symbiote exposure required before sonic boom.")
+            .defineInRange("SculkSymbioteExposureMax", 100, 1, 10000);
+    public static final ForgeConfigSpec.IntValue SCULK_SONIC_BOOM_COOLDOWN = BUILDER
+            .comment("Sculk Symbiote sonic boom cooldown per source in ticks.")
+            .defineInRange("SculkSymbioteSonicBoomCooldown", 40, 0, 12000);
+    public static final ForgeConfigSpec.IntValue SCULK_MAX_TRACKED_SOURCES = BUILDER
+            .comment("Maximum vibration sources tracked by one Sculk Symbiote.")
+            .defineInRange("SculkSymbioteMaxTrackedSources", 128, 1, 4096);
+
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static int AirBurstNumber;
