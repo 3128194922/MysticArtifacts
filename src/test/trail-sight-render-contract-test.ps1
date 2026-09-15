@@ -8,7 +8,8 @@ $checks = @(
     '*AFTER_ENTITIES*',
     '*PoseStack*',
     '*getMainCamera*',
-    '*RenderType.debugQuads*',
+    '*SCULK_MARKER_RENDER_TYPE*',
+    '*NO_DEPTH_TEST*',
     '*SculkSymbioteClientState.snapshot*',
     '*MARKER_LIFETIME*',
     '*lifetime*',
@@ -23,6 +24,9 @@ if (-not (Test-Path $rendererPath)) {
 } else {
     foreach ($check in $checks) {
         if ($text -notlike $check) { $failures += "missing renderer contract: $check" }
+    }
+    if ($text -like '*RenderType.debugQuads*') {
+        $failures += 'renderer must not use the depth-tested debug quad layer'
     }
     if ($text -like '*NetworkHandler*' -or $text -like '*sendToServer*') {
         $failures += 'renderer must not send trail network packets'

@@ -1,12 +1,17 @@
 package com.uniye.mysticartifacts.client.sculk;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.uniye.mysticartifacts.MysticArtifacts;
 import com.uniye.mysticartifacts.client.trail.TrailSightClientConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,6 +22,28 @@ import org.joml.Matrix4f;
 
 @Mod.EventBusSubscriber(modid = MysticArtifacts.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class SculkSymbioteRenderer {
+    private static final int NO_DEPTH_TEST_FUNCTION = 519; // GL_ALWAYS
+    private static final RenderType SCULK_MARKER_RENDER_TYPE = RenderType.create(
+            "mysticartifacts_sculk_marker",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.QUADS,
+            256,
+            false,
+            true,
+            RenderType.CompositeState.builder()
+                    .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorShader))
+                    .setTransparencyState(new RenderStateShard.TransparencyStateShard(
+                            "translucent",
+                            () -> {
+                                RenderSystem.enableBlend();
+                                RenderSystem.defaultBlendFunc();
+                            },
+                            RenderSystem::disableBlend))
+                    .setDepthTestState(new RenderStateShard.DepthTestStateShard("always", NO_DEPTH_TEST_FUNCTION))
+                    .setCullState(new RenderStateShard.CullStateShard(false))
+                    .setWriteMaskState(new RenderStateShard.WriteMaskStateShard(true, false))
+                    .createCompositeState(false));
+
     private SculkSymbioteRenderer() {
     }
 
@@ -34,7 +61,7 @@ public final class SculkSymbioteRenderer {
 
         Vec3 camera = minecraft.gameRenderer.getMainCamera().getPosition();
         MultiBufferSource.BufferSource buffer = minecraft.renderBuffers().bufferSource();
-        VertexConsumer consumer = buffer.getBuffer(RenderType.debugQuads());
+        VertexConsumer consumer = buffer.getBuffer(SCULK_MARKER_RENDER_TYPE);
         PoseStack poseStack = event.getPoseStack();
         poseStack.pushPose();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
@@ -48,7 +75,7 @@ public final class SculkSymbioteRenderer {
             drawMarker(poseStack, consumer, marker.position().add(0.0D, 0.04D, 0.0D), radius, alpha);
         }
         poseStack.popPose();
-        buffer.endBatch(RenderType.debugQuads());
+        buffer.endBatch(SCULK_MARKER_RENDER_TYPE);
     }
 
     private static void drawMarker(PoseStack poseStack, VertexConsumer consumer, Vec3 center,
