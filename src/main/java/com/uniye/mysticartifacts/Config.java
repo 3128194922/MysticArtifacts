@@ -180,7 +180,7 @@ public class Config
             .comment("Maximum vibration markers sent to one Sculk Symbiote wearer per tick.")
             .defineInRange("SculkSymbioteMaxMarkersPerTick", 32, 1, 256);
 
-    static final ForgeConfigSpec SPEC = BUILDER.build();
+    public static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static int AirBurstNumber;
     public static int AirBurstNumberRandom;

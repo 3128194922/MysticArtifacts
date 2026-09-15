@@ -1,14 +1,13 @@
 package com.uniye.mysticartifacts;
 
 import com.mojang.logging.LogUtils;
+import com.uniye.mysticartifacts.compat.QuarkCompat;
+import com.uniye.mysticartifacts.config.ModConfigs;
 import com.uniye.mysticartifacts.client.event.SurvivalJadeClientHandler;
 import com.uniye.mysticartifacts.client.render.*;
-import com.uniye.mysticartifacts.client.trail.TrailSightClientConfig;
-import com.uniye.mysticartifacts.event.CodexAnvilHandler;
-import com.uniye.mysticartifacts.init.ModCreativeModTabs;
 import com.uniye.mysticartifacts.init.ModEntities;
 import com.uniye.mysticartifacts.init.ModItems;
-import com.uniye.mysticartifacts.init.ModSounds;
+import com.uniye.mysticartifacts.init.ModRegistries;
 import com.uniye.mysticartifacts.item.impl.MuramasaItem;
 import com.uniye.mysticartifacts.item.impl.WitchPotItem;
 import com.uniye.mysticartifacts.network.NetworkHandler;
@@ -18,15 +17,10 @@ import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
@@ -43,40 +37,9 @@ public class MysticArtifacts
 
         NetworkHandler.register();
 
-        ModItems.register(modEventBus);
-        ModEntities.register(modEventBus);
-        ModSounds.register(modEventBus);
-        ModCreativeModTabs.register(modEventBus);
-        com.uniye.mysticartifacts.revolver.RevolverRegistries.MENUS.register(modEventBus);
-        com.uniye.mysticartifacts.revolver.RevolverRegistries.SOUNDS.register(modEventBus);
-        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.SERVER,
-                com.uniye.mysticartifacts.revolver.RevolverConfig.SPEC, "mysticartifacts-revolver-server.toml");
-
-        modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::addCreative);
-
-        MinecraftForge.EVENT_BUS.register(this);
-
-        if (ModList.get().isLoaded("quark")) {
-            MinecraftForge.EVENT_BUS.register(new CodexAnvilHandler());
-        }
-
-        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.COMMON, Config.SPEC);
-        net.minecraftforge.fml.ModLoadingContext.get().registerConfig(net.minecraftforge.fml.config.ModConfig.Type.CLIENT,
-                TrailSightClientConfig.SPEC, "mysticartifacts-trail-sight-client.toml");
-    }
-
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
-    }
-
-    private void addCreative(BuildCreativeModeTabContentsEvent event)
-    {
-    }
-
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event)
-    {
+        ModRegistries.register(modEventBus);
+        ModConfigs.register();
+        QuarkCompat.register();
     }
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
