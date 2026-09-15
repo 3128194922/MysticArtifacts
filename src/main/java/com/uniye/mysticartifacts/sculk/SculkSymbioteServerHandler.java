@@ -53,8 +53,8 @@ public final class SculkSymbioteServerHandler {
 
     private static void refreshEffect(ServerPlayer player, MobEffect effect) {
         MobEffectInstance current = player.getEffect(effect);
-        if (current == null || current.getDuration() <= 5) {
-            player.addEffect(new MobEffectInstance(effect, 10, 0, false, false, true));
+        if (current == null || current.getDuration() <= 20) {
+            player.addEffect(new MobEffectInstance(effect, 40, 0, false, false, true));
         }
     }
 
