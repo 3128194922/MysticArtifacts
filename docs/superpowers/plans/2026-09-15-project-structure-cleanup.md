@@ -264,6 +264,7 @@ git commit -m "refactor: isolate client mod initialization"
 
 **Files:**
 - No source changes expected.
+- Modify: `src/test/trail-sight-registration-contract-test.ps1` only if its existing client-config location assertions still require the pre-refactor `MysticArtifacts.java` location.
 - Review: `git status --short`
 
 **Interfaces:**
@@ -303,7 +304,7 @@ Get-ChildItem .\src\test -File -Filter '*contract-test.ps1' |
     ForEach-Object { & $_.FullName }
 ```
 
-Expected: all scripts exit successfully. If an existing contract fails because of a pre-existing uncommitted feature, report the exact script and error without modifying that feature.
+Expected: all scripts exit successfully. If `trail-sight-registration-contract-test.ps1` still checks the old client-config location, first record its failing output, then update only those two assertions to inspect `config/ModConfigs.java`, preserving all other Trail Sight assertions.
 
 - [ ] **Step 5: Check patch quality and scope**
 
