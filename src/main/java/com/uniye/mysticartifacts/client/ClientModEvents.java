@@ -1,0 +1,85 @@
+package com.uniye.mysticartifacts.client;
+
+import static com.uniye.mysticartifacts.MysticArtifacts.MODID;
+
+import com.uniye.mysticartifacts.MysticArtifacts;
+import com.uniye.mysticartifacts.client.event.SurvivalJadeClientHandler;
+import com.uniye.mysticartifacts.client.render.*;
+import com.uniye.mysticartifacts.init.ModEntities;
+import com.uniye.mysticartifacts.init.ModItems;
+import com.uniye.mysticartifacts.item.impl.MuramasaItem;
+import com.uniye.mysticartifacts.item.impl.WitchPotItem;
+import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
+
+@Mod.EventBusSubscriber(
+        modid = MysticArtifacts.MODID,
+        bus = Mod.EventBusSubscriber.Bus.MOD,
+        value = Dist.CLIENT
+)
+public final class ClientModEvents {
+    private ClientModEvents() {
+    }
+
+    @SubscribeEvent
+    public static void onRegisterGuiOverlays(RegisterGuiOverlaysEvent event)
+    {
+        // 求生玉残影条：注册在食物栏上方，通过 ForgeGui.rightHeight 堆叠协议
+        // 与 Thirst-Mod 口渴条等同位置的 overlay 自动错位（互不重叠）
+        event.registerAbove(VanillaGuiOverlay.FOOD_LEVEL.id(), "survival_jade_phantom",
+                SurvivalJadeClientHandler.PHANTOM_OVERLAY);
+    }
+
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event)
+    {
+        EntityRenderers.register(ModEntities.SCULK_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "sculk_arrow"));
+        EntityRenderers.register(ModEntities.DEMONIC_GESTATION.get(), DemonicGestationRenderer::new);
+        EntityRenderers.register(ModEntities.AIRBURST_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "airburst_arrow"));
+        EntityRenderers.register(ModEntities.EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "exploding_arrow"));
+        EntityRenderers.register(ModEntities.FINAL_EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "final_exploding_arrow"));
+        EntityRenderers.register(ModEntities.ENDER_KUNAI.get(), ctx -> new ModArrowRenderer(ctx, "kunai"));
+        EntityRenderers.register(ModEntities.POKER_CARD.get(), PokerCardRenderer::new);
+        
+        EntityRenderers.register(ModEntities.TWO_DRAGONS_PLAY_BALL.get(), TwoDragonsPlayBallRenderer::new);
+        EntityRenderers.register(ModEntities.TWO_DRAGONS_FAN.get(), TwoDragonsFanRenderer::new);
+        EntityRenderers.register(ModEntities.SWORD_PHANTOM.get(), SwordPhantomRenderer::new);
+        EntityRenderers.register(ModEntities.ARTIFACT_SPIRIT.get(), ArtifactSpiritRenderer::new);
+        EntityRenderers.register(ModEntities.FLAME_PROJECTILE.get(), FlameProjectileRenderer::new);
+        EntityRenderers.register(ModEntities.KATANA_SLASH.get(), KatanaSlashRenderer::new);
+        EntityRenderers.register(ModEntities.KATANA_CIRCLE_SLASH.get(), KatanaCircleSlashRenderer::new);
+        
+        
+        
+        CuriosRendererRegistry.register(ModItems.SWORD_SWARM_CHARM.get(), SwordSwarmCharmRenderer::new);
+
+        event.enqueueWork(() -> ItemProperties.register(
+                ModItems.KATANA.get(),
+                new ResourceLocation(MODID, "open"),
+                (stack, level, holder, seed) -> MuramasaItem.isOpen(stack, level) ? 1.0F : 0.0F
+        ));
+        event.enqueueWork(() -> ItemProperties.register(
+                ModItems.WITCH_POT.get(),
+                new ResourceLocation(MODID, "has_potion"),
+                (stack, level, holder, seed) -> WitchPotItem.hasPotionData(stack) ? 1.0F : 0.0F
+        ));
+        event.enqueueWork(() -> ItemProperties.register(
+                ModItems.SPEAR.get(),
+                new ResourceLocation(MODID, "using"),
+                (stack, level, holder, seed) -> holder != null && holder.isUsingItem() && holder.getUseItem() == stack ? 1.0F : 0.0F
+        ));
+        event.enqueueWork(() -> ItemProperties.register(
+                ModItems.GRIEFER_SPEAR.get(),
+                new ResourceLocation(MODID, "using"),
+                (stack, level, holder, seed) -> holder != null && holder.isUsingItem() && holder.getUseItem() == stack ? 1.0F : 0.0F
+        ));
+    }
+}
