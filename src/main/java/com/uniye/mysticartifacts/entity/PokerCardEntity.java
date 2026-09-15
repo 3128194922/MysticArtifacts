@@ -2,7 +2,6 @@ package com.uniye.mysticartifacts.entity;
 
 import com.uniye.mysticartifacts.init.ModDamageTypes;
 import com.uniye.mysticartifacts.init.ModItems;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -14,22 +13,24 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Scoreboard;
 import net.minecraftforge.network.NetworkHooks;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class PokerCardEntity extends AbstractArrow implements ItemSupplier {
+public class PokerCardEntity extends AbstractArrow implements ItemSupplier, CustomOutlineEntity {
     private static final EntityDataAccessor<Boolean> RECALLING = SynchedEntityData.defineId(PokerCardEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> OUTLINE_COLOR = SynchedEntityData.defineId(PokerCardEntity.class, EntityDataSerializers.INT);
+    private static final int WHITE_OUTLINE = 0xFFFFFF;
+    private static final int RED_OUTLINE = 0xFF0000;
     
     private ItemStack pickupItemStack = new ItemStack(ModItems.POKER_CARD.get());
     private int lifeTime = 0;
@@ -52,6 +53,7 @@ public class PokerCardEntity extends AbstractArrow implements ItemSupplier {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(RECALLING, false);
+        this.entityData.define(OUTLINE_COLOR, NO_OUTLINE_COLOR);
     }
 
     public void setRecalling(boolean recalling) {
@@ -60,6 +62,20 @@ public class PokerCardEntity extends AbstractArrow implements ItemSupplier {
 
     public boolean isRecalling() {
         return this.entityData.get(RECALLING);
+    }
+
+    @Override
+    public int getCustomOutlineColor() {
+        return this.entityData.get(OUTLINE_COLOR);
+    }
+
+    @Override
+    public boolean hasCustomOutlineRendering(Player player) {
+        return hasCustomOutline();
+    }
+
+    private void setCustomOutlineColor(int color) {
+        this.entityData.set(OUTLINE_COLOR, color);
     }
 
     public void startRecall() {
@@ -105,53 +121,18 @@ public class PokerCardEntity extends AbstractArrow implements ItemSupplier {
 
     @Override
     public void tick() {
-        if (!this.level().isClientSide) {
-             if (this.inGround && !this.isRecalling()) {
-                 if (!this.hasGlowingTag()) {
-                     this.setGlowingTag(true); 
-                 }
-                 
-                 Scoreboard scoreboard = this.level().getScoreboard();
-                 if (lifeTime < 200) {
-                     PlayerTeam team = scoreboard.getPlayerTeam("GimmeThat_White");
-                     if (team == null) {
-                         team = scoreboard.addPlayerTeam("GimmeThat_White");
-                         team.setColor(ChatFormatting.WHITE);
-                     }
-                     if (!team.getPlayers().contains(this.getStringUUID())) {
-                         scoreboard.addPlayerToTeam(this.getStringUUID(), team);
-                     }
-                 }
-             }
-        }
-        
         super.tick();
         
         if (!this.level().isClientSide) {
             if (this.inGround && !isRecalling()) {
                 lifeTime++;
-                
-                if (lifeTime > 200) {
-                    Scoreboard scoreboard = this.level().getScoreboard();
-                    
-                    PlayerTeam whiteTeam = scoreboard.getPlayerTeam("GimmeThat_White");
-                    if (whiteTeam != null && whiteTeam.getPlayers().contains(this.getStringUUID())) {
-                         scoreboard.removePlayerFromTeam(this.getStringUUID(), whiteTeam);
-                    }
-                    
-                    PlayerTeam team = scoreboard.getPlayerTeam("GimmeThat_Red");
-                    if (team == null) {
-                        team = scoreboard.addPlayerTeam("GimmeThat_Red");
-                        team.setColor(ChatFormatting.RED);
-                    }
-                    if (!team.getPlayers().contains(this.getStringUUID())) {
-                        scoreboard.addPlayerToTeam(this.getStringUUID(), team);
-                    }
-                }
-                
+                setCustomOutlineColor(lifeTime > 200 ? RED_OUTLINE : WHITE_OUTLINE);
+
                 if (lifeTime > 240) { 
                     this.discard();
                 }
+            } else if (!this.inGround) {
+                setCustomOutlineColor(NO_OUTLINE_COLOR);
             }
             
             if (isRecalling()) {

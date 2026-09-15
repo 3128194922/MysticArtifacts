@@ -2,12 +2,14 @@ package com.uniye.mysticartifacts.event;
 
 import com.uniye.mysticartifacts.MysticArtifacts;
 import com.uniye.mysticartifacts.network.PlayerListPacket;
+import com.uniye.mysticartifacts.network.SpectateStatePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -30,14 +32,13 @@ public class AllSeeingEyeEvents {
             double originY,
             double originZ,
             float originYRot,
-            float originXRot,
-            GameType originGameType) {
+            float originXRot) {
     }
 
     public static void sendPlayerList(ServerPlayer requester) {
         List<PlayerListPacket.Entry> players = new ArrayList<>();
         for (ServerPlayer player : requester.server.getPlayerList().getPlayers()) {
-            if (player != requester) {
+            if (player != requester && player.serverLevel() == requester.serverLevel()) {
                 players.add(new PlayerListPacket.Entry(player.getUUID(), player.getGameProfile().getName()));
             }
         }
@@ -49,7 +50,7 @@ public class AllSeeingEyeEvents {
         if (target == null || target == watcher || !target.isAlive()) {
             return;
         }
-        if (SPECTATES.containsKey(targetUuid)) {
+        if (target.serverLevel() != watcher.serverLevel()) {
             return;
         }
 
@@ -59,14 +60,12 @@ public class AllSeeingEyeEvents {
                 targetUuid,
                 watcher.level().dimension(),
                 watcher.getX(), watcher.getY(), watcher.getZ(),
-                watcher.getYRot(), watcher.getXRot(),
-                watcher.gameMode.getGameModeForPlayer()
+                watcher.getYRot(), watcher.getXRot()
         );
         SPECTATES.put(watcher.getUUID(), info);
 
-        watcher.gameMode.changeGameModeForPlayer(GameType.SPECTATOR);
         teleportToTarget(watcher, target);
-        watcher.setCamera(target);
+        SpectateStatePacket.sendStart(watcher, target.getUUID());
     }
 
     public static void stopSpectate(ServerPlayer watcher, boolean teleportBack) {
@@ -76,18 +75,16 @@ public class AllSeeingEyeEvents {
         }
 
         if (watcher.isAlive()) {
-            watcher.gameMode.changeGameModeForPlayer(info.originGameType());
-            watcher.setCamera(watcher);
-        }
-
-        if (teleportBack && watcher.isAlive()) {
-            ServerLevel origin = watcher.server.getLevel(info.originDim());
-            if (origin != null) {
-                watcher.teleportTo(
-                        origin, info.originX(), info.originY(), info.originZ(),
-                        info.originYRot(), info.originXRot()
-                );
+            if (teleportBack) {
+                ServerLevel origin = watcher.server.getLevel(info.originDim());
+                if (origin != null) {
+                    watcher.teleportTo(
+                            origin, info.originX(), info.originY(), info.originZ(),
+                            info.originYRot(), info.originXRot()
+                    );
+                }
             }
+            SpectateStatePacket.sendStop(watcher);
         }
     }
 
@@ -123,9 +120,44 @@ public class AllSeeingEyeEvents {
                 continue;
             }
 
-            if (watcher.level() != target.level()) {
+            if (watcher.serverLevel() != target.serverLevel()) {
                 stopSpectate(watcher, true);
+                continue;
             }
+
+            teleportToTarget(watcher, target);
+        }
+    }
+
+    public static boolean isSpectating(ServerPlayer player) {
+        return SPECTATES.containsKey(player.getUUID());
+    }
+
+    @SubscribeEvent
+    public static void onAttackEntity(AttackEntityEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player && isSpectating(player)) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (event.getEntity() instanceof ServerPlayer player && isSpectating(player)) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        if (event.getEntity() instanceof ServerPlayer player && isSpectating(player)) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getEntity() instanceof ServerPlayer player && isSpectating(player)) {
+            event.setCanceled(true);
         }
     }
 

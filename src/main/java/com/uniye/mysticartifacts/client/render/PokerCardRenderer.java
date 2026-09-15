@@ -5,7 +5,6 @@ import com.mojang.math.Axis;
 import com.uniye.mysticartifacts.entity.PokerCardEntity;
 import com.uniye.mysticartifacts.init.ModItems;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -15,7 +14,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-public class PokerCardRenderer extends EntityRenderer<PokerCardEntity> {
+public class PokerCardRenderer extends CustomOutlineRenderer<PokerCardEntity> {
     private final ItemRenderer itemRenderer;
     private final float scale;
 
@@ -26,7 +25,8 @@ public class PokerCardRenderer extends EntityRenderer<PokerCardEntity> {
     }
 
     @Override
-    public void render(PokerCardEntity entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+    protected void renderContents(PokerCardEntity entity, float entityYaw, float partialTicks,
+                                  PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
         
         poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
@@ -40,7 +40,6 @@ public class PokerCardRenderer extends EntityRenderer<PokerCardEntity> {
         this.itemRenderer.renderStatic(itemStack, ItemDisplayContext.GROUND, packedLight, OverlayTexture.NO_OVERLAY, poseStack, buffer, entity.level(), entity.getId());
         
         poseStack.popPose();
-        super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
     }
 
     @Override

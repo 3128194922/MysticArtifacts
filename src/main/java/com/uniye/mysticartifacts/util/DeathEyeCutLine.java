@@ -38,8 +38,8 @@ public final class DeathEyeCutLine {
         Vec3 from = anchor.add(dir.scale(halfLen));
         Vec3 to = anchor.subtract(dir.scale(halfLen));
 
-        // Always render as red
-        int color = 0xFF0000;
+        // 斩杀线底色始终为白色，客户端会叠加黑色斩杀值进度。
+        int color = 0xFFFFFF;
 
         return new CutLine(from, to, color);
     }

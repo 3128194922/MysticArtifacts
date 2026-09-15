@@ -11,6 +11,9 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MysticArtifacts.MODID);
+    public static final RegistryObject<EntityType<RevolverBullet>> REVOLVER_BULLET = ENTITIES.register("revolver_bullet",
+            () -> EntityType.Builder.<RevolverBullet>of(RevolverBullet::new, MobCategory.MISC)
+                    .sized(0.1F, 0.1F).clientTrackingRange(8).updateInterval(1).noSave().build("revolver_bullet"));
 
     public static final RegistryObject<EntityType<DemonicGestationEntity>> DEMONIC_GESTATION = ENTITIES.register("demonic_gestation",
             () -> EntityType.Builder.<DemonicGestationEntity>of(DemonicGestationEntity::new, MobCategory.MISC)

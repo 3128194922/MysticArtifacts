@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -22,9 +23,12 @@ import net.minecraftforge.network.NetworkHooks;
 
 import java.util.UUID;
 
-public class EnderKunaiEntity extends AbstractArrow {
+public class EnderKunaiEntity extends AbstractArrow implements CustomOutlineEntity {
     private static final int MAX_LIFETIME_TICKS = 100;
-    private static final EntityDataAccessor<Boolean> IS_GLOWING_KUNAI = SynchedEntityData.defineId(EnderKunaiEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final int RED_OUTLINE_LEAD_TICKS = 20;
+    private static final int WHITE_OUTLINE = 0xFFFFFF;
+    private static final int RED_OUTLINE = 0xFF0000;
+    private static final EntityDataAccessor<Integer> OUTLINE_COLOR = SynchedEntityData.defineId(EnderKunaiEntity.class, EntityDataSerializers.INT);
     private static final String TAG_ITEM = "Item";
     private static final String TAG_OWNER_UUID = "OwnerUUID";
     private int groundTimer = 0;
@@ -52,11 +56,21 @@ public class EnderKunaiEntity extends AbstractArrow {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(IS_GLOWING_KUNAI, false);
+        this.entityData.define(OUTLINE_COLOR, NO_OUTLINE_COLOR);
     }
 
     public boolean isVisualGlowing() {
-        return this.entityData.get(IS_GLOWING_KUNAI);
+        return getCustomOutlineColor() != NO_OUTLINE_COLOR;
+    }
+
+    @Override
+    public int getCustomOutlineColor() {
+        return this.entityData.get(OUTLINE_COLOR);
+    }
+
+    @Override
+    public boolean hasCustomOutlineRendering(Player player) {
+        return hasCustomOutline();
     }
 
     public boolean isInGround() {
@@ -66,18 +80,25 @@ public class EnderKunaiEntity extends AbstractArrow {
     @Override
     public void tick() {
         super.tick();
-        if (!this.level().isClientSide && ++this.lifetimeTicks >= MAX_LIFETIME_TICKS) {
-            this.timedOut = true;
-            this.discard();
-            return;
+        if (!this.level().isClientSide) {
+            this.lifetimeTicks++;
+            if (this.lifetimeTicks >= MAX_LIFETIME_TICKS) {
+                this.timedOut = true;
+                this.discard();
+                return;
+            }
         }
 
         if (this.inGround) {
             this.groundTimer++;
             
-            if (!this.level().isClientSide && !this.entityData.get(IS_GLOWING_KUNAI)) {
-                this.entityData.set(IS_GLOWING_KUNAI, true);
-                this.setGlowingTag(true);
+            if (!this.level().isClientSide) {
+                int outlineColor = this.lifetimeTicks >= MAX_LIFETIME_TICKS - RED_OUTLINE_LEAD_TICKS
+                        ? RED_OUTLINE
+                        : WHITE_OUTLINE;
+                if (getCustomOutlineColor() != outlineColor) {
+                    this.entityData.set(OUTLINE_COLOR, outlineColor);
+                }
             }
             
             if (this.level().isClientSide && this.groundTimer % 2 == 0) {
@@ -93,6 +114,9 @@ public class EnderKunaiEntity extends AbstractArrow {
             }
         } else {
             this.groundTimer = 0;
+            if (!this.level().isClientSide && getCustomOutlineColor() != NO_OUTLINE_COLOR) {
+                this.entityData.set(OUTLINE_COLOR, NO_OUTLINE_COLOR);
+            }
         }
     }
     

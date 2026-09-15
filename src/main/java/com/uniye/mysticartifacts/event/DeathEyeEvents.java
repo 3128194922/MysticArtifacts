@@ -2,22 +2,33 @@ package com.uniye.mysticartifacts.event;
 
 import com.uniye.mysticartifacts.MysticArtifacts;
 import com.uniye.mysticartifacts.item.impl.DeathEyeItem;
+import com.uniye.mysticartifacts.network.DeathEyeProgressPacket;
 import com.uniye.mysticartifacts.util.DeathEyeCutLine;
+import com.uniye.mysticartifacts.util.DeathEyeProgress;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+
+import java.util.UUID;
 
 @Mod.EventBusSubscriber(modid = MysticArtifacts.MODID)
 public class DeathEyeEvents {
 
-    @SubscribeEvent
+    private static final String PROGRESS_TAG = "MysticArtifactsDeathEye";
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingHurt(LivingHurtEvent event) {
-        if (event.getAmount() <= 0) return;
+        if (event.getEntity().level().isClientSide) return;
+        if (event.isCanceled() || event.getAmount() <= 0) return;
         if (!(event.getSource().getEntity() instanceof Player player)) return;
         if (event.getSource().getDirectEntity() != player) return;
 
@@ -28,12 +39,72 @@ public class DeathEyeEvents {
         DeathEyeCutLine.CutLine line = DeathEyeCutLine.compute(target, player.level().getGameTime());
         Vec3 eye = player.getEyePosition();
         Vec3 end = eye.add(player.getLookAngle().scale(10.0));
-
         double dist = distanceBetweenSegments(eye, end, line.from(), line.to());
         double threshold = Math.max(0.2, target.getBbWidth() * 0.15);
-        if (dist <= threshold) {
-            event.setAmount(event.getAmount() * 2.0f);
-            player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.0f, 1.0f);
+        boolean cutLineHit = dist <= threshold;
+
+        DeathEyeProgress.StrikeResult result = DeathEyeProgress.apply(
+                getProgress(player, target.getUUID()), event.getAmount(), cutLineHit);
+        event.setAmount(result.damage());
+        setProgress(player, target.getUUID(), result.accumulatedDamage());
+
+        if (result.executed()) {
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.PLAYER_ATTACK_CRIT, SoundSource.PLAYERS, 1.0f, 1.0f);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        syncAll(event.getEntity());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        syncAll(event.getEntity());
+    }
+
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        syncAll(event.getEntity());
+    }
+
+    public static double getProgress(Player player, UUID targetId) {
+        CompoundTag progress = player.getPersistentData().getCompound(PROGRESS_TAG);
+        return progress.getDouble(targetId.toString());
+    }
+
+    public static void setProgress(Player player, UUID targetId, double accumulatedDamage) {
+        CompoundTag progress = player.getPersistentData().getCompound(PROGRESS_TAG);
+        String key = targetId.toString();
+        if (accumulatedDamage <= 0.0) {
+            progress.remove(key);
+        } else {
+            progress.putDouble(key, accumulatedDamage);
+        }
+        player.getPersistentData().put(PROGRESS_TAG, progress);
+        if (player instanceof ServerPlayer serverPlayer) {
+            DeathEyeProgressPacket.sendTo(serverPlayer, targetId, Math.max(0.0, accumulatedDamage));
+        }
+    }
+
+    public static void clearProgress(Player player) {
+        player.getPersistentData().remove(PROGRESS_TAG);
+        if (player instanceof ServerPlayer serverPlayer) {
+            DeathEyeProgressPacket.clearClient(serverPlayer);
+        }
+    }
+
+    public static void syncAll(Player player) {
+        if (!(player instanceof ServerPlayer serverPlayer) || !DeathEyeItem.isWearing(player)) return;
+        DeathEyeProgressPacket.clearClient(serverPlayer);
+        CompoundTag progress = player.getPersistentData().getCompound(PROGRESS_TAG);
+        for (String key : progress.getAllKeys()) {
+            try {
+                DeathEyeProgressPacket.sendTo(serverPlayer, UUID.fromString(key), progress.getDouble(key));
+            } catch (IllegalArgumentException ignored) {
+                progress.remove(key);
+            }
         }
     }
 

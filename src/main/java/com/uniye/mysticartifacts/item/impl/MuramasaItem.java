@@ -1,6 +1,8 @@
 package com.uniye.mysticartifacts.item.impl;
 
+import com.uniye.mysticartifacts.client.render.MuramasaRenderer;
 import com.uniye.mysticartifacts.entity.KatanaSlashEntity;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -22,11 +24,17 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * 武士刀（村雨）：普通模式 / 鬼刀模式。
@@ -39,18 +47,51 @@ import java.util.UUID;
  * 受到伤害自动完美弹反（有限次数）；右键为半程居合（纯位移，消耗 1 充能）。
  * 充能耗尽或持续时间结束后回到普通模式。</p>
  */
-public class MuramasaItem extends SwordItem {
+public class MuramasaItem extends SwordItem implements GeoItem {
     private static final UUID STEP_HEIGHT_UUID = UUID.fromString("e0f4e6d2-8b4e-4f3b-9c7a-1a2b3c4d5e6f");
     private static final AttributeModifier STEP_HEIGHT_MODIFIER = new AttributeModifier(
             STEP_HEIGHT_UUID, "Muramasa Dash Step Height", 2.0, AttributeModifier.Operation.ADDITION);
-    private static final double CLOSED_KNOCKBACK_STRENGTH = 3.0D;
     private static final double NORMAL_DASH_STRENGTH = 2.0D;
     private static final double GHOST_DASH_STRENGTH = 1.0D;
     private static final int GHOST_SLASH_COOLDOWN_TICKS = 5;
     private static final int DASH_COOLDOWN_TICKS = 10;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public MuramasaItem(Properties properties) {
         super(Tiers.IRON, 4, -2.4F, properties);
+        GeoItem.registerSyncedAnimatable(this);
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            private MuramasaRenderer renderer;
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) {
+                    renderer = new MuramasaRenderer();
+                }
+                return renderer;
+            }
+
+            @Override
+            public HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack itemStack) {
+                return HumanoidModel.ArmPose.ITEM;
+            }
+
+        });
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        // The two visual states are switched directly by MuramasaRenderer because
+        // GeckoLib's exported Geo format does not preserve Blockbench visibility flags.
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 
     // ---- 状态查询 ----
@@ -213,8 +254,6 @@ public class MuramasaItem extends SwordItem {
         boolean result = super.hurtEnemy(stack, target, attacker);
         if (attacker instanceof Player player && !KatanaState.isOpen(stack, player.level())
                 && !player.level().isClientSide) {
-            target.knockback(CLOSED_KNOCKBACK_STRENGTH,
-                    player.getX() - target.getX(), player.getZ() - target.getZ());
             KatanaState.addEnergy(stack, KatanaState.CHARGE_PER_HIT);
         }
         return result;

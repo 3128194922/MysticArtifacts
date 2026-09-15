@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "mysticartifacts:item/all_seeing_eye"
+    "layer0": "mysticartifacts:item/trail_sight"
   }
 }
