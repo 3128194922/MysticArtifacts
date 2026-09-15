@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $mainPath = Join-Path $projectRoot 'src/main/java/com/uniye/mysticartifacts/MysticArtifacts.java'
 $mainText = Get-Content -Raw $mainPath
 
