@@ -44,7 +44,7 @@ Create `src/test/project-structure-contract-test.ps1` with this exact behavior:
 ```powershell
 $ErrorActionPreference = 'Stop'
 
-$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $mainPath = Join-Path $projectRoot 'src/main/java/com/uniye/mysticartifacts/MysticArtifacts.java'
 $mainText = Get-Content -Raw $mainPath
 
