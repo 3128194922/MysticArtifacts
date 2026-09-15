@@ -48,7 +48,7 @@ public final class ClientModEvents {
         EntityRenderers.register(ModEntities.FINAL_EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "final_exploding_arrow"));
         EntityRenderers.register(ModEntities.ENDER_KUNAI.get(), ctx -> new ModArrowRenderer(ctx, "kunai"));
         EntityRenderers.register(ModEntities.POKER_CARD.get(), PokerCardRenderer::new);
-        
+
         EntityRenderers.register(ModEntities.TWO_DRAGONS_PLAY_BALL.get(), TwoDragonsPlayBallRenderer::new);
         EntityRenderers.register(ModEntities.TWO_DRAGONS_FAN.get(), TwoDragonsFanRenderer::new);
         EntityRenderers.register(ModEntities.SWORD_PHANTOM.get(), SwordPhantomRenderer::new);
@@ -56,9 +56,9 @@ public final class ClientModEvents {
         EntityRenderers.register(ModEntities.FLAME_PROJECTILE.get(), FlameProjectileRenderer::new);
         EntityRenderers.register(ModEntities.KATANA_SLASH.get(), KatanaSlashRenderer::new);
         EntityRenderers.register(ModEntities.KATANA_CIRCLE_SLASH.get(), KatanaCircleSlashRenderer::new);
-        
-        
-        
+
+
+
         CuriosRendererRegistry.register(ModItems.SWORD_SWARM_CHARM.get(), SwordSwarmCharmRenderer::new);
 
         event.enqueueWork(() -> ItemProperties.register(
