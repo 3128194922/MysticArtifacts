@@ -30,7 +30,8 @@ if ($exampleMatches) {
 
 $registeredIds = @('jiba_revolver', 'revolver_bullet', 'revolver_cylinder', 'mysticartifacts')
 foreach ($id in $registeredIds) {
-    $matches = $javaFiles | Select-String -Pattern [regex]::Escape($id) -CaseSensitive
+    $pattern = [regex]::Escape($id)
+    $matches = $javaFiles | Select-String -Pattern $pattern -CaseSensitive
     if (-not $matches) {
         throw "Required registration/resource id is missing: $id"
     }
