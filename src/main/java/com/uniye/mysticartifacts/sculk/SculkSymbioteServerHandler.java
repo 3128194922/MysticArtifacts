@@ -5,9 +5,9 @@ import com.uniye.mysticartifacts.item.impl.TrailSightItem;
 import com.uniye.mysticartifacts.network.SculkSymbioteVibrationPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -35,6 +35,9 @@ public final class SculkSymbioteServerHandler {
             return;
         }
 
+        refreshEffect(player, MobEffects.BLINDNESS);
+        refreshEffect(player, MobEffects.DARKNESS);
+
         SculkSymbioteSensor sensor = SENSORS.get(player.getUUID());
         if (sensor == null || !sensor.isFor(player)) {
             if (sensor != null) sensor.remove();
@@ -45,6 +48,13 @@ public final class SculkSymbioteServerHandler {
         List<MarkerData> markers = sensor.drainMarkers();
         if (!markers.isEmpty()) {
             SculkSymbioteVibrationPacket.sendTo(player, markers);
+        }
+    }
+
+    private static void refreshEffect(ServerPlayer player, MobEffect effect) {
+        MobEffectInstance current = player.getEffect(effect);
+        if (current == null || current.getDuration() <= 5) {
+            player.addEffect(new MobEffectInstance(effect, 10, 0, false, false, true));
         }
     }
 

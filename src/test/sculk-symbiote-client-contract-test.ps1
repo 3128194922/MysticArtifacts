@@ -2,27 +2,26 @@ $ErrorActionPreference = 'Stop'
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $statePath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/sculk/SculkSymbioteClientState.java'
-$hiddenPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/sculk/HiddenEntityRenderer.java'
 $configPath = Join-Path $projectRoot 'main/java/com/uniye/mysticartifacts/client/trail/TrailSightClientConfig.java'
 $state = Get-Content -Raw $statePath
-$hidden = Get-Content -Raw $hiddenPath
 $config = Get-Content -Raw $configPath
 $failures = @()
 
 foreach ($check in @(
     '*TrailSightItem.isWearing*',
-    '*setRenderHitBoxes(false)*',
-    '*setRenderShadow(false)*',
-    '*HiddenEntityRenderer.wrap*',
-    '*dispatcher.renderers*',
-    '*getSkinMap()*',
     '*MARKER_LIFETIME*',
     '*acceptMarkers*',
-    '*trim*'
+    '*trim*',
+    '*isActive*'
 )) {
-    if ($state -notlike $check -and $hidden -notlike $check -and $config -notlike $check) {
+    if ($state -notlike $check -and $config -notlike $check) {
         $failures += "missing client contract: $check"
     }
+}
+
+$hasHiddenBehavior = $state -like '*setRenderHitBoxes*' -or $state -like '*setRenderShadow*' -or $state -like '*HiddenEntityRenderer*'
+if ($hasHiddenBehavior) {
+    $failures += 'wearing must not hide entity models, shadows, or hitboxes'
 }
 
 if ($config -notlike '*sculkSymbioteMarkerLifetime", 20*') {
