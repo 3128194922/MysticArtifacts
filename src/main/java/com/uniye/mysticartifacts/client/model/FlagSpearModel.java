@@ -2,6 +2,7 @@ package com.uniye.mysticartifacts.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.util.Mth;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -28,6 +29,12 @@ public class FlagSpearModel<T extends Entity> extends EntityModel<T> {
 	private final ModelPart spearhead;
 	private final ModelPart banner;
 	private final ModelPart bindings;
+	private final ModelPart goldHemBottom1;
+	private final ModelPart goldHemBottom2;
+	private final ModelPart goldHemBottom3;
+	private final ModelPart goldHemBottom4;
+	private final ModelPart tasselOne;
+	private final ModelPart tasselTwo;
 
 	public FlagSpearModel(ModelPart root) {
 		this.flag_spear = root.getChild("flag_spear");
@@ -35,6 +42,30 @@ public class FlagSpearModel<T extends Entity> extends EntityModel<T> {
 		this.spearhead = this.flag_spear.getChild("spearhead");
 		this.banner = this.flag_spear.getChild("banner");
 		this.bindings = this.flag_spear.getChild("bindings");
+		this.goldHemBottom1 = this.banner.getChild("gold_hem_bottom_1_r1");
+		this.goldHemBottom2 = this.banner.getChild("gold_hem_bottom_2_r1");
+		this.goldHemBottom3 = this.banner.getChild("gold_hem_bottom_3_r1");
+		this.goldHemBottom4 = this.banner.getChild("gold_hem_bottom_4_r1");
+		this.tasselOne = this.banner.getChild("tassel_one_r1");
+		this.tasselTwo = this.banner.getChild("tassel_two_r1");
+	}
+
+	/** Applies a small phase-shifted client-only breeze animation to the flag. */
+	public void animateBanner(float time) {
+		banner.zRot = Mth.sin(time * 0.055F) * 0.018F;
+		banner.yRot = Mth.sin(time * 0.073F + 0.6F) * 0.028F;
+		animateSegment(goldHemBottom1, 0.2094F, time, 0.0F, 0.045F);
+		animateSegment(goldHemBottom2, -0.1396F, time, 0.7F, 0.065F);
+		animateSegment(goldHemBottom3, -0.2793F, time, 1.4F, 0.085F);
+		animateSegment(goldHemBottom4, 0.1396F, time, 2.1F, 0.105F);
+		tasselOne.zRot = -0.2094F + Mth.sin(time * 0.11F + 0.8F) * 0.16F;
+		tasselTwo.zRot = 0.2094F + Mth.sin(time * 0.105F + 2.0F) * 0.16F;
+	}
+
+	private static void animateSegment(ModelPart segment, float baseYRot, float time,
+								   float phase, float amplitude) {
+		segment.yRot = baseYRot + Mth.sin(time * 0.073F + phase) * amplitude;
+		segment.xRot = Mth.sin(time * 0.091F + phase + 0.4F) * amplitude * 0.45F;
 	}
 
 	public static LayerDefinition createBodyLayer() {

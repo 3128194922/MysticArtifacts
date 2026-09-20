@@ -8,6 +8,7 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -28,6 +29,7 @@ public final class FlagSpearItemRenderer extends BlockEntityWithoutLevelRenderer
         poseStack.pushPose();
         poseStack.translate(0.5D, 0.5D, 0.5D);
         poseStack.scale(-1.0F, -1.0F, 1.0F);
+		model.animateBanner((Util.getMillis() % 120000L) * 0.02F);
 
         RenderType renderType = RenderType.entityCutoutNoCull(FlagSpearModel.TEXTURE);
         VertexConsumer consumer = Minecraft.getInstance().getItemRenderer()
