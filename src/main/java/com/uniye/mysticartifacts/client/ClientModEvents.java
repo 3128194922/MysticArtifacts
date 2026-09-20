@@ -4,6 +4,7 @@ import static com.uniye.mysticartifacts.MysticArtifacts.MODID;
 
 import com.uniye.mysticartifacts.MysticArtifacts;
 import com.uniye.mysticartifacts.client.event.SurvivalJadeClientHandler;
+import com.uniye.mysticartifacts.client.model.FlagSpearModel;
 import com.uniye.mysticartifacts.client.render.*;
 import com.uniye.mysticartifacts.init.ModEntities;
 import com.uniye.mysticartifacts.init.ModItems;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -36,6 +38,11 @@ public final class ClientModEvents {
         // 与 Thirst-Mod 口渴条等同位置的 overlay 自动错位（互不重叠）
         event.registerAbove(VanillaGuiOverlay.FOOD_LEVEL.id(), "survival_jade_phantom",
                 SurvivalJadeClientHandler.PHANTOM_OVERLAY);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(FlagSpearModel.LAYER_LOCATION, FlagSpearModel::createBodyLayer);
     }
 
     @SubscribeEvent
