@@ -34,6 +34,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.ARTIFACT_SPIRIT.get());
                         pOutput.accept(ModItems.GRIEFER_SPEAR.get());
                         pOutput.accept(ModItems.SPEAR.get());
+                        pOutput.accept(ModItems.FLAG_SPEAR.get());
                         pOutput.accept(ModItems.CODEX.get());
                         pOutput.accept(ModItems.WITCH_POT.get());
                         pOutput.accept(ModItems.ALL_SEEING_EYE.get());
@@ -41,6 +42,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.EMERGENCY_PLAN.get());
                         pOutput.accept(ModItems.ANCESTORS_LETTER.get());
                         pOutput.accept(ModItems.TRAIL_SIGHT.get());
+                        pOutput.accept(ModItems.LIGHTNING_BOTTLE.get());
                     })
                     .build());
 
