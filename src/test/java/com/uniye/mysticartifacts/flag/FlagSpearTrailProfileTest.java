@@ -12,7 +12,7 @@ public final class FlagSpearTrailProfileTest {
         requireClose(5.0D, FlagSpearTrailProfile.radiusAt(0), "first sample radius");
         requireClose(5.0D, FlagSpearTrailProfile.radiusAt(23), "last sample radius");
         requireClose(0.0D, FlagSpearTrailProfile.phaseFor(0), "first phase");
-        requireClose(Math.PI * 2.0D, FlagSpearTrailProfile.phaseFor(4), "last phase");
+        requireClose(Math.PI * 8.0D / 5.0D, FlagSpearTrailProfile.phaseFor(4), "last phase");
     }
 
     private static void requireEquals(int expected, int actual, String label) {
