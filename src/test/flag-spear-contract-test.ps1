@@ -44,10 +44,10 @@ if ($creativeTabText -notmatch 'ModItems\.FLAG_SPEAR\.get\(\)') {
 if ($eventText -notmatch 'AttackEntityEvent' -or $eventText -notmatch 'ServerPlayer') {
     throw 'Flag spear server attack event is missing'
 }
-if ($eventText -notmatch 'getMainHandItem\(\)\.is\(ModItems\.FLAG_SPEAR\.get\(\)\)') {
+if ($eventText -notmatch 'getMainHandItem\(\)' -or $eventText -notmatch 'stack\.is\(ModItems\.FLAG_SPEAR\.get\(\)\)') {
     throw 'Flag spear event does not check the main-hand item'
 }
-if ($eventText -notmatch 'getBoundingBox\(\)\.inflate\(5\.0D\)') {
+if ($eventText -notmatch 'RANGE\s*=\s*5\.0D' -or $eventText -notmatch 'getBoundingBox\(\)\.inflate\(RANGE\)') {
     throw 'Flag spear event does not use the five-block search radius'
 }
 if ($eventText -notmatch 'candidate\s*!=\s*primaryTarget') {
@@ -77,10 +77,10 @@ if ($stateText -notmatch 'LIFETIME_TICKS\s*=\s*10L' -or $stateText -notmatch 'MA
 if ($rendererText -notmatch 'AFTER_ENTITIES' -or $rendererText -notmatch 'TRAIL_COUNT') {
     throw 'Flag spear renderer does not render five trails after entities'
 }
-if ($renderTypesText -notmatch 'NO_DEPTH_TEST' -or $renderTypesText -notmatch 'NO_CULL') {
+if ($renderTypesText -notmatch 'NO_DEPTH_TEST' -or $renderTypesText -notmatch 'CullStateShard\(false\)') {
     throw 'Flag spear render type is not configured for visible emissive trails'
 }
-if ($renderTypesText -notmatch '1\.0F,\s*0\.0F,\s*0\.0F') {
+if ($rendererText -notmatch 'color\(255,\s*0,\s*0') {
     throw 'Flag spear render type is not red'
 }
 if ($modelText -notmatch 'mysticartifacts:item/spear') {

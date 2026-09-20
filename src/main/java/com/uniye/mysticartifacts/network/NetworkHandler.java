@@ -100,5 +100,19 @@ public class NetworkHandler {
                 SculkSymbioteVibrationPacket::handle,
                 java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
         );
+
+        INSTANCE.registerMessage(id++, LightningBottlePacket.class,
+                LightningBottlePacket::encode,
+                LightningBottlePacket::decode,
+                LightningBottlePacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
+        );
+
+        INSTANCE.registerMessage(id++, FlagSpearTrailPacket.class,
+                FlagSpearTrailPacket::encode,
+                FlagSpearTrailPacket::decode,
+                FlagSpearTrailPacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
+        );
     }
 }

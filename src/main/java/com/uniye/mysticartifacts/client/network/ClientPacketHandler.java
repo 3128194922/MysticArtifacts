@@ -6,6 +6,9 @@ import com.uniye.mysticartifacts.client.event.AllSeeingEyeClientHandler;
 import com.uniye.mysticartifacts.item.impl.AncestorsLetterItem;
 import com.uniye.mysticartifacts.client.sculk.SculkSymbioteClientState;
 import com.uniye.mysticartifacts.network.SculkSymbioteVibrationPacket;
+import com.uniye.mysticartifacts.client.lightning.LightningBottleClientState;
+import com.uniye.mysticartifacts.client.flag.FlagSpearClientState;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
@@ -32,5 +35,13 @@ public class ClientPacketHandler {
 
     public static void handleSculkSymbioteVibrations(java.util.List<SculkSymbioteVibrationPacket.Marker> markers) {
         SculkSymbioteClientState.acceptMarkers(markers);
+    }
+
+    public static void handleLightningBottle(java.util.List<Vec3> path) {
+        LightningBottleClientState.accept(path);
+    }
+
+    public static void handleFlagSpearTrail(Vec3 center, float yaw) {
+        FlagSpearClientState.accept(center, yaw);
     }
 }
