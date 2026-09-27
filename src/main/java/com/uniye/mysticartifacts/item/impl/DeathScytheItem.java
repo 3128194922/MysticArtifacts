@@ -1,6 +1,7 @@
 package com.uniye.mysticartifacts.item.impl;
 
 import com.uniye.mysticartifacts.Config;
+import com.uniye.mysticartifacts.client.ClientModEvents;
 import com.uniye.mysticartifacts.network.NetworkHandler;
 import com.uniye.mysticartifacts.network.DeathScytheSlashPacket;
 import com.uniye.mysticartifacts.util.DeathScytheLogic;
@@ -16,19 +17,50 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.network.PacketDistributor;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
-public class DeathScytheItem extends Item {
+public class DeathScytheItem extends Item implements GeoItem {
     private static final String TAG_TARGET_UUID = "TargetUUID";
     private static final String TAG_ENERGY_UNTIL = "EnergyUntil";
     private static final String TAG_SLASH_SEQUENCE = "SlashSequence";
     private static final String TAG_ENERGY_DISPLAY_TICKS = "EnergyDisplayTicks";
     private static final int ENERGY_BAR_COLOR = 0x79213F;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public DeathScytheItem(Properties properties) {
         super(properties);
+        GeoItem.registerSyncedAnimatable(this);
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        ClientModEvents.registerDeathScytheRenderer(consumer);
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "scythe", 0, state -> PlayState.STOP)
+                .triggerableAnim("slash", RawAnimation.begin().thenPlay("animation.death_scythe.slash")));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
+
+    public void triggerSlash(ServerPlayer player, ItemStack stack) {
+        triggerAnim(player, GeoItem.getOrAssignId(stack, player.serverLevel()), "scythe", "slash");
     }
 
     public static UUID getTargetUUID(ItemStack stack) {
@@ -174,7 +206,6 @@ public class DeathScytheItem extends Item {
         player.getCooldowns().addCooldown(this, DeathScytheLogic.RIGHT_CLICK_COOLDOWN_TICKS);
         int sequence = DeathScytheLogic.nextSequence(stack.getOrCreateTag().getInt(TAG_SLASH_SEQUENCE));
         stack.getOrCreateTag().putInt(TAG_SLASH_SEQUENCE, sequence);
-        // Task 5 supplies the Geo controller and this trigger method.
         triggerSlash(serverPlayer, stack);
         // Task 6 supplies the server-to-client packet; no client data selects the target or damage.
         NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> serverPlayer),
