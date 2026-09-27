@@ -37,6 +37,8 @@ function Remove-JavaComments([string] $source) {
 $items = Read-Required 'main/java/com/uniye/mysticartifacts/init/ModItems.java'
 $tabs = Read-Required 'main/java/com/uniye/mysticartifacts/init/ModCreativeModTabs.java'
 $config = Read-Required 'main/java/com/uniye/mysticartifacts/Config.java'
+$modConfigs = Read-Required 'main/java/com/uniye/mysticartifacts/config/ModConfigs.java'
+$modEntrypoint = Read-Required 'main/java/com/uniye/mysticartifacts/MysticArtifacts.java'
 $item = Read-Required 'main/java/com/uniye/mysticartifacts/item/impl/DeathScytheItem.java'
 $logic = Read-Required 'main/java/com/uniye/mysticartifacts/util/DeathScytheLogic.java'
 $network = Read-Required 'main/java/com/uniye/mysticartifacts/network/NetworkHandler.java'
@@ -49,11 +51,17 @@ Require-Match $items 'new DeathScytheItem\(new Item\.Properties\(\)\.stacksTo\(1
 Require-Match $tabs 'pOutput\.accept\(ModItems\.DEATH_SCYTHE\.get\(\)\)' 'creative tab entry'
 Require-Match $config 'defineInRange\("DeathScytheEnergyTicks",\s*100,' 'energy config default'
 Require-Match $config 'defineInRange\("DeathScytheRightClickCooldown",\s*20,' 'cooldown config default'
+Require-Match $config 'defineInRange\("DeathScytheAttackDamage",\s*8\.0,' 'attack damage config default'
+Require-Match $config 'defineInRange\("DeathScytheSlashEffectTicks",\s*10,' 'slash effect duration config default'
 Require-Match $config 'DeathScytheEnergyTicks\s*=\s*DEATH_SCYTHE_ENERGY_TICKS\.get\(\)' 'energy config load'
 Require-Match $config 'DeathScytheRightClickCooldown\s*=\s*DEATH_SCYTHE_RIGHT_CLICK_COOLDOWN\.get\(\)' 'cooldown config load'
+Require-Match $config 'DeathScytheAttackDamage\s*=\s*DEATH_SCYTHE_ATTACK_DAMAGE\.get\(\)' 'attack damage config load'
+Require-Match $config 'DeathScytheSlashEffectTicks\s*=\s*DEATH_SCYTHE_SLASH_EFFECT_TICKS\.get\(\)' 'slash effect duration config load'
+Require-Match $modConfigs 'registerConfig\(ModConfig\.Type\.COMMON,\s*Config\.SPEC\)' 'Config.SPEC common registration'
+Require-Match $modEntrypoint 'ModConfigs\.register\(\)' 'main entrypoint config registration'
 Require-Match $logic 'ENERGY_TICKS\s*=\s*100\s*;' '100 tick energy logic'
 Require-Match $logic 'RIGHT_CLICK_COOLDOWN_TICKS\s*=\s*20\s*;' '20 tick cooldown logic'
-Write-Output 'PASS registry/config (death_scythe, 100, 20)'
+Write-Output 'PASS registry/config (death_scythe, 8.0, 100, 20, 10)'
 
 foreach ($entry in @(
     @('TAG_TARGET_UUID', 'TargetUUID'),
@@ -111,14 +119,33 @@ if ($geometry[0].description.texture_width -ne 64 -or $geometry[0].description.t
     throw 'Death Scythe contract failed: Geo texture dimensions'
 }
 foreach ($name in @('animation.death_scythe.idle', 'animation.death_scythe.slash')) {
-    if ($null -eq $animation.animations.PSObject.Properties[$name]) {
+    $animationProperty = $animation.animations.PSObject.Properties[$name]
+    if ($null -eq $animationProperty) {
         throw "Death Scythe contract failed: missing animation $name"
     }
-    foreach ($animatedBone in $animation.animations.PSObject.Properties[$name].Value.bones.PSObject.Properties.Name) {
+    $animationObject = $animationProperty.Value
+    $animatedBones = @($animationObject.bones.PSObject.Properties)
+    if ($animatedBones.Count -eq 0) {
+        throw "Death Scythe contract failed: animation $name has no bones"
+    }
+    $keyframeCount = 0
+    foreach ($animatedBoneProperty in $animatedBones) {
+        foreach ($channelProperty in @($animatedBoneProperty.Value.PSObject.Properties)) {
+            $keyframeCount += @($channelProperty.Value.PSObject.Properties).Count
+        }
+    }
+    if ($keyframeCount -eq 0) {
+        throw "Death Scythe contract failed: animation $name has no keyframes"
+    }
+    foreach ($animatedBone in $animatedBones.Name) {
         if ($boneNames -cnotcontains $animatedBone) {
             throw "Death Scythe contract failed: animation references missing bone $animatedBone"
         }
     }
+}
+$slashAnimation = $animation.animations.PSObject.Properties['animation.death_scythe.slash'].Value
+if ($slashAnimation.loop -ne $false) {
+    throw 'Death Scythe contract failed: slash animation must set loop=false'
 }
 if ($model.parent -ne 'builtin/entity' -or $model.textures.particle -ne 'mysticartifacts:item/death_scythe') {
     throw 'Death Scythe contract failed: item model resource'
