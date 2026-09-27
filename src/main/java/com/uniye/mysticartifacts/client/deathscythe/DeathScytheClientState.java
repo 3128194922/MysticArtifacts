@@ -1,6 +1,5 @@
 package com.uniye.mysticartifacts.client.deathscythe;
 
-import com.uniye.mysticartifacts.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.phys.Vec3;
@@ -21,8 +20,7 @@ public final class DeathScytheClientState {
         ClientLevel level = minecraft.level;
         if (level == null) return;
         CLIENT.useLevel(level);
-        CLIENT.addSlash(origin, target, sequence, durationTicks, seed,
-                level.getGameTime(), Config.DeathScytheSlashEffectTicks);
+        CLIENT.addSlash(origin, target, sequence, durationTicks, seed, level.getGameTime());
     }
 
     public static List<Slash> snapshot(ClientLevel level) {
@@ -31,16 +29,14 @@ public final class DeathScytheClientState {
     }
 
     public boolean addSlash(Vec3 origin, Vec3 target, int sequence, int durationTicks,
-                            long seed, long startTick, int configuredLifetime) {
+                            long seed, long startTick) {
         if (!validPoint(origin) || !validPoint(target) || sequence <= 0
-                || durationTicks <= 0 || durationTicks > MAX_DURATION_TICKS
-                || configuredLifetime <= 0) {
+                || durationTicks <= 0 || durationTicks > MAX_DURATION_TICKS) {
             return false;
         }
         trim(startTick);
         if (slashes.size() == MAX_ACTIVE) slashes.remove(0);
-        int duration = Math.min(durationTicks, Math.min(configuredLifetime, MAX_DURATION_TICKS));
-        slashes.add(new Slash(origin, target, sequence, duration, seed, startTick));
+        slashes.add(new Slash(origin, target, sequence, durationTicks, seed, startTick));
         return true;
     }
 

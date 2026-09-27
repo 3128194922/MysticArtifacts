@@ -32,20 +32,22 @@ public final class DeathScytheLogicTest {
         DeathScytheClientState slashState = new DeathScytheClientState();
         Vec3 origin = new Vec3(0.0D, 1.0D, 0.0D);
         Vec3 target = new Vec3(4.0D, 1.0D, 0.0D);
-        requireTrue(slashState.addSlash(origin, target, 1, 30, 7L, 100L, 10),
+        requireTrue(slashState.addSlash(origin, target, 1, 30, 7L, 100L),
                 "valid slash is accepted");
-        requireEquals(10, slashState.snapshot(100L).get(0).durationTicks(),
-                "duration is clamped to configured lifetime");
-        requireEquals(1, slashState.snapshot(109L).size(), "slash survives before expiry");
-        requireEquals(0, slashState.snapshot(110L).size(), "slash expires at start plus duration");
+        requireEquals(30, slashState.snapshot(100L).get(0).durationTicks(),
+                "validated packet duration survives a smaller client config");
+        requireEquals(1, slashState.snapshot(129L).size(), "slash survives before packet expiry");
+        requireEquals(0, slashState.snapshot(130L).size(), "slash expires at packet duration");
         requireFalse(slashState.addSlash(new Vec3(Double.NaN, 0.0D, 0.0D), target,
-                2, 10, 8L, 110L, 10), "non-finite origin is rejected");
+                2, 10, 8L, 110L), "non-finite origin is rejected");
         requireFalse(slashState.addSlash(origin, new Vec3(0.0D, Double.POSITIVE_INFINITY, 0.0D),
-                2, 10, 8L, 110L, 10), "non-finite target is rejected");
-        requireFalse(slashState.addSlash(origin, target, 2, 0, 8L, 110L, 10),
+                2, 10, 8L, 110L), "non-finite target is rejected");
+        requireFalse(slashState.addSlash(origin, target, 2, 0, 8L, 110L),
                 "non-positive duration is rejected");
+        requireFalse(slashState.addSlash(origin, target, 2, 61, 8L, 110L),
+                "duration beyond packet bound is rejected");
         for (int sequence = 1; sequence <= 20; sequence++) {
-            requireTrue(slashState.addSlash(origin, target, sequence, 10, sequence, 200L, 10),
+            requireTrue(slashState.addSlash(origin, target, sequence, 10, sequence, 200L),
                     "valid slash is accepted within bounded list");
         }
         requireEquals(16, slashState.snapshot(200L).size(), "only sixteen slashes are retained");
@@ -58,6 +60,10 @@ public final class DeathScytheLogicTest {
                 "a later target replaces the previous UUID in the same tag");
         requireContains(itemSource, "setTargetUUID(stack, target.getUUID());",
                 "each successful melee hit records its target");
+        requireContains(itemSource, "Config.DeathScytheAttackDamage - 1.0D",
+                "mainhand modifier turns configured total damage into bonus over base one");
+        requireContains(itemSource, "BASE_ATTACK_DAMAGE_UUID",
+                "mainhand modifier uses the vanilla weapon UUID");
         requireContains(itemSource, "if (!DeathScytheLogic.hasEnergy(getEnergyUntil(stack), level.getGameTime()))",
                 "an expired timestamp blocks right-click");
         requireNotContains(itemSource, "FMLEnvironment", "common item must not inspect physical client side");
@@ -72,6 +78,8 @@ public final class DeathScytheLogicTest {
         requireContains(clearSource, "tag.remove(TAG_ENERGY_UNTIL);", "invalid target clears expiry");
         requireContains(clearSource, "tag.remove(TAG_SLASH_SEQUENCE);", "invalid target clears sequence");
         requireContains(clearSource, "tag.remove(TAG_ENERGY_DISPLAY_TICKS);", "invalid target clears display cache");
+        requireContains(clearSource, "tag.remove(TAG_ENERGY_DURATION_TICKS);",
+                "invalid target clears server-recorded energy duration");
 
         String tickSource = section(itemSource, "public void inventoryTick(",
                 "public InteractionResultHolder<ItemStack> use(");
@@ -91,6 +99,10 @@ public final class DeathScytheLogicTest {
         String barSource = section(itemSource, "public boolean isBarVisible(",
                 "public boolean hurtEnemy(");
         requireContains(barSource, "getDisplayEnergyTicks(stack)", "bar reads the display cache");
+        requireContains(barSource, "getEnergyDurationTicks(stack)",
+                "bar denominator reads the recorded duration");
+        requireNotContains(barSource, "Config.DeathScytheEnergyTicks",
+                "client bar must not use local COMMON config");
         requireContains(barSource, "Math.max(0, Math.min(13, 13 * getDisplayEnergyTicks(stack) / duration))",
                 "display width is floored and clamped to 0..13");
         requireNotContains(barSource, "getEnergyUntil(stack)", "bar must not read authority timestamp directly");
@@ -102,7 +114,7 @@ public final class DeathScytheLogicTest {
                 "if (!damaged) { return InteractionResultHolder.fail(stack); }",
                 "failed damage exits before effects");
         requireInOrder(useSource, "if (!damaged)",
-                "addCooldown(this, DeathScytheLogic.RIGHT_CLICK_COOLDOWN_TICKS)",
+                "addCooldown(this, Config.DeathScytheRightClickCooldown)",
                 "triggerSlash(serverPlayer, stack)", "new DeathScytheSlashPacket(");
 
         System.out.println("PASS: Death Scythe logic rules");

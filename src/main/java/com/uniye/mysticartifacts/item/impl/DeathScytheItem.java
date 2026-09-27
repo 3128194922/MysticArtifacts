@@ -5,13 +5,18 @@ import com.uniye.mysticartifacts.client.ClientModEvents;
 import com.uniye.mysticartifacts.network.NetworkHandler;
 import com.uniye.mysticartifacts.network.DeathScytheSlashPacket;
 import com.uniye.mysticartifacts.util.DeathScytheLogic;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -24,7 +29,6 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.UUID;
@@ -35,6 +39,7 @@ public class DeathScytheItem extends Item implements GeoItem {
     private static final String TAG_ENERGY_UNTIL = "EnergyUntil";
     private static final String TAG_SLASH_SEQUENCE = "SlashSequence";
     private static final String TAG_ENERGY_DISPLAY_TICKS = "EnergyDisplayTicks";
+    private static final String TAG_ENERGY_DURATION_TICKS = "EnergyDurationTicks";
     private static final int ENERGY_BAR_COLOR = 0x79213F;
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -50,8 +55,20 @@ public class DeathScytheItem extends Item implements GeoItem {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "scythe", 0, state -> PlayState.STOP)
+        controllers.add(new AnimationController<>(this, "scythe", 0,
+                state -> state.setAndContinue(RawAnimation.begin().thenLoop("animation.death_scythe.idle")))
                 .triggerableAnim("slash", RawAnimation.begin().thenPlay("animation.death_scythe.slash")));
+    }
+
+    @Override
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot slot) {
+        if (slot != EquipmentSlot.MAINHAND) {
+            return super.getDefaultAttributeModifiers(slot);
+        }
+        // Player base attack damage is 1.0; the config describes the total with this item held.
+        return ImmutableMultimap.of(Attributes.ATTACK_DAMAGE,
+                new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier",
+                        Config.DeathScytheAttackDamage - 1.0D, AttributeModifier.Operation.ADDITION));
     }
 
     @Override
@@ -79,6 +96,7 @@ public class DeathScytheItem extends Item implements GeoItem {
             tag.remove(TAG_ENERGY_UNTIL);
             tag.remove(TAG_SLASH_SEQUENCE);
             tag.remove(TAG_ENERGY_DISPLAY_TICKS);
+            tag.remove(TAG_ENERGY_DURATION_TICKS);
         }
     }
 
@@ -91,9 +109,14 @@ public class DeathScytheItem extends Item implements GeoItem {
         stack.getOrCreateTag().putLong(TAG_ENERGY_UNTIL, energyUntil);
     }
 
+    private static int getEnergyDurationTicks(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        return tag == null ? 0 : Math.max(0, tag.getInt(TAG_ENERGY_DURATION_TICKS));
+    }
+
     public static int getRemainingEnergyTicks(ItemStack stack, long gameTime) {
         long remaining = getEnergyUntil(stack) - gameTime;
-        return (int) Math.max(0L, Math.min(Config.DeathScytheEnergyTicks, remaining));
+        return (int) Math.max(0L, Math.min(getEnergyDurationTicks(stack), remaining));
     }
 
     @Override
@@ -108,7 +131,7 @@ public class DeathScytheItem extends Item implements GeoItem {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        int duration = Math.max(1, Config.DeathScytheEnergyTicks);
+        int duration = Math.max(1, getEnergyDurationTicks(stack));
         return Math.max(0, Math.min(13, 13 * getDisplayEnergyTicks(stack) / duration));
     }
 
@@ -120,15 +143,17 @@ public class DeathScytheItem extends Item implements GeoItem {
     private static int getDisplayEnergyTicks(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         int ticks = tag == null ? 0 : tag.getInt(TAG_ENERGY_DISPLAY_TICKS);
-        return Math.max(0, Math.min(Config.DeathScytheEnergyTicks, ticks));
+        return Math.max(0, Math.min(getEnergyDurationTicks(stack), ticks));
     }
 
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         if (attacker instanceof Player && !attacker.level().isClientSide) {
             if (target.isAlive()) {
+                int energyDurationTicks = Config.DeathScytheEnergyTicks;
                 setTargetUUID(stack, target.getUUID());
-                setEnergyUntil(stack, attacker.level().getGameTime() + Config.DeathScytheEnergyTicks);
+                setEnergyUntil(stack, attacker.level().getGameTime() + energyDurationTicks);
+                stack.getOrCreateTag().putInt(TAG_ENERGY_DURATION_TICKS, energyDurationTicks);
             } else {
                 clearTarget(stack);
             }
@@ -162,7 +187,7 @@ public class DeathScytheItem extends Item implements GeoItem {
             CompoundTag tag = stack.getTag();
             if (tag != null && (tag.contains(TAG_TARGET_UUID)
                     || tag.contains(TAG_ENERGY_UNTIL) || tag.contains(TAG_SLASH_SEQUENCE)
-                    || tag.contains(TAG_ENERGY_DISPLAY_TICKS))) {
+                    || tag.contains(TAG_ENERGY_DISPLAY_TICKS) || tag.contains(TAG_ENERGY_DURATION_TICKS))) {
                 clearTarget(stack);
             }
             return;
@@ -203,7 +228,7 @@ public class DeathScytheItem extends Item implements GeoItem {
             return InteractionResultHolder.fail(stack);
         }
 
-        player.getCooldowns().addCooldown(this, DeathScytheLogic.RIGHT_CLICK_COOLDOWN_TICKS);
+        player.getCooldowns().addCooldown(this, Config.DeathScytheRightClickCooldown);
         int sequence = DeathScytheLogic.nextSequence(stack.getOrCreateTag().getInt(TAG_SLASH_SEQUENCE));
         stack.getOrCreateTag().putInt(TAG_SLASH_SEQUENCE, sequence);
         triggerSlash(serverPlayer, stack);
