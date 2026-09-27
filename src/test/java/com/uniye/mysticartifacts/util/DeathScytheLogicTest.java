@@ -1,5 +1,8 @@
 package com.uniye.mysticartifacts.util;
 
+import com.uniye.mysticartifacts.client.deathscythe.DeathScytheClientState;
+import net.minecraft.world.phys.Vec3;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +23,29 @@ public final class DeathScytheLogicTest {
         requireFalse(DeathScytheLogic.hasEnergy(200, 201), "expired energy cannot trigger right-click");
         requireEquals(20, DeathScytheLogic.RIGHT_CLICK_COOLDOWN_TICKS, "right-click cooldown is one second");
         requireEquals(1, DeathScytheLogic.nextSequence(0), "first slash sequence is one");
+
+        DeathScytheClientState slashState = new DeathScytheClientState();
+        Vec3 origin = new Vec3(0.0D, 1.0D, 0.0D);
+        Vec3 target = new Vec3(4.0D, 1.0D, 0.0D);
+        requireTrue(slashState.addSlash(origin, target, 1, 30, 7L, 100L, 10),
+                "valid slash is accepted");
+        requireEquals(10, slashState.snapshot(100L).get(0).durationTicks(),
+                "duration is clamped to configured lifetime");
+        requireEquals(1, slashState.snapshot(109L).size(), "slash survives before expiry");
+        requireEquals(0, slashState.snapshot(110L).size(), "slash expires at start plus duration");
+        requireFalse(slashState.addSlash(new Vec3(Double.NaN, 0.0D, 0.0D), target,
+                2, 10, 8L, 110L, 10), "non-finite origin is rejected");
+        requireFalse(slashState.addSlash(origin, new Vec3(0.0D, Double.POSITIVE_INFINITY, 0.0D),
+                2, 10, 8L, 110L, 10), "non-finite target is rejected");
+        requireFalse(slashState.addSlash(origin, target, 2, 0, 8L, 110L, 10),
+                "non-positive duration is rejected");
+        for (int sequence = 1; sequence <= 20; sequence++) {
+            requireTrue(slashState.addSlash(origin, target, sequence, 10, sequence, 200L, 10),
+                    "valid slash is accepted within bounded list");
+        }
+        requireEquals(16, slashState.snapshot(200L).size(), "only sixteen slashes are retained");
+        requireEquals(5, slashState.snapshot(200L).get(0).sequence(),
+                "oldest slash is evicted when list fills");
 
         String itemSource = Files.readString(Path.of(
                 "src/main/java/com/uniye/mysticartifacts/item/impl/DeathScytheItem.java"));
@@ -85,6 +111,12 @@ public final class DeathScytheLogicTest {
 
     private static void requireFalse(boolean value, String message) {
         if (value) {
+            throw new AssertionError(message);
+        }
+    }
+
+    private static void requireTrue(boolean value, String message) {
+        if (!value) {
             throw new AssertionError(message);
         }
     }

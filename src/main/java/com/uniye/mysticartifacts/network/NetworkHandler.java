@@ -114,5 +114,13 @@ public class NetworkHandler {
                 FlagSpearTrailPacket::handle,
                 java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
         );
+
+        id = Math.max(id, 18); // ID 17 is reserved for the existing C4 packet change.
+        INSTANCE.registerMessage(id++, DeathScytheSlashPacket.class,
+                DeathScytheSlashPacket::encode,
+                DeathScytheSlashPacket::decode,
+                DeathScytheSlashPacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
+        );
     }
 }
