@@ -63,28 +63,42 @@ public final class DeathScytheSlashRenderer {
         Vec3 camera = minecraft.gameRenderer.getMainCamera().getPosition();
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-        VertexConsumer color = buffers.getBuffer(COLOR);
-        VertexConsumer glow = buffers.getBuffer(GLOW);
         double now = level.getGameTime() + minecraft.getFrameTime();
 
+        VertexConsumer color = buffers.getBuffer(COLOR);
         poseStack.pushPose();
         poseStack.translate(-camera.x, -camera.y, -camera.z);
         for (DeathScytheClientState.Slash slash : slashes) {
-            if (slash.origin().distanceToSqr(camera) > VISIBLE_DISTANCE_SQR
-                    && slash.target().distanceToSqr(camera) > VISIBLE_DISTANCE_SQR) continue;
-            double age = now - slash.startTick();
-            if (age < 0.0D || age >= slash.durationTicks()) continue;
-            drawSlash(poseStack.last().pose(), color, glow, slash, camera, age);
+            SlashGeometry geometry = geometry(slash, camera, now);
+            if (geometry == null) continue;
+            ribbon(poseStack.last().pose(), color, geometry.from(), geometry.to(), geometry.side(),
+                    0.115D, 100, 8, 25, geometry.fade() * 0.72F);
+            ribbon(poseStack.last().pose(), color, geometry.from(), geometry.to(), geometry.side(),
+                    0.054D, 25, 5, 36, geometry.fade() * 0.95F);
         }
         poseStack.popPose();
         buffers.endBatch(COLOR);
+
+        VertexConsumer glow = buffers.getBuffer(GLOW);
+        poseStack.pushPose();
+        poseStack.translate(-camera.x, -camera.y, -camera.z);
+        for (DeathScytheClientState.Slash slash : slashes) {
+            SlashGeometry geometry = geometry(slash, camera, now);
+            if (geometry == null) continue;
+            ribbon(poseStack.last().pose(), glow, geometry.from(), geometry.to(), geometry.side(),
+                    0.016D, 242, 35, 64, geometry.fade() * geometry.pulse());
+        }
+        poseStack.popPose();
         buffers.endBatch(GLOW);
     }
 
-    private static void drawSlash(Matrix4f matrix, VertexConsumer color, VertexConsumer glow,
-                                  DeathScytheClientState.Slash slash, Vec3 camera, double age) {
+    private static SlashGeometry geometry(DeathScytheClientState.Slash slash, Vec3 camera, double now) {
+        if (slash.origin().distanceToSqr(camera) > VISIBLE_DISTANCE_SQR
+                && slash.target().distanceToSqr(camera) > VISIBLE_DISTANCE_SQR) return null;
+        double age = now - slash.startTick();
+        if (age < 0.0D || age >= slash.durationTicks()) return null;
         Vec3 direction = slash.target().subtract(slash.origin());
-        if (direction.lengthSqr() < 1.0E-6D) return;
+        if (direction.lengthSqr() < 1.0E-6D) return null;
         Vec3 forward = direction.normalize();
         Vec3 midpoint = slash.origin().add(slash.target()).scale(0.5D);
         Vec3 side = forward.cross(camera.subtract(midpoint));
@@ -101,10 +115,7 @@ public final class DeathScytheSlashRenderer {
         Vec3 to = slash.origin().lerp(slash.target(), head).add(side.scale(sway));
         float fade = (float) Math.min(1.0D, (slash.durationTicks() - age) / 3.0D);
         float pulse = 0.92F + 0.08F * (float) Math.sin(phase + age * 0.75D);
-
-        ribbon(matrix, color, from, to, side, 0.115D, 100, 8, 25, fade * 0.72F);
-        ribbon(matrix, color, from, to, side, 0.054D, 25, 5, 36, fade * 0.95F);
-        ribbon(matrix, glow, from, to, side, 0.016D, 242, 35, 64, fade * pulse);
+        return new SlashGeometry(from, to, side, fade, pulse);
     }
 
     private static void ribbon(Matrix4f matrix, VertexConsumer consumer, Vec3 from, Vec3 to,
@@ -121,6 +132,9 @@ public final class DeathScytheSlashRenderer {
                                int red, int green, int blue, int alpha) {
         consumer.vertex(matrix, (float) point.x, (float) point.y, (float) point.z)
                 .color(red, green, blue, alpha).endVertex();
+    }
+
+    private record SlashGeometry(Vec3 from, Vec3 to, Vec3 side, float fade, float pulse) {
     }
 
     private static RenderType createType(String name, RenderStateShard.TransparencyStateShard blend) {
