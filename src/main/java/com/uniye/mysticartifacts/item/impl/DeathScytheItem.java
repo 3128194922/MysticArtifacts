@@ -1,15 +1,33 @@
 package com.uniye.mysticartifacts.item.impl;
 
 import com.uniye.mysticartifacts.Config;
+import com.uniye.mysticartifacts.network.NetworkHandler;
+import com.uniye.mysticartifacts.network.DeathScytheSlashPacket;
+import com.uniye.mysticartifacts.util.DeathScytheLogic;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.UUID;
 
 public class DeathScytheItem extends Item {
     private static final String TAG_TARGET_UUID = "TargetUUID";
     private static final String TAG_ENERGY_UNTIL = "EnergyUntil";
+    private static final String TAG_SLASH_SEQUENCE = "SlashSequence";
+    private static final int ENERGY_BAR_COLOR = 0x79213F;
 
     public DeathScytheItem(Properties properties) {
         super(properties);
@@ -28,6 +46,8 @@ public class DeathScytheItem extends Item {
         CompoundTag tag = stack.getTag();
         if (tag != null) {
             tag.remove(TAG_TARGET_UUID);
+            tag.remove(TAG_ENERGY_UNTIL);
+            tag.remove(TAG_SLASH_SEQUENCE);
         }
     }
 
@@ -43,5 +63,120 @@ public class DeathScytheItem extends Item {
     public static int getRemainingEnergyTicks(ItemStack stack, long gameTime) {
         long remaining = getEnergyUntil(stack) - gameTime;
         return (int) Math.max(0L, Math.min(Config.DeathScytheEnergyTicks, remaining));
+    }
+
+    @Override
+    public boolean isDamageable(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        return getTargetUUID(stack) != null
+                && DeathScytheLogic.hasEnergy(getEnergyUntil(stack), barGameTime());
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        if (getTargetUUID(stack) == null) {
+            return 0;
+        }
+        int remaining = getRemainingEnergyTicks(stack, barGameTime());
+        return 13 * remaining / Config.DeathScytheEnergyTicks;
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        return ENERGY_BAR_COLOR;
+    }
+
+    private static long barGameTime() {
+        return FMLEnvironment.dist == Dist.CLIENT ? ClientBarTime.gameTime() : Long.MAX_VALUE;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static final class ClientBarTime {
+        private static long gameTime() {
+            net.minecraft.client.multiplayer.ClientLevel level = net.minecraft.client.Minecraft.getInstance().level;
+            return level == null ? Long.MAX_VALUE : level.getGameTime();
+        }
+    }
+
+    @Override
+    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        if (attacker instanceof Player && !attacker.level().isClientSide) {
+            if (target.isAlive()) {
+                setTargetUUID(stack, target.getUUID());
+                setEnergyUntil(stack, attacker.level().getGameTime() + Config.DeathScytheEnergyTicks);
+            } else {
+                clearTarget(stack);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity holder, int slot, boolean selected) {
+        if (!(level instanceof ServerLevel serverLevel) || !(holder instanceof Player)) {
+            return;
+        }
+        UUID targetUUID = getTargetUUID(stack);
+        if (targetUUID == null) {
+            CompoundTag tag = stack.getTag();
+            if (tag != null && (tag.contains(TAG_TARGET_UUID)
+                    || tag.contains(TAG_ENERGY_UNTIL) || tag.contains(TAG_SLASH_SEQUENCE))) {
+                clearTarget(stack);
+            }
+            return;
+        }
+        if (!DeathScytheLogic.hasEnergy(getEnergyUntil(stack), level.getGameTime())
+                || !(serverLevel.getEntity(targetUUID) instanceof LivingEntity target)
+                || !target.isAlive() || target.level() != serverLevel) {
+            clearTarget(stack);
+        }
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (player.getCooldowns().isOnCooldown(this)) {
+            return InteractionResultHolder.fail(stack);
+        }
+        if (level.isClientSide) {
+            return InteractionResultHolder.sidedSuccess(stack, true);
+        }
+        if (!(level instanceof ServerLevel serverLevel) || !(player instanceof ServerPlayer serverPlayer)) {
+            return InteractionResultHolder.fail(stack);
+        }
+        UUID targetUUID = getTargetUUID(stack);
+        if (!DeathScytheLogic.hasEnergy(getEnergyUntil(stack), level.getGameTime())) {
+            clearTarget(stack);
+            return InteractionResultHolder.fail(stack);
+        }
+        Entity resolved = targetUUID == null ? null : serverLevel.getEntity(targetUUID);
+        if (!(resolved instanceof LivingEntity target) || !target.isAlive() || target.level() != serverLevel) {
+            clearTarget(stack);
+            return InteractionResultHolder.fail(stack);
+        }
+
+        float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        boolean damaged = target.hurt(level.damageSources().playerAttack(player), damage);
+        if (!damaged) {
+            return InteractionResultHolder.fail(stack);
+        }
+
+        player.getCooldowns().addCooldown(this, DeathScytheLogic.RIGHT_CLICK_COOLDOWN_TICKS);
+        int sequence = DeathScytheLogic.nextSequence(stack.getOrCreateTag().getInt(TAG_SLASH_SEQUENCE));
+        stack.getOrCreateTag().putInt(TAG_SLASH_SEQUENCE, sequence);
+        // Task 5 supplies the Geo controller and this trigger method.
+        triggerSlash(serverPlayer, stack);
+        // Task 6 supplies the server-to-client packet; no client data selects the target or damage.
+        NetworkHandler.INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> serverPlayer),
+                new DeathScytheSlashPacket(player.getEyePosition(), target.position(), sequence,
+                        Config.DeathScytheSlashEffectTicks, level.random.nextLong()));
+        if (!target.isAlive()) {
+            clearTarget(stack);
+        }
+        return InteractionResultHolder.sidedSuccess(stack, false);
     }
 }
