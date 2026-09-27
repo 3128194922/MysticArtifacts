@@ -78,6 +78,19 @@ public class Config
             .comment("Poker Card left click cooldown (ticks)")
             .defineInRange("PokerCardCooldown", 13, 0, 1000);
 
+    private static final ForgeConfigSpec.ConfigValue<Double> DEATH_SCYTHE_ATTACK_DAMAGE = BUILDER
+            .comment("Death Scythe attack damage")
+            .defineInRange("DeathScytheAttackDamage", 8.0, 0.0, 1000.0);
+    private static final ForgeConfigSpec.IntValue DEATH_SCYTHE_ENERGY_TICKS = BUILDER
+            .comment("Death Scythe energy duration (ticks)")
+            .defineInRange("DeathScytheEnergyTicks", 100, 1, 6000);
+    private static final ForgeConfigSpec.IntValue DEATH_SCYTHE_RIGHT_CLICK_COOLDOWN = BUILDER
+            .comment("Death Scythe right-click cooldown (ticks)")
+            .defineInRange("DeathScytheRightClickCooldown", 20, 1, 600);
+    private static final ForgeConfigSpec.IntValue DEATH_SCYTHE_SLASH_EFFECT_TICKS = BUILDER
+            .comment("Death Scythe slash effect duration (ticks)")
+            .defineInRange("DeathScytheSlashEffectTicks", 10, 1, 60);
+
     private static final ForgeConfigSpec.ConfigValue<Double> DEATH_EYE_RENDER_RANGE = BUILDER
             .comment("Death Eye execution line render range")
             .defineInRange("DeathEyeRenderRange", 36.0, 0.0, 255.0);
@@ -207,6 +220,11 @@ public class Config
     
     public static double PokerCardRetrievalDistance;
     public static int PokerCardCooldown;
+
+    public static double DeathScytheAttackDamage;
+    public static int DeathScytheEnergyTicks;
+    public static int DeathScytheRightClickCooldown;
+    public static int DeathScytheSlashEffectTicks;
     
     public static double DeathEyeRenderRange;
     
@@ -265,6 +283,11 @@ public class Config
         
         PokerCardRetrievalDistance = POKER_CARD_RETRIEVAL_DISTANCE.get();
         PokerCardCooldown = POKER_CARD_COOLDOWN.get();
+
+        DeathScytheAttackDamage = DEATH_SCYTHE_ATTACK_DAMAGE.get();
+        DeathScytheEnergyTicks = DEATH_SCYTHE_ENERGY_TICKS.get();
+        DeathScytheRightClickCooldown = DEATH_SCYTHE_RIGHT_CLICK_COOLDOWN.get();
+        DeathScytheSlashEffectTicks = DEATH_SCYTHE_SLASH_EFFECT_TICKS.get();
         
         DeathEyeRenderRange = DEATH_EYE_RENDER_RANGE.get();
         

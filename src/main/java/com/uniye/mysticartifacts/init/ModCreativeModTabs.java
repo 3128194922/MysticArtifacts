@@ -30,6 +30,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.KATANA.get());
                         pOutput.accept(ModItems.POKER_CARD.get());
                         pOutput.accept(ModItems.DEATH_EYE.get());
+                        pOutput.accept(ModItems.DEATH_SCYTHE.get());
                         pOutput.accept(ModItems.SWORD_SWARM_CHARM.get());
                         pOutput.accept(ModItems.ARTIFACT_SPIRIT.get());
                         pOutput.accept(ModItems.GRIEFER_SPEAR.get());

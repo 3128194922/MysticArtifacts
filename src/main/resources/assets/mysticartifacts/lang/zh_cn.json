@@ -28,6 +28,8 @@
     "item.mysticartifacts.poker_card": "击杀牌叠",
     "entity.mysticartifacts.poker_card": "击杀牌叠",
     "item.mysticartifacts.death_eye": "直死之魔眼",
+    "item.mysticartifacts.death_scythe": "死神镰刀",
+    "tooltip.mysticartifacts.death_scythe.energy": "能量：%s 刻",
     "item.mysticartifacts.all_seeing_eye": "占卜球",
     "item.mysticartifacts.all_seeing_eye.no_players": "没有其他在线玩家",
     "item.mysticartifacts.all_seeing_eye.exit": "退出观察",

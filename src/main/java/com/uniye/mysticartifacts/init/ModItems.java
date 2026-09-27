@@ -55,6 +55,9 @@ public class ModItems {
     public static final RegistryObject<Item> DEATH_EYE = ITEMS.register("death_eye",
             () -> new DeathEyeItem(new Item.Properties().stacksTo(1)));
 
+    public static final RegistryObject<Item> DEATH_SCYTHE = ITEMS.register("death_scythe",
+            () -> new DeathScytheItem(new Item.Properties().stacksTo(1)));
+
     public static final RegistryObject<Item> SWORD_SWARM_CHARM = ITEMS.register("sword_swarm_charm",
             () -> new SwordSwarmCharm(new Item.Properties().stacksTo(1)));
 

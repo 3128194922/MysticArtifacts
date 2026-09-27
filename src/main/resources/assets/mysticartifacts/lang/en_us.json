@@ -2,6 +2,8 @@
     "item.mysticartifacts.trail_sight": "Sculk Symbiote",
     "item.mysticartifacts.lightning_bottle": "Lightning Bottle",
     "item.mysticartifacts.flag_spear": "Flag Spear",
+    "item.mysticartifacts.death_scythe": "Death Scythe",
+    "tooltip.mysticartifacts.death_scythe.energy": "Energy: %s ticks",
     "item.mysticartifacts.jiba_revolver": "Brass Tyrant Revolver",
     "item.mysticartifacts.revolver_cartridge": "Revolver Cartridge",
     "item.mysticartifacts.revolver_casing": "Spent Revolver Casing",

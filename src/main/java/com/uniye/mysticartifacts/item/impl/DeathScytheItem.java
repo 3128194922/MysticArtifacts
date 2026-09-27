@@ -8,8 +8,8 @@ import net.minecraft.world.item.ItemStack;
 import java.util.UUID;
 
 public class DeathScytheItem extends Item {
-    private static final String TARGET_UUID_TAG = "DeathScytheTargetUUID";
-    private static final String ENERGY_UNTIL_TAG = "DeathScytheEnergyUntil";
+    private static final String TAG_TARGET_UUID = "TargetUUID";
+    private static final String TAG_ENERGY_UNTIL = "EnergyUntil";
 
     public DeathScytheItem(Properties properties) {
         super(properties);
@@ -17,27 +17,27 @@ public class DeathScytheItem extends Item {
 
     public static UUID getTargetUUID(ItemStack stack) {
         CompoundTag tag = stack.getTag();
-        return tag != null && tag.hasUUID(TARGET_UUID_TAG) ? tag.getUUID(TARGET_UUID_TAG) : null;
+        return tag != null && tag.hasUUID(TAG_TARGET_UUID) ? tag.getUUID(TAG_TARGET_UUID) : null;
     }
 
     public static void setTargetUUID(ItemStack stack, UUID targetUUID) {
-        stack.getOrCreateTag().putUUID(TARGET_UUID_TAG, targetUUID);
+        stack.getOrCreateTag().putUUID(TAG_TARGET_UUID, targetUUID);
     }
 
     public static void clearTarget(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag != null) {
-            tag.remove(TARGET_UUID_TAG);
+            tag.remove(TAG_TARGET_UUID);
         }
     }
 
     public static long getEnergyUntil(ItemStack stack) {
         CompoundTag tag = stack.getTag();
-        return tag == null ? 0L : tag.getLong(ENERGY_UNTIL_TAG);
+        return tag == null ? 0L : tag.getLong(TAG_ENERGY_UNTIL);
     }
 
     public static void setEnergyUntil(ItemStack stack, long energyUntil) {
-        stack.getOrCreateTag().putLong(ENERGY_UNTIL_TAG, energyUntil);
+        stack.getOrCreateTag().putLong(TAG_ENERGY_UNTIL, energyUntil);
     }
 
     public static int getRemainingEnergyTicks(ItemStack stack, long gameTime) {
