@@ -16,9 +16,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.PacketDistributor;
 
 import java.util.UUID;
@@ -27,6 +24,7 @@ public class DeathScytheItem extends Item {
     private static final String TAG_TARGET_UUID = "TargetUUID";
     private static final String TAG_ENERGY_UNTIL = "EnergyUntil";
     private static final String TAG_SLASH_SEQUENCE = "SlashSequence";
+    private static final String TAG_ENERGY_DISPLAY_TICKS = "EnergyDisplayTicks";
     private static final int ENERGY_BAR_COLOR = 0x79213F;
 
     public DeathScytheItem(Properties properties) {
@@ -48,6 +46,7 @@ public class DeathScytheItem extends Item {
             tag.remove(TAG_TARGET_UUID);
             tag.remove(TAG_ENERGY_UNTIL);
             tag.remove(TAG_SLASH_SEQUENCE);
+            tag.remove(TAG_ENERGY_DISPLAY_TICKS);
         }
     }
 
@@ -72,17 +71,13 @@ public class DeathScytheItem extends Item {
 
     @Override
     public boolean isBarVisible(ItemStack stack) {
-        return getTargetUUID(stack) != null
-                && DeathScytheLogic.hasEnergy(getEnergyUntil(stack), barGameTime());
+        return getDisplayEnergyTicks(stack) > 0;
     }
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        if (getTargetUUID(stack) == null) {
-            return 0;
-        }
-        int remaining = getRemainingEnergyTicks(stack, barGameTime());
-        return 13 * remaining / Config.DeathScytheEnergyTicks;
+        int duration = Math.max(1, Config.DeathScytheEnergyTicks);
+        return Math.max(0, Math.min(13, 13 * getDisplayEnergyTicks(stack) / duration));
     }
 
     @Override
@@ -90,16 +85,10 @@ public class DeathScytheItem extends Item {
         return ENERGY_BAR_COLOR;
     }
 
-    private static long barGameTime() {
-        return FMLEnvironment.dist == Dist.CLIENT ? ClientBarTime.gameTime() : Long.MAX_VALUE;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static final class ClientBarTime {
-        private static long gameTime() {
-            net.minecraft.client.multiplayer.ClientLevel level = net.minecraft.client.Minecraft.getInstance().level;
-            return level == null ? Long.MAX_VALUE : level.getGameTime();
-        }
+    private static int getDisplayEnergyTicks(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        int ticks = tag == null ? 0 : tag.getInt(TAG_ENERGY_DISPLAY_TICKS);
+        return Math.max(0, Math.min(Config.DeathScytheEnergyTicks, ticks));
     }
 
     @Override
@@ -117,14 +106,31 @@ public class DeathScytheItem extends Item {
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity holder, int slot, boolean selected) {
-        if (!(level instanceof ServerLevel serverLevel) || !(holder instanceof Player)) {
+        if (!(holder instanceof Player)) {
+            return;
+        }
+        if (level.isClientSide) {
+            int remaining = getTargetUUID(stack) == null ? 0
+                    : getRemainingEnergyTicks(stack, level.getGameTime());
+            CompoundTag tag = stack.getTag();
+            if (remaining > 0) {
+                if (tag == null || tag.getInt(TAG_ENERGY_DISPLAY_TICKS) != remaining) {
+                    stack.getOrCreateTag().putInt(TAG_ENERGY_DISPLAY_TICKS, remaining);
+                }
+            } else if (tag != null) {
+                tag.remove(TAG_ENERGY_DISPLAY_TICKS);
+            }
+            return;
+        }
+        if (!(level instanceof ServerLevel serverLevel)) {
             return;
         }
         UUID targetUUID = getTargetUUID(stack);
         if (targetUUID == null) {
             CompoundTag tag = stack.getTag();
             if (tag != null && (tag.contains(TAG_TARGET_UUID)
-                    || tag.contains(TAG_ENERGY_UNTIL) || tag.contains(TAG_SLASH_SEQUENCE))) {
+                    || tag.contains(TAG_ENERGY_UNTIL) || tag.contains(TAG_SLASH_SEQUENCE)
+                    || tag.contains(TAG_ENERGY_DISPLAY_TICKS))) {
                 clearTarget(stack);
             }
             return;
