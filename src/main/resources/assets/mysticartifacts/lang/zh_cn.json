@@ -17,6 +17,9 @@
     "subtitle.mysticartifacts.ceasing": "心跳",
     "subtitle.mysticartifacts.bell_toll": "时日无多",
     "subtitle.mysticartifacts.bell_toll_fail": "灵魂被回收",
+    "subtitle.mysticartifacts.lightning_bottle_zap": "电击",
+    "subtitle.mysticartifacts.flag_spear_burst": "旗枪爆发",
+    "subtitle.mysticartifacts.death_scythe_zap": "死神收割",
     "item.mysticartifacts.two_dragons_play_ball": "霜烬",
     "entity.mysticartifacts.two_dragons_play_ball": "霜烬",
     "death.attack.mysticartifacts.two_dragons_play_ball_fire": "%1$s 被 %2$s 的霜扇烧焦了。",
@@ -41,6 +44,7 @@
     "death.attack.katana_ghost_slash": "%1$s 被剑气斩碎了。",
     "death.attack.katana_ghost_slash.player": "%1$s 被 %2$s 的鬼刀剑气斩碎了。",
     "subtitle.mysticartifacts.katana_block": "振刀格挡",
+    "subtitle.mysticartifacts.katana_slash": "鬼刀剑气",
     "subtitle.mysticartifacts.poker_throw": "牌叠飞出",
     "subtitle.mysticartifacts.poker_recall": "牌叠收回",
     "subtitles.entity.two_dragons_play_ball.spin": "霜烬环绕",
@@ -50,6 +54,7 @@
     "entity.mysticartifacts.demonic_gestation": "器魔",
     "item.mysticartifacts.spear": "紫水晶长矛",
     "item.mysticartifacts.flag_spear": "旗枪",
+    "entity.mysticartifacts.flag_spear": "旗枪",
     "item.mysticartifacts.griefer_spear": "破坏者刺雷",
     "item.mysticartifacts.codex": "超越古卷",
     "item.mysticartifacts.witch_pot": "女巫坩埚",
@@ -71,5 +76,8 @@
     "subtitle.mysticartifacts.revolver.dry_fire": "击锤空响",
     "subtitle.mysticartifacts.revolver.open": "弹巢打开",
     "subtitle.mysticartifacts.revolver.close": "弹巢闭合",
-    "subtitle.mysticartifacts.revolver.load": "弹药装卸"
+    "subtitle.mysticartifacts.revolver.load": "弹药装卸",
+    "item.mysticartifacts.c4_detonator": "C4起爆器",
+    "entity.mysticartifacts.c4_bomb": "C4炸弹",
+    "tooltip.mysticartifacts.c4_detonator.controls": "左键投掷 C4 · 右键引爆你投出的 C4"
 }

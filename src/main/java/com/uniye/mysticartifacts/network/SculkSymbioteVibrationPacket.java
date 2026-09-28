@@ -15,16 +15,22 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-/** 服务端批量同步一次 tick 内抵达佩戴者的震动位置。 */
+/** 服务端同步震动标记与当前最高声源的累积值。 */
 public final class SculkSymbioteVibrationPacket {
     private static final int MAX_MARKERS = 256;
     private final List<Marker> markers;
+    private final int exposure;
+    private final int exposureMaximum;
 
-    public SculkSymbioteVibrationPacket(List<Marker> markers) {
+    public SculkSymbioteVibrationPacket(List<Marker> markers, int exposure, int exposureMaximum) {
         this.markers = List.copyOf(markers.subList(0, Math.min(MAX_MARKERS, markers.size())));
+        this.exposureMaximum = Math.max(1, exposureMaximum);
+        this.exposure = Math.max(0, Math.min(this.exposureMaximum, exposure));
     }
 
     public static void encode(SculkSymbioteVibrationPacket message, FriendlyByteBuf buf) {
+        buf.writeVarInt(message.exposure);
+        buf.writeVarInt(message.exposureMaximum);
         buf.writeVarInt(message.markers.size());
         for (Marker marker : message.markers) {
             buf.writeDouble(marker.position().x);
@@ -37,6 +43,8 @@ public final class SculkSymbioteVibrationPacket {
     }
 
     public static SculkSymbioteVibrationPacket decode(FriendlyByteBuf buf) {
+        int exposure = buf.readVarInt();
+        int exposureMaximum = buf.readVarInt();
         int count = buf.readVarInt();
         if (count < 0 || count > MAX_MARKERS) {
             throw new IllegalArgumentException("Invalid sculk symbiote marker count: " + count);
@@ -48,22 +56,24 @@ public final class SculkSymbioteVibrationPacket {
             UUID sourceId = buf.readBoolean() ? buf.readUUID() : null;
             markers.add(new Marker(position, frequency, sourceId));
         }
-        return new SculkSymbioteVibrationPacket(markers);
+        return new SculkSymbioteVibrationPacket(markers, exposure, exposureMaximum);
     }
 
     public static void handle(SculkSymbioteVibrationPacket message, Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
         context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(
-                Dist.CLIENT, () -> () -> ClientPacketHandler.handleSculkSymbioteVibrations(message.markers)));
+                Dist.CLIENT, () -> () -> ClientPacketHandler.handleSculkSymbioteVibrations(
+                        message.markers, message.exposure, message.exposureMaximum)));
         context.setPacketHandled(true);
     }
 
-    public static void sendTo(ServerPlayer player, List<SculkSymbioteServerHandler.MarkerData> markers) {
+    public static void sendTo(ServerPlayer player, List<SculkSymbioteServerHandler.MarkerData> markers,
+                              int exposure, int exposureMaximum) {
         List<Marker> packetMarkers = markers.stream()
                 .map(marker -> new Marker(marker.position(), marker.frequency(), marker.sourceId()))
                 .toList();
         NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
-                new SculkSymbioteVibrationPacket(packetMarkers));
+                new SculkSymbioteVibrationPacket(packetMarkers, exposure, exposureMaximum));
     }
 
     public List<Marker> markers() {

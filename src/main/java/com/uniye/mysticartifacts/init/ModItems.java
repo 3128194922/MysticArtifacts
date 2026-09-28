@@ -71,7 +71,7 @@ public class ModItems {
             () -> new SpearItem(Tiers.DIAMOND, 3, (1.0F / 1.05F) - 4.0F, new Item.Properties()));
 
     public static final RegistryObject<Item> FLAG_SPEAR = ITEMS.register("flag_spear",
-            () -> new FlagSpearItem(Tiers.DIAMOND, 3, -2.8F, new Item.Properties().stacksTo(1)));
+            () -> new FlagSpearItem(Tiers.DIAMOND, 3, -1.0F, new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> CODEX = ITEMS.register("codex",
             () -> new CodexItem(new Item.Properties()));
@@ -96,6 +96,9 @@ public class ModItems {
 
     public static final RegistryObject<Item> LIGHTNING_BOTTLE = ITEMS.register("lightning_bottle",
             () -> new LightningBottleItem(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> C4_DETONATOR = ITEMS.register("c4_detonator",
+            () -> new com.uniye.mysticartifacts.item.impl.C4DetonatorItem(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

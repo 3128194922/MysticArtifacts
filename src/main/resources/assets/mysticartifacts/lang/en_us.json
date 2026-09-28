@@ -4,6 +4,7 @@
     "item.mysticartifacts.flag_spear": "Flag Spear",
     "item.mysticartifacts.death_scythe": "Death Scythe",
     "tooltip.mysticartifacts.death_scythe.energy": "Energy: %s ticks",
+    "entity.mysticartifacts.flag_spear": "Flag Spear",
     "item.mysticartifacts.jiba_revolver": "Brass Tyrant Revolver",
     "item.mysticartifacts.revolver_cartridge": "Revolver Cartridge",
     "item.mysticartifacts.revolver_casing": "Spent Revolver Casing",
@@ -15,5 +16,12 @@
     "subtitle.mysticartifacts.revolver.dry_fire": "Hammer clicks",
     "subtitle.mysticartifacts.revolver.open": "Cylinder opens",
     "subtitle.mysticartifacts.revolver.close": "Cylinder closes",
-    "subtitle.mysticartifacts.revolver.load": "Cartridge moves"
+    "subtitle.mysticartifacts.revolver.load": "Cartridge moves",
+    "subtitle.mysticartifacts.lightning_bottle_zap": "Electric zap",
+    "subtitle.mysticartifacts.flag_spear_burst": "Flag Spear bursts",
+    "subtitle.mysticartifacts.death_scythe_zap": "The Reaper's harvest",
+    "subtitle.mysticartifacts.katana_slash": "Ghost blade slash",
+    "item.mysticartifacts.c4_detonator": "C4 Detonator",
+    "entity.mysticartifacts.c4_bomb": "C4 Charge",
+    "tooltip.mysticartifacts.c4_detonator.controls": "Attack: throw C4 | Use: detonate your C4"
 }

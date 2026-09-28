@@ -5,10 +5,9 @@ import com.uniye.mysticartifacts.item.impl.TrailSightItem;
 import com.uniye.mysticartifacts.network.SculkSymbioteVibrationPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -35,9 +34,6 @@ public final class SculkSymbioteServerHandler {
             return;
         }
 
-        refreshEffect(player, MobEffects.BLINDNESS);
-        refreshEffect(player, MobEffects.DARKNESS);
-
         SculkSymbioteSensor sensor = SENSORS.get(player.getUUID());
         if (sensor == null || !sensor.isFor(player)) {
             if (sensor != null) sensor.remove();
@@ -46,15 +42,15 @@ public final class SculkSymbioteServerHandler {
         }
         sensor.tick(level);
         List<MarkerData> markers = sensor.drainMarkers();
-        if (!markers.isEmpty()) {
-            SculkSymbioteVibrationPacket.sendTo(player, markers);
-        }
+        SculkSymbioteVibrationPacket.sendTo(player, markers, sensor.maxExposure(), sensor.exposureMaximum());
     }
 
-    private static void refreshEffect(ServerPlayer player, MobEffect effect) {
-        MobEffectInstance current = player.getEffect(effect);
-        if (current == null || current.getDuration() <= 20) {
-            player.addEffect(new MobEffectInstance(effect, 40, 0, false, false, true));
+    @SubscribeEvent
+    public static void onEntitySound(PlayLevelSoundEvent.AtEntity event) {
+        if (!(event.getLevel() instanceof ServerLevel)) return;
+        Entity source = event.getEntity();
+        for (SculkSymbioteSensor sensor : SENSORS.values()) {
+            sensor.recordEntitySound(source);
         }
     }
 

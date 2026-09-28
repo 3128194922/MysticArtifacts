@@ -115,11 +115,24 @@ public class NetworkHandler {
                 java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
         );
 
+        INSTANCE.registerMessage(id++, C4ThrowPacket.class,
+                C4ThrowPacket::encode,
+                C4ThrowPacket::decode,
+                C4ThrowPacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
+        );
+
         id = Math.max(id, 18); // ID 17 is reserved for the existing C4 packet change.
         INSTANCE.registerMessage(id++, DeathScytheSlashPacket.class,
                 DeathScytheSlashPacket::encode,
                 DeathScytheSlashPacket::decode,
                 DeathScytheSlashPacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
+        );
+        INSTANCE.registerMessage(id++, DeathScytheTargetPacket.class,
+                DeathScytheTargetPacket::encode,
+                DeathScytheTargetPacket::decode,
+                DeathScytheTargetPacket::handle,
                 java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
         );
     }

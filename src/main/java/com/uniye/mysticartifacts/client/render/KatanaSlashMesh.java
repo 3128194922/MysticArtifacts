@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 public final class KatanaSlashMesh {
     private static final int ARC_SEGMENTS = 40;
     private static final float HALF_MOON_ANGLE_DEGREES = 180.0F;
+    private static final double HALF_MOON_ANGLE_RADIANS = Math.toRadians(HALF_MOON_ANGLE_DEGREES);
     private static final float INNER_RADIUS = 42.0F;
     private static final float OUTER_RADIUS = 100.0F;
     private static final float MAX_HALF_THICKNESS = 4.5F;
@@ -20,38 +21,58 @@ public final class KatanaSlashMesh {
     public static void renderHalfMoonLayer(PoseStack poseStack, VertexConsumer consumer, int packedLight,
                                            int color, float alpha, float uvOffset, float uvScale) {
         renderBloodArcLayer(poseStack, consumer, packedLight, color, alpha, uvOffset, uvScale,
-                1.0F, 1.0F, 1.0F);
+                1.0F, 1.0F, 1.0F, ARC_SEGMENTS);
+    }
+
+    public static void renderHalfMoonLayer(PoseStack poseStack, VertexConsumer consumer, int packedLight,
+                                           int color, float alpha, float uvOffset, float uvScale,
+                                           int segments) {
+        renderBloodArcLayer(poseStack, consumer, packedLight, color, alpha, uvOffset, uvScale,
+                1.0F, 1.0F, 1.0F, segments);
     }
 
     /** 生成带三维厚度、两端渐隐和不规则血刺外沿的半月剑气。 */
     public static void renderBloodArcLayer(PoseStack poseStack, VertexConsumer consumer, int packedLight,
                                            int color, float alpha, float uvOffset, float uvScale,
                                            float radiusScale, float thicknessScale, float spikeStrength) {
+        renderBloodArcLayer(poseStack, consumer, packedLight, color, alpha, uvOffset, uvScale,
+                radiusScale, thicknessScale, spikeStrength, ARC_SEGMENTS);
+    }
+
+    public static void renderBloodArcLayer(PoseStack poseStack, VertexConsumer consumer, int packedLight,
+                                           int color, float alpha, float uvOffset, float uvScale,
+                                           float radiusScale, float thicknessScale, float spikeStrength,
+                                           int segments) {
         if (alpha <= 0.0F) return;
         PoseStack.Pose pose = poseStack.last();
-        for (int segment = 0; segment < ARC_SEGMENTS; segment++) {
-            float t0 = segment / (float) ARC_SEGMENTS;
-            float t1 = (segment + 1) / (float) ARC_SEGMENTS;
-            float angle0 = radians(-HALF_MOON_ANGLE_DEGREES * 0.5F + HALF_MOON_ANGLE_DEGREES * t0);
-            float angle1 = radians(-HALF_MOON_ANGLE_DEGREES * 0.5F + HALF_MOON_ANGLE_DEGREES * t1);
+        int arcSegments = segments == KatanaSlashRenderProfile.farSegments()
+                ? KatanaSlashRenderProfile.farSegments()
+                : ARC_SEGMENTS;
+        for (int segment = 0; segment < arcSegments; segment++) {
+            KatanaSlashRenderProfile.Sample sample0 = KatanaSlashRenderProfile.endpoint(arcSegments, segment);
+            KatanaSlashRenderProfile.Sample sample1 = KatanaSlashRenderProfile.endpoint(arcSegments, segment + 1);
+            KatanaSlashRenderProfile.Sample midpoint = KatanaSlashRenderProfile.midpoint(arcSegments, segment);
+            float t0 = sample0.progress();
+            float t1 = sample1.progress();
 
             float inner0 = INNER_RADIUS * radiusScale;
             float inner1 = inner0;
-            float outer0 = OUTER_RADIUS * radiusScale + outerSpike(t0, spikeStrength);
-            float outer1 = OUTER_RADIUS * radiusScale + outerSpike(t1, spikeStrength);
-            float innerY0 = arcThickness(t0, thicknessScale);
-            float innerY1 = arcThickness(t1, thicknessScale);
-            float alpha0 = alpha * segmentAlpha(t0);
-            float alpha1 = alpha * segmentAlpha(t1);
+            float outer0 = OUTER_RADIUS * radiusScale + sample0.spikeFactor() * OUTER_SPIKE * spikeStrength;
+            float outer1 = OUTER_RADIUS * radiusScale + sample1.spikeFactor() * OUTER_SPIKE * spikeStrength;
+            float innerY0 = sample0.thicknessFactor() * MAX_HALF_THICKNESS * thicknessScale;
+            float innerY1 = sample1.thicknessFactor() * MAX_HALF_THICKNESS * thicknessScale;
+            float segmentAlpha = sample0.edgeAlpha();
+            float alpha0 = alpha * segmentAlpha;
+            float alpha1 = alpha * sample1.edgeAlpha();
 
-            float ix0 = sin(angle0) * inner0;
-            float iz0 = cos(angle0) * inner0;
-            float ox0 = sin(angle0) * outer0;
-            float oz0 = cos(angle0) * outer0;
-            float ix1 = sin(angle1) * inner1;
-            float iz1 = cos(angle1) * inner1;
-            float ox1 = sin(angle1) * outer1;
-            float oz1 = cos(angle1) * outer1;
+            float ix0 = sample0.sinAngle() * inner0;
+            float iz0 = sample0.cosAngle() * inner0;
+            float ox0 = sample0.sinAngle() * outer0;
+            float oz0 = sample0.cosAngle() * outer0;
+            float ix1 = sample1.sinAngle() * inner1;
+            float iz1 = sample1.cosAngle() * inner1;
+            float ox1 = sample1.sinAngle() * outer1;
+            float oz1 = sample1.cosAngle() * outer1;
 
             drawTop(pose, consumer, packedLight, color, alpha0, alpha1,
                     ix0, innerY0, iz0, ox0, innerY0, oz0,
@@ -59,29 +80,15 @@ public final class KatanaSlashMesh {
             drawBottom(pose, consumer, packedLight, color, alpha0, alpha1,
                     ix0, -innerY0, iz0, ox0, -innerY0, oz0,
                     ix1, -innerY1, iz1, ox1, -innerY1, oz1, t0, t1, uvOffset, uvScale);
-            float midAngle = (angle0 + angle1) * 0.5F;
             drawSide(pose, consumer, packedLight, color, alpha0, alpha1,
                     ox0, innerY0, oz0, ox1, innerY1, oz1,
                     ox0, -innerY0, oz0, ox1, -innerY1, oz1,
-                    sin(midAngle), cos(midAngle), t0, t1, uvOffset, uvScale);
+                    midpoint.sinAngle(), midpoint.cosAngle(), t0, t1, uvOffset, uvScale);
             drawSide(pose, consumer, packedLight, color, alpha0, alpha1,
                     ix1, innerY1, iz1, ix0, innerY0, iz0,
                     ix1, -innerY1, iz1, ix0, -innerY0, iz0,
-                    -sin(midAngle), -cos(midAngle), t0, t1, uvOffset, uvScale);
+                    -midpoint.sinAngle(), -midpoint.cosAngle(), t0, t1, uvOffset, uvScale);
         }
-    }
-
-    private static float outerSpike(float progress, float strength) {
-        return sin((float) (Math.PI * 11.0D * progress + 0.35D))
-                * sin((float) (Math.PI * progress)) * OUTER_SPIKE * strength;
-    }
-
-    private static float segmentAlpha(float progress) {
-        return (float) Math.pow(Math.sin(Math.PI * progress), 0.68D);
-    }
-
-    private static float arcThickness(float progress, float scale) {
-        return sin((float) (Math.PI * progress)) * MAX_HALF_THICKNESS * scale;
     }
 
     private static void drawTop(PoseStack.Pose pose, VertexConsumer consumer, int packedLight,
@@ -151,15 +158,4 @@ public final class KatanaSlashMesh {
                 .endVertex();
     }
 
-    private static float radians(float degrees) {
-        return (float) Math.toRadians(degrees);
-    }
-
-    private static float sin(float value) {
-        return (float) Math.sin(value);
-    }
-
-    private static float cos(float value) {
-        return (float) Math.cos(value);
-    }
 }

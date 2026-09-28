@@ -33,7 +33,7 @@ public final class FlagSpearClientState {
         trim(minecraft.level.getGameTime());
     }
 
-    public static void accept(Vec3 center, float yaw) {
+    public static void accept(Vec3 center, float yaw, long seed) {
         if (!isFinite(center) || !Float.isFinite(yaw)) return;
 
         Minecraft minecraft = Minecraft.getInstance();
@@ -42,7 +42,7 @@ public final class FlagSpearClientState {
         if (TRAILS.size() >= MAX_TRAILS) {
             TRAILS.remove(0);
         }
-        TRAILS.add(new Trail(center, yaw, minecraft.level.getGameTime()));
+        TRAILS.add(new Trail(center, yaw, seed, minecraft.level.getGameTime()));
     }
 
     public static List<Trail> snapshot(ClientLevel level) {
@@ -61,6 +61,6 @@ public final class FlagSpearClientState {
                 && Double.isFinite(value.z);
     }
 
-    public record Trail(Vec3 center, float yaw, long tick) {
+    public record Trail(Vec3 center, float yaw, long seed, long tick) {
     }
 }

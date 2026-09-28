@@ -64,6 +64,25 @@ public final class SculkSymbioteSensor implements VibrationSystem, VibrationSyst
         return result;
     }
 
+    /** 返回当前各声源中最高的累积值，保持每个声源独立触发音爆。 */
+    public int maxExposure() {
+        return sources.values().stream()
+                .mapToInt(state -> state.exposure.value())
+                .max()
+                .orElse(0);
+    }
+
+    public int exposureMaximum() {
+        return Math.max(1, Config.SCULK_EXPOSURE_MAX.get());
+    }
+
+    public void recordEntitySound(Entity source) {
+        if (registeredLevel != source.level() || source.isRemoved()) return;
+        double radius = Math.max(1, Config.SCULK_VIBRATION_RADIUS.get());
+        if (source.distanceToSqr(player) > radius * radius) return;
+        addMarker(source.position().add(0.0D, source.getBbHeight() * 0.5D, 0.0D), 0, source.getUUID());
+    }
+
     public void remove() {
         if (registeredLevel != null) {
             dynamicListener.remove(registeredLevel);
@@ -104,12 +123,12 @@ public final class SculkSymbioteSensor implements VibrationSystem, VibrationSyst
     @Override
     public void onReceiveVibration(ServerLevel level, BlockPos pos, GameEvent event,
                                     Entity sourceEntity, Entity projectileOwner, float distance) {
-        int maxMarkers = Math.max(1, Config.SCULK_MAX_MARKERS_PER_TICK.get());
-        if (markers.size() < maxMarkers) {
-            markers.add(new SculkSymbioteServerHandler.MarkerData(
-                    Vec3.atCenterOf(pos), VibrationSystem.getGameEventFrequency(event),
-                    sourceEntity == null ? null : sourceEntity.getUUID()));
-        }
+        Entity markerSource = sourceEntity != null ? sourceEntity : projectileOwner;
+        Vec3 markerPosition = markerSource == null
+                ? Vec3.atCenterOf(pos)
+                : markerSource.position().add(0.0D, markerSource.getBbHeight() * 0.5D, 0.0D);
+        addMarker(markerPosition, VibrationSystem.getGameEventFrequency(event),
+                markerSource == null ? null : markerSource.getUUID());
 
         if (!(sourceEntity instanceof LivingEntity source) || source == player
                 || source.isRemoved() || !source.isAlive()) {
@@ -162,6 +181,13 @@ public final class SculkSymbioteSensor implements VibrationSystem, VibrationSyst
                     .toList()
                     .forEach(sources::remove);
         }
+    }
+
+    private void addMarker(Vec3 position, int frequency, java.util.UUID sourceId) {
+        int maxMarkers = Math.max(1, Config.SCULK_MAX_MARKERS_PER_TICK.get());
+        if (markers.size() >= maxMarkers) return;
+        if (sourceId != null && markers.stream().anyMatch(marker -> sourceId.equals(marker.sourceId()))) return;
+        markers.add(new SculkSymbioteServerHandler.MarkerData(position, frequency, sourceId));
     }
 
     private static final class SourceState {

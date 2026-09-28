@@ -14,6 +14,8 @@ public final class ModConfigs {
         ModLoadingContext context = ModLoadingContext.get();
         context.registerConfig(ModConfig.Type.SERVER,
                 RevolverConfig.SPEC, "mysticartifacts-revolver-server.toml");
+        context.registerConfig(ModConfig.Type.SERVER,
+                LightningBottleConfig.SPEC, "mysticartifacts-lightning-bottle-server.toml");
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         context.registerConfig(ModConfig.Type.CLIENT,
                 TrailSightClientConfig.SPEC,

@@ -106,13 +106,9 @@ public final class DeathScytheSlashRenderer {
         if (side.lengthSqr() < 1.0E-6D) side = forward.cross(new Vec3(1.0D, 0.0D, 0.0D));
         side = side.normalize();
 
-        double progress = Math.min(1.0D, (age + 0.5D) / slash.durationTicks());
-        double head = Math.min(1.0D, 0.04D + progress * 1.14D);
-        double tail = Math.max(0.0D, head - 0.32D);
         double phase = ((slash.seed() >>> 8) & 1023L) * (Math.PI * 2.0D / 1024.0D);
-        double sway = Math.sin(phase + age * 0.42D) * 0.035D;
-        Vec3 from = slash.origin().lerp(slash.target(), tail).add(side.scale(sway));
-        Vec3 to = slash.origin().lerp(slash.target(), head).add(side.scale(sway));
+        Vec3 from = slash.origin().lerp(slash.target(), 0.0D);
+        Vec3 to = slash.origin().lerp(slash.target(), 1.0D);
         float fade = (float) Math.min(1.0D, (slash.durationTicks() - age) / 3.0D);
         float pulse = 0.92F + 0.08F * (float) Math.sin(phase + age * 0.75D);
         return new SlashGeometry(from, to, side, fade, pulse);

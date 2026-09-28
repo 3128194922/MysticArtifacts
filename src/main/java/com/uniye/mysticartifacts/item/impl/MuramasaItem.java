@@ -2,6 +2,7 @@ package com.uniye.mysticartifacts.item.impl;
 
 import com.uniye.mysticartifacts.client.render.MuramasaRenderer;
 import com.uniye.mysticartifacts.entity.KatanaSlashEntity;
+import com.uniye.mysticartifacts.init.ModSounds;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -43,7 +44,7 @@ import java.util.function.Consumer;
  * 非完美弹反仅免伤部分伤害（见 Config）；潜行右键居合冲刺（需充能满），
  * 造成一次普通攻击伤害并进入鬼刀模式。</p>
  *
- * <p>鬼刀模式：攻速变为满速；左键（含空挥）发射剑气（最大飞行 5 格，消耗 1 充能）；
+ * <p>鬼刀模式：攻速变为满速；左键（含空挥）发射剑气（射程由配置控制，消耗 1 充能）；
  * 受到伤害自动完美弹反（有限次数）；右键为半程居合（纯位移，消耗 1 充能）。
  * 充能耗尽或持续时间结束后回到普通模式。</p>
  */
@@ -243,6 +244,9 @@ public class MuramasaItem extends SwordItem implements GeoItem {
             return false;
         }
         KatanaSlashEntity.createGhostSlash(serverLevel, player, stack);
+        serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(),
+                ModSounds.KATANA_SLASH.get(), SoundSource.PLAYERS, 0.9F,
+                0.86F + serverLevel.random.nextFloat() * 0.12F);
         player.getCooldowns().addCooldown(stack.getItem(), GHOST_SLASH_COOLDOWN_TICKS);
         player.swing(InteractionHand.MAIN_HAND);
         closeIfEmpty(player, stack);

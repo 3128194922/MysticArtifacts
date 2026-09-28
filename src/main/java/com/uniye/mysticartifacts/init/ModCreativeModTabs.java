@@ -44,6 +44,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.ANCESTORS_LETTER.get());
                         pOutput.accept(ModItems.TRAIL_SIGHT.get());
                         pOutput.accept(ModItems.LIGHTNING_BOTTLE.get());
+                        pOutput.accept(ModItems.C4_DETONATOR.get());
                     })
                     .build());
 

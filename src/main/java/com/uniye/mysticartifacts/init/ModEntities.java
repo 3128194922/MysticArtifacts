@@ -127,6 +127,22 @@ public class ModEntities {
                     .build("katana_circle_slash")
     );
 
+    public static final RegistryObject<EntityType<FlagSpearEntity>> FLAG_SPEAR = ENTITIES.register("flag_spear",
+            () -> EntityType.Builder.<FlagSpearEntity>of(FlagSpearEntity::new, MobCategory.MISC)
+                    .sized(0.6F, 0.6F)
+                    .clientTrackingRange(10)
+                    .updateInterval(20)
+                    .build("flag_spear")
+    );
+
+    public static final RegistryObject<EntityType<C4BombEntity>> C4_BOMB = ENTITIES.register("c4_bomb",
+            () -> EntityType.Builder.<C4BombEntity>of(C4BombEntity::new, MobCategory.MISC)
+                    .sized(0.3F, 0.3F)
+                    .clientTrackingRange(64)
+                    .updateInterval(1)
+                    .build("c4_bomb")
+    );
+
     public static void register(IEventBus eventBus) {
         ENTITIES.register(eventBus);
     }

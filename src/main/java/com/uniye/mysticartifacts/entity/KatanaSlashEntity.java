@@ -37,7 +37,7 @@ import java.util.UUID;
 public class KatanaSlashEntity extends Projectile {
     /** 居合冲刺的刀光：随玩家冲刺方向平移，创建时结算一次路径伤害。 */
     public static final int STYLE_DASH = 0;
-    /** 鬼刀剑气：向玩家视线方向飞行，最大飞行 5 格，途中持续判定实体伤害。 */
+    /** 鬼刀剑气：向玩家视线方向飞行，射程由配置控制，途中持续判定实体伤害。 */
     public static final int STYLE_GHOST = 1;
 
     private static final EntityDataAccessor<Integer> STYLE =
@@ -48,8 +48,8 @@ public class KatanaSlashEntity extends Projectile {
             SynchedEntityData.defineId(KatanaSlashEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> BASE_SIZE =
             SynchedEntityData.defineId(KatanaSlashEntity.class, EntityDataSerializers.FLOAT);
-    private static final int MAX_LIFETIME = 10;
-    private static final double GHOST_RANGE = 5.0D;
+    private static final int MAX_LIFETIME = 80;
+    private static final double DEFAULT_GHOST_RANGE = 12.0D;
     private static final double GHOST_SPEED = 1.0D;
     private static final float VISUAL_ROLL_RANGE_DEGREES = 45.0F;
     private static final float VISUAL_OFFSET_RANGE_DEGREES = 20.0F;
@@ -201,9 +201,15 @@ public class KatanaSlashEntity extends Projectile {
         if (serverSide && this.getOwner() instanceof Player player) {
             damageGhostTargets(player);
         }
-        if (this.distanceTravelled >= GHOST_RANGE) {
+        if (this.distanceTravelled >= ghostRange()) {
             this.discard();
         }
+    }
+
+    private static double ghostRange() {
+        return Config.KatanaGhostSlashRange > 0.0D
+                ? Config.KatanaGhostSlashRange
+                : DEFAULT_GHOST_RANGE;
     }
 
     private void damageDashTargets(Player player, Vec3 dashVector) {

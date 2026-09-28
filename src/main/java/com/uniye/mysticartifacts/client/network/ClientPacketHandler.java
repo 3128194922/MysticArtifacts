@@ -33,7 +33,9 @@ public class ClientPacketHandler {
         AllSeeingEyeClientHandler.handleSpectateState(targetId);
     }
 
-    public static void handleSculkSymbioteVibrations(java.util.List<SculkSymbioteVibrationPacket.Marker> markers) {
+    public static void handleSculkSymbioteVibrations(java.util.List<SculkSymbioteVibrationPacket.Marker> markers,
+                                                     int exposure, int exposureMaximum) {
+        SculkSymbioteClientState.setExposure(exposure, exposureMaximum);
         SculkSymbioteClientState.acceptMarkers(markers);
     }
 
@@ -41,7 +43,7 @@ public class ClientPacketHandler {
         LightningBottleClientState.accept(path);
     }
 
-    public static void handleFlagSpearTrail(Vec3 center, float yaw) {
-        FlagSpearClientState.accept(center, yaw);
+    public static void handleFlagSpearTrail(Vec3 center, float yaw, long seed) {
+        FlagSpearClientState.accept(center, yaw, seed);
     }
 }

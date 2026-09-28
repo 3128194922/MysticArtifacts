@@ -72,6 +72,7 @@ public final class ClientModEvents {
         EntityRenderers.register(ModEntities.FINAL_EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "final_exploding_arrow"));
         EntityRenderers.register(ModEntities.ENDER_KUNAI.get(), ctx -> new ModArrowRenderer(ctx, "kunai"));
         EntityRenderers.register(ModEntities.POKER_CARD.get(), PokerCardRenderer::new);
+        EntityRenderers.register(ModEntities.FLAG_SPEAR.get(), FlagSpearEntityRenderer::new);
 
         EntityRenderers.register(ModEntities.TWO_DRAGONS_PLAY_BALL.get(), TwoDragonsPlayBallRenderer::new);
         EntityRenderers.register(ModEntities.TWO_DRAGONS_FAN.get(), TwoDragonsFanRenderer::new);
@@ -80,6 +81,7 @@ public final class ClientModEvents {
         EntityRenderers.register(ModEntities.FLAME_PROJECTILE.get(), FlameProjectileRenderer::new);
         EntityRenderers.register(ModEntities.KATANA_SLASH.get(), KatanaSlashRenderer::new);
         EntityRenderers.register(ModEntities.KATANA_CIRCLE_SLASH.get(), KatanaCircleSlashRenderer::new);
+        EntityRenderers.register(ModEntities.C4_BOMB.get(), C4BombRenderer::new);
 
 
 

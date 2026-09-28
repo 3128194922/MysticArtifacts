@@ -24,8 +24,23 @@ public final class FlagSpearRenderTypes {
                 RenderSystem.defaultBlendFunc();
             });
 
-    private static final RenderType LUMINOUS = RenderType.create(
-            "mysticartifacts_flag_spear_luminous",
+    private static final RenderType LUMINOUS = create("luminous");
+    private static final RenderType GLOW = create("glow");
+
+    private FlagSpearRenderTypes() {
+    }
+
+    public static RenderType luminous() {
+        return LUMINOUS;
+    }
+
+    public static RenderType glow() {
+        return GLOW;
+    }
+
+    private static RenderType create(String layer) {
+        return RenderType.create(
+            "mysticartifacts_flag_spear_" + layer,
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.QUADS,
             256,
@@ -38,12 +53,6 @@ public final class FlagSpearRenderTypes {
                     .setCullState(new RenderStateShard.CullStateShard(false))
                     .setWriteMaskState(new RenderStateShard.WriteMaskStateShard(true, false))
                     .createCompositeState(false)
-    );
-
-    private FlagSpearRenderTypes() {
-    }
-
-    public static RenderType luminous() {
-        return LUMINOUS;
+        );
     }
 }

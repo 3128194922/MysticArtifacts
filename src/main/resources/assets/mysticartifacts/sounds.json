@@ -1,4 +1,12 @@
 {
+    "entity.lightning_bottle_zap": {
+        "subtitle": "subtitle.mysticartifacts.lightning_bottle_zap",
+        "sounds": [
+            {
+                "name": "mysticartifacts:lightning_bottle_zap"
+            }
+        ]
+    },
     "entity.ceasing": {
         "subtitle": "subtitle.mysticartifacts.ceasing",
         "sounds": [
@@ -42,6 +50,20 @@
             },
             {
                 "name": "mysticartifacts:katana/block3"
+            }
+        ]
+    },
+    "entity.katana_slash": {
+        "subtitle": "subtitle.mysticartifacts.katana_slash",
+        "sounds": [
+            {
+                "name": "mysticartifacts:katana_slash_1"
+            },
+            {
+                "name": "mysticartifacts:katana_slash_2"
+            },
+            {
+                "name": "mysticartifacts:katana_slash_3"
             }
         ]
     },
@@ -98,6 +120,22 @@
         "sounds": [
             {
                 "name": "mysticartifacts:revolver/load"
+            }
+        ]
+    },
+    "entity.flag_spear_burst": {
+        "subtitle": "subtitle.mysticartifacts.flag_spear_burst",
+        "sounds": [
+            {
+                "name": "mysticartifacts:flagsound"
+            }
+        ]
+    },
+    "entity.death_scythe_zap": {
+        "subtitle": "subtitle.mysticartifacts.death_scythe_zap",
+        "sounds": [
+            {
+                "name": "mysticartifacts:death_scythe_zap"
             }
         ]
     }

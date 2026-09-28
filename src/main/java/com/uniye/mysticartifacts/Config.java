@@ -67,6 +67,9 @@ public class Config
     private static final ForgeConfigSpec.IntValue KATANA_GHOST_AUTO_PARRY_MAX = BUILDER
             .comment("Katana Ghost mode auto perfect-parry uses per activation. 0 disables auto parry.")
             .defineInRange("KatanaGhostAutoParryMax", 3, 0, 100);
+    private static final ForgeConfigSpec.ConfigValue<Double> KATANA_GHOST_SLASH_RANGE = BUILDER
+            .comment("Katana Ghost mode sword qi range in blocks. Default 12.")
+            .defineInRange("KatanaGhostSlashRange", 12.0, 5.0, 64.0);
     private static final ForgeConfigSpec.ConfigValue<Double> KATANA_IMPERFECT_PARRY_REDUCTION = BUILDER
             .comment("Katana imperfect parry damage reduction (0.0~1.0). Default 0.5 = take 50% damage while blocking outside the perfect window.")
             .defineInRange("KatanaImperfectParryReduction", 0.5, 0.0, 1.0);
@@ -90,6 +93,19 @@ public class Config
     private static final ForgeConfigSpec.IntValue DEATH_SCYTHE_SLASH_EFFECT_TICKS = BUILDER
             .comment("Death Scythe slash effect duration (ticks)")
             .defineInRange("DeathScytheSlashEffectTicks", 10, 1, 60);
+
+    private static final ForgeConfigSpec.IntValue FLAG_SPEAR_THROW_COOLDOWN = BUILDER
+            .comment("Flag Spear right-click throw cooldown (ticks)")
+            .defineInRange("FlagSpearThrowCooldown", 20, 0, 1000);
+    private static final ForgeConfigSpec.ConfigValue<Double> FLAG_SPEAR_BURST_RANGE = BUILDER
+            .comment("Flag Spear burst damage radius (blocks) while planted. Default 5.0, same as its melee AoE.")
+            .defineInRange("FlagSpearBurstRange", 5.0, 1.0, 64.0);
+    private static final ForgeConfigSpec.IntValue FLAG_SPEAR_BURST_INTERVAL = BUILDER
+            .comment("Ticks between two Flag Spear bursts while planted. Default 20 = 1s.")
+            .defineInRange("FlagSpearBurstInterval", 20, 1, 600);
+    private static final ForgeConfigSpec.IntValue FLAG_SPEAR_GROUND_DURATION = BUILDER
+            .comment("Ticks a planted Flag Spear keeps bursting before dropping as an item. Default 200 = 10s.")
+            .defineInRange("FlagSpearGroundDuration", 200, 20, 12000);
 
     private static final ForgeConfigSpec.ConfigValue<Double> DEATH_EYE_RENDER_RANGE = BUILDER
             .comment("Death Eye execution line render range")
@@ -216,6 +232,7 @@ public class Config
     public static int KatanaMaxCharge;
     public static int KatanaGhostDurationTicks;
     public static int KatanaGhostAutoParryMax;
+    public static double KatanaGhostSlashRange;
     public static double KatanaImperfectParryReduction;
     
     public static double PokerCardRetrievalDistance;
@@ -225,6 +242,11 @@ public class Config
     public static int DeathScytheEnergyTicks;
     public static int DeathScytheRightClickCooldown;
     public static int DeathScytheSlashEffectTicks;
+
+    public static int FlagSpearThrowCooldown;
+    public static double FlagSpearBurstRange;
+    public static int FlagSpearBurstInterval;
+    public static int FlagSpearGroundDuration;
     
     public static double DeathEyeRenderRange;
     
@@ -258,6 +280,9 @@ public class Config
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event)
     {
+        if (event.getConfig().getSpec() != SPEC) {
+            return;
+        }
         AirBurstNumber = AIRBURST_NUMBER.get();
         AirBurstNumberRandom = AIRBURST_NUMBER_RANDOM.get();
         AirBurstNumber2 = AIRBURST_NUMBER_2.get();
@@ -279,6 +304,7 @@ public class Config
         KatanaMaxCharge = KATANA_MAX_CHARGE.get();
         KatanaGhostDurationTicks = KATANA_GHOST_DURATION_TICKS.get();
         KatanaGhostAutoParryMax = KATANA_GHOST_AUTO_PARRY_MAX.get();
+        KatanaGhostSlashRange = KATANA_GHOST_SLASH_RANGE.get();
         KatanaImperfectParryReduction = KATANA_IMPERFECT_PARRY_REDUCTION.get();
         
         PokerCardRetrievalDistance = POKER_CARD_RETRIEVAL_DISTANCE.get();
@@ -288,6 +314,11 @@ public class Config
         DeathScytheEnergyTicks = DEATH_SCYTHE_ENERGY_TICKS.get();
         DeathScytheRightClickCooldown = DEATH_SCYTHE_RIGHT_CLICK_COOLDOWN.get();
         DeathScytheSlashEffectTicks = DEATH_SCYTHE_SLASH_EFFECT_TICKS.get();
+
+        FlagSpearThrowCooldown = FLAG_SPEAR_THROW_COOLDOWN.get();
+        FlagSpearBurstRange = FLAG_SPEAR_BURST_RANGE.get();
+        FlagSpearBurstInterval = FLAG_SPEAR_BURST_INTERVAL.get();
+        FlagSpearGroundDuration = FLAG_SPEAR_GROUND_DURATION.get();
         
         DeathEyeRenderRange = DEATH_EYE_RENDER_RANGE.get();
         

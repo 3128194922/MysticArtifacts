@@ -14,11 +14,13 @@ import java.util.function.Supplier;
 public final class FlagSpearTrailPacket {
     private final Vec3 center;
     private final float yaw;
+    private final long seed;
     private final boolean valid;
 
-    public FlagSpearTrailPacket(Vec3 center, float yaw) {
+    public FlagSpearTrailPacket(Vec3 center, float yaw, long seed) {
         this.center = center;
         this.yaw = yaw;
+        this.seed = seed;
         this.valid = isFinite(center) && Float.isFinite(yaw);
     }
 
@@ -27,12 +29,14 @@ public final class FlagSpearTrailPacket {
         buffer.writeDouble(message.center.y);
         buffer.writeDouble(message.center.z);
         buffer.writeFloat(message.yaw);
+        buffer.writeLong(message.seed);
     }
 
     public static FlagSpearTrailPacket decode(FriendlyByteBuf buffer) {
         return new FlagSpearTrailPacket(
                 new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble()),
-                buffer.readFloat()
+                buffer.readFloat(),
+                buffer.readLong()
         );
     }
 
@@ -45,16 +49,16 @@ public final class FlagSpearTrailPacket {
 
         context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(
                 Dist.CLIENT,
-                () -> () -> ClientPacketHandler.handleFlagSpearTrail(message.center, message.yaw)
+                () -> () -> ClientPacketHandler.handleFlagSpearTrail(message.center, message.yaw, message.seed)
         ));
         context.setPacketHandled(true);
     }
 
-    public static void send(ServerLevel level, Vec3 center, float yaw) {
+    public static void send(ServerLevel level, Vec3 center, float yaw, long seed) {
         NetworkHandler.INSTANCE.send(
                 PacketDistributor.NEAR.with(() -> new PacketDistributor.TargetPoint(
                         center.x, center.y, center.z, 96.0D, level.dimension())),
-                new FlagSpearTrailPacket(center, yaw)
+                new FlagSpearTrailPacket(center, yaw, seed)
         );
     }
 

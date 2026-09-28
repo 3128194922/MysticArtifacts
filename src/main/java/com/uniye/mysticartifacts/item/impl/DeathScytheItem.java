@@ -2,8 +2,10 @@ package com.uniye.mysticartifacts.item.impl;
 
 import com.uniye.mysticartifacts.Config;
 import com.uniye.mysticartifacts.client.ClientModEvents;
+import com.uniye.mysticartifacts.init.ModSounds;
 import com.uniye.mysticartifacts.network.NetworkHandler;
 import com.uniye.mysticartifacts.network.DeathScytheSlashPacket;
+import com.uniye.mysticartifacts.network.DeathScytheTargetPacket;
 import com.uniye.mysticartifacts.util.DeathScytheLogic;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
@@ -22,6 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.network.PacketDistributor;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -154,8 +157,14 @@ public class DeathScytheItem extends Item implements GeoItem {
                 setTargetUUID(stack, target.getUUID());
                 setEnergyUntil(stack, attacker.level().getGameTime() + energyDurationTicks);
                 stack.getOrCreateTag().putInt(TAG_ENERGY_DURATION_TICKS, energyDurationTicks);
+                if (attacker instanceof ServerPlayer serverPlayer) {
+                    syncTarget(serverPlayer, target.getUUID());
+                }
             } else {
                 clearTarget(stack);
+                if (attacker instanceof ServerPlayer serverPlayer) {
+                    syncTarget(serverPlayer, null);
+                }
             }
         }
         return true;
@@ -196,6 +205,9 @@ public class DeathScytheItem extends Item implements GeoItem {
                 || !(serverLevel.getEntity(targetUUID) instanceof LivingEntity target)
                 || !target.isAlive() || target.level() != serverLevel) {
             clearTarget(stack);
+            if (holder instanceof ServerPlayer serverPlayer) {
+                syncTarget(serverPlayer, null);
+            }
         }
     }
 
@@ -214,11 +226,13 @@ public class DeathScytheItem extends Item implements GeoItem {
         UUID targetUUID = getTargetUUID(stack);
         if (!DeathScytheLogic.hasEnergy(getEnergyUntil(stack), level.getGameTime())) {
             clearTarget(stack);
+            syncTarget(serverPlayer, null);
             return InteractionResultHolder.fail(stack);
         }
         Entity resolved = targetUUID == null ? null : serverLevel.getEntity(targetUUID);
         if (!(resolved instanceof LivingEntity target) || !target.isAlive() || target.level() != serverLevel) {
             clearTarget(stack);
+            syncTarget(serverPlayer, null);
             return InteractionResultHolder.fail(stack);
         }
 
@@ -228,6 +242,9 @@ public class DeathScytheItem extends Item implements GeoItem {
             return InteractionResultHolder.fail(stack);
         }
 
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                ModSounds.DEATH_SCYTHE_ZAP.get(), SoundSource.PLAYERS, 0.85F,
+                0.95F + level.random.nextFloat() * 0.1F);
         player.getCooldowns().addCooldown(this, Config.DeathScytheRightClickCooldown);
         int sequence = DeathScytheLogic.nextSequence(stack.getOrCreateTag().getInt(TAG_SLASH_SEQUENCE));
         stack.getOrCreateTag().putInt(TAG_SLASH_SEQUENCE, sequence);
@@ -238,7 +255,13 @@ public class DeathScytheItem extends Item implements GeoItem {
                         Config.DeathScytheSlashEffectTicks, level.random.nextLong()));
         if (!target.isAlive()) {
             clearTarget(stack);
+            syncTarget(serverPlayer, null);
         }
         return InteractionResultHolder.sidedSuccess(stack, false);
+    }
+
+    private static void syncTarget(ServerPlayer player, UUID targetUUID) {
+        NetworkHandler.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player),
+                new DeathScytheTargetPacket(targetUUID));
     }
 }

@@ -41,11 +41,16 @@ $modConfigs = Read-Required 'main/java/com/uniye/mysticartifacts/config/ModConfi
 $modEntrypoint = Read-Required 'main/java/com/uniye/mysticartifacts/MysticArtifacts.java'
 $item = Read-Required 'main/java/com/uniye/mysticartifacts/item/impl/DeathScytheItem.java'
 $clientState = Read-Required 'main/java/com/uniye/mysticartifacts/client/deathscythe/DeathScytheClientState.java'
+$slashRenderer = Read-Required 'main/java/com/uniye/mysticartifacts/client/deathscythe/DeathScytheSlashRenderer.java'
+$outlineRenderer = Read-Required 'main/java/com/uniye/mysticartifacts/client/deathscythe/DeathScytheOutlineRenderer.java'
 $logic = Read-Required 'main/java/com/uniye/mysticartifacts/util/DeathScytheLogic.java'
 $network = Read-Required 'main/java/com/uniye/mysticartifacts/network/NetworkHandler.java'
 $packet = Read-Required 'main/java/com/uniye/mysticartifacts/network/DeathScytheSlashPacket.java'
 $renderer = Read-Required 'main/java/com/uniye/mysticartifacts/client/render/DeathScytheRenderer.java'
 $clientEvents = Read-Required 'main/java/com/uniye/mysticartifacts/client/ClientModEvents.java'
+$sounds = Read-Required 'main/java/com/uniye/mysticartifacts/init/ModSounds.java'
+$soundsJson = Read-Required 'main/resources/assets/mysticartifacts/sounds.json'
+$modelJson = Read-Required 'main/resources/assets/mysticartifacts/models/item/death_scythe.json'
 
 Require-Match $items 'DEATH_SCYTHE\s*=\s*ITEMS\.register\("death_scythe"' 'item registry ID'
 Require-Match $items 'new DeathScytheItem\(new Item\.Properties\(\)\.stacksTo\(1\)\)' 'item registry factory'
@@ -90,6 +95,8 @@ Require-Match $item 'getDefaultAttributeModifiers\(EquipmentSlot slot\)' 'Forge 
 Require-Match $item 'thenLoop\("animation\.death_scythe\.idle"\)' 'idle animation loops'
 Require-Match $item 'triggerableAnim\("slash",\s*RawAnimation\.begin\(\)\.thenPlay\("animation\.death_scythe\.slash"\)\)' 'slash trigger retained'
 Require-Match $item 'addCooldown\(this,\s*Config\.DeathScytheRightClickCooldown\)' 'configured right-click cooldown'
+Require-Match $item 'ModSounds\.DEATH_SCYTHE_ZAP\.get\(\)' 'right-click sound trigger'
+Require-Match $item 'playSound\(null,\s*player\.getX\(\),\s*player\.getY\(\),\s*player\.getZ\(\),\s*ModSounds\.DEATH_SCYTHE_ZAP\.get\(\)' 'sound only after attack path'
 Write-Output 'PASS NBT keys and cleanup'
 
 Require-Match $item 'implements GeoItem' 'GeoItem implementation'
@@ -101,6 +108,18 @@ Require-Match $renderer 'animations/death_scythe\.animation\.json' 'Geo animatio
 Require-Match $clientEvents 'registerDeathScytheRenderer' 'client renderer registration'
 Require-Match $network '(?s)DeathScytheSlashPacket::handle,\s*java\.util\.Optional\.of\(net\.minecraftforge\.network\.NetworkDirection\.PLAY_TO_CLIENT\)' 'slash packet direction'
 Require-Match $packet 'DistExecutor\.unsafeRunWhenOn\(Dist\.CLIENT' 'packet client dispatch gate'
+Require-Match $slashRenderer 'slash\.origin\(\)\.lerp\(slash\.target\(\),\s*0\.0D\)' 'right-click line starts at player'
+Require-Match $slashRenderer 'slash\.origin\(\)\.lerp\(slash\.target\(\),\s*1\.0D\)' 'right-click line reaches target'
+Require-NoMatch $slashRenderer 'double head\s*=|double tail\s*=' 'no moving slash head/tail'
+Require-Match $outlineRenderer 'RenderLevelStageEvent\.Stage\.AFTER_ENTITIES' 'target outline render stage'
+Require-Match $outlineRenderer 'DeathScytheTargetClientState\.targetUUID' 'target outline reads synchronized UUID'
+Require-Match $outlineRenderer 'outlineBufferSource\(\)' 'target outline uses vanilla outline buffer'
+Require-Match $outlineRenderer 'getMainHandItem\(\)|getOffhandItem\(\)' 'target outline checks held scythe'
+Require-Match $outlineRenderer 'dispatcher\.render\(target,\s*targetPosition\.x,\s*targetPosition\.y,\s*targetPosition\.z' 'target outline uses interpolated camera-relative entity render'
+Require-Match $sounds 'DEATH_SCYTHE_ZAP\s*=\s*SOUNDS\.register\("entity\.death_scythe_zap"' 'death scythe sound registry'
+Require-Match $soundsJson '"entity\.death_scythe_zap"' 'death scythe sound json event'
+Require-Match $modelJson '"thirdperson_righthand"\s*:\s*\{\s*"rotation"\s*:\s*\[0,\s*-90,\s*0\]' 'third-person right-hand direction'
+Require-Match $modelJson '"thirdperson_lefthand"\s*:\s*\{\s*"rotation"\s*:\s*\[0,\s*90,\s*0\]' 'third-person left-hand direction'
 Require-Match $item 'if \(level\.isClientSide\)' 'logical client gate'
 Require-Match $item 'level instanceof ServerLevel serverLevel' 'server level gate'
 Require-Match $item 'target\.hurt\(level\.damageSources\(\)\.playerAttack\(player\),\s*damage\)' 'server attack damage'
@@ -175,3 +194,10 @@ $width = [System.Net.IPAddress]::NetworkToHostOrder([System.BitConverter]::ToInt
 $height = [System.Net.IPAddress]::NetworkToHostOrder([System.BitConverter]::ToInt32($png, 20))
 if ($width -ne 64 -or $height -ne 64) { throw "Death Scythe contract failed: PNG ${width}x${height}" }
 Write-Output "PASS JSON/Geo/animation/PNG (5 bones, ${width}x${height})"
+$soundPath = Join-Path $assetRoot 'sounds/death_scythe_zap.ogg'
+if (-not (Test-Path -LiteralPath $soundPath -PathType Leaf)) { throw 'Death Scythe contract failed: missing right-click OGG' }
+$soundBytes = [System.IO.File]::ReadAllBytes($soundPath)
+if ($soundBytes.Length -lt 4 -or [System.Text.Encoding]::ASCII.GetString($soundBytes, 0, 4) -ne 'OggS') {
+    throw 'Death Scythe contract failed: invalid right-click OGG'
+}
+Write-Output "PASS right-click sound (OGG $($soundBytes.Length) bytes)"

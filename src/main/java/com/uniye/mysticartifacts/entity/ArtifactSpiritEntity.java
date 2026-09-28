@@ -18,6 +18,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
@@ -34,12 +35,17 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.LingeringPotionItem;
 import net.minecraft.world.item.SplashPotionItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpawnData {
@@ -56,6 +62,8 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
     private Entity target;
     private int attackCooldown;
     private int returnTimer;
+    private ArtifactAiLogic.State aiState = ArtifactAiLogic.State.FOLLOW;
+    private int targetScanCooldown;
     @Nullable
     private UUID ownerUUID;
 
@@ -145,6 +153,11 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
         return this.level().getPlayerByUUID(this.ownerUUID);
     }
 
+    @Nullable
+    public Entity getCombatTarget() {
+        return this.target;
+    }
+
     // ========== Tick ==========
 
     @Override
@@ -173,35 +186,38 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
                 attackCooldown--;
             }
 
-            // Always update target from owner's combat state (every tick)
-            Entity ownerTarget = getOwnerTarget(owner);
-            if (ownerTarget != null) {
-                if (this.target == null || this.target.getId() != ownerTarget.getId()) {
-                    // Target switched — reset flamethrower state if needed
-                    if (isClangingHowlFlamethrower() && clangingHowlPhase > 0) {
-                        resetClangingHowlState();
-                    }
-                    this.target = ownerTarget;
+            if (this.targetScanCooldown > 0) {
+                this.targetScanCooldown--;
+            }
+
+            boolean targetValid = this.target != null && isValidTarget(this.target, owner);
+            if (!targetValid) {
+                clearCombatTarget();
+            }
+
+            boolean closeToFollowPoint = this.position().distanceToSqr(getFollowPosition(owner)) <= 1.0;
+            boolean attackReady = isClangingHowlFlamethrower() || this.attackCooldown <= 0;
+            this.aiState = ArtifactAiLogic.nextState(this.aiState, this.target != null, targetValid,
+                    attackReady, closeToFollowPoint);
+
+            if (this.aiState == ArtifactAiLogic.State.SEARCH && this.targetScanCooldown <= 0) {
+                this.target = getOwnerTarget(owner);
+                this.targetScanCooldown = 8;
+                if (this.target != null) {
                     this.entityData.set(TARGET_ID, this.target.getId());
-                    this.setAttacking(true);
-                    this.attackCooldown = Math.max(this.attackCooldown, 5);
+                    this.aiState = ArtifactAiLogic.State.ATTACK;
+                } else if (closeToFollowPoint) {
+                    this.aiState = ArtifactAiLogic.State.FOLLOW;
                 }
             }
 
-            // State machine
-            if (this.isAttacking()) {
-                if (this.target != null && this.target.isAlive()) {
-                    handleRangedAttack(owner);
-                } else {
-                    this.setAttacking(false);
-                    this.target = null;
-                    this.entityData.set(TARGET_ID, -1);
-                    if (isClangingHowlFlamethrower()) resetClangingHowlState();
-                    this.returnTimer = 10;
-                }
+            if (this.aiState == ArtifactAiLogic.State.ATTACK && this.target != null) {
+                this.setAttacking(true);
+                handleRangedAttack(owner);
             } else {
-                if (returnTimer > 0) {
-                    returnTimer--;
+                this.setAttacking(false);
+                if (this.returnTimer > 0) {
+                    this.returnTimer--;
                 }
                 if (isClangingHowlFlamethrower()) resetClangingHowlState();
             }
@@ -589,28 +605,85 @@ public class ArtifactSpiritEntity extends Entity implements IEntityAdditionalSpa
     // ========== Target Finding ==========
 
     /**
-     * Gets the owner's current combat target (real-time, no caching).
-     * Priority: lastHurtMob (player's attack target) > lastHurtByMob (attacker)
+     * Gets the owner's combat target with a short lock window.
+     * Priority: lastHurtMob (player's attack target) > lastHurtByMob > mob targeting the owner.
      */
     @Nullable
-    private Entity getOwnerTarget(Entity owner) {
-        if (!(owner instanceof LivingEntity livingOwner)) return null;
+    private Entity getOwnerTarget(Player owner) {
+        LivingEntity activeTarget = owner.getLastHurtMob();
+        LivingEntity attacker = owner.getLastHurtByMob();
+        List<LivingEntity> candidates = new ArrayList<>(3);
+        if (activeTarget != null) candidates.add(activeTarget);
+        if (attacker != null && attacker != activeTarget) candidates.add(attacker);
 
-        // Player's attack target (highest priority)
-        LivingEntity hurtMob = livingOwner.getLastHurtMob();
-        if (hurtMob != null && hurtMob.isAlive() && hurtMob != owner
-                && hurtMob.distanceTo(owner) <= Config.SpiritAttackRange) {
-            return hurtMob;
+        for (LivingEntity nearby : owner.level().getEntitiesOfClass(
+                LivingEntity.class,
+                owner.getBoundingBox().inflate(Config.SpiritAttackRange),
+                candidate -> candidate instanceof Mob mob
+                        && mob.getTarget() == owner
+                        && candidate != owner
+                        && !candidates.contains(candidate))) {
+            candidates.add(nearby);
         }
 
-        // Entity attacking the player
-        LivingEntity hurtByMob = livingOwner.getLastHurtByMob();
-        if (hurtByMob != null && hurtByMob.isAlive() && hurtByMob != owner
-                && hurtByMob.distanceTo(owner) <= Config.SpiritAttackRange) {
-            return hurtByMob;
+        List<ArtifactAiLogic.Candidate> snapshots = candidates.stream()
+                .map(candidate -> new ArtifactAiLogic.Candidate(
+                        candidate.getId(),
+                        candidate.distanceToSqr(owner),
+                        candidate.isAlive(),
+                        candidate instanceof Player player && player.isSpectator(),
+                        candidate.isAlliedTo(owner),
+                        hasLineOfSight(owner, candidate),
+                        candidate == activeTarget,
+                        candidate == attacker,
+                        candidate instanceof Mob mob && mob.getTarget() == owner,
+                        false
+                ))
+                .filter(ArtifactAiLogic.Candidate::valid)
+                .filter(candidate -> candidate.distanceSqr()
+                        <= Config.SpiritAttackRange * Config.SpiritAttackRange)
+                .toList();
+        int selectedId = ArtifactAiLogic.chooseTarget(snapshots,
+                activeTarget == null ? -1 : activeTarget.getId(),
+                attacker == null ? -1 : attacker.getId(),
+                ArtifactAiLogic.Role.SPIRIT,
+                ArtifactSpiritItem.isWearing(owner));
+        for (LivingEntity candidate : candidates) {
+            if (candidate.getId() == selectedId) return candidate;
         }
-
         return null;
+    }
+
+    private boolean isValidTarget(Entity candidate, Player owner) {
+        if (!(candidate instanceof LivingEntity living)) return false;
+        if (candidate == owner || !candidate.isAlive()) return false;
+        if (candidate instanceof Player player && player.isSpectator()) return false;
+        if (candidate.isInvulnerable() || candidate.isAlliedTo(owner)) return false;
+        if (candidate.distanceToSqr(owner) > Config.SpiritAttackRange * Config.SpiritAttackRange) return false;
+        if (!hasLineOfSight(owner, candidate)) return false;
+
+        return living == owner.getLastHurtMob()
+                || living == owner.getLastHurtByMob()
+                || candidate instanceof Mob mob && mob.getTarget() == owner;
+    }
+
+    private static boolean hasLineOfSight(LivingEntity owner, Entity target) {
+        BlockHitResult hit = owner.level().clip(new ClipContext(
+                owner.getEyePosition(),
+                target.getEyePosition(),
+                ClipContext.Block.OUTLINE,
+                ClipContext.Fluid.NONE,
+                owner
+        ));
+        return hit.getType() == HitResult.Type.MISS;
+    }
+
+    private void clearCombatTarget() {
+        this.target = null;
+        this.entityData.set(TARGET_ID, -1);
+        this.setAttacking(false);
+        if (isClangingHowlFlamethrower()) resetClangingHowlState();
+        this.returnTimer = 10;
     }
 
     // ========== Ammo from Ender Chest ==========

@@ -1,5 +1,6 @@
 package com.uniye.mysticartifacts.item.impl;
 
+import com.uniye.mysticartifacts.client.sculk.SculkSymbioteClientState;
 import com.uniye.mysticartifacts.init.ModItems;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -22,5 +23,27 @@ public class TrailSightItem extends Item implements ICurioItem {
         return CuriosApi.getCuriosInventory(livingEntity)
                 .map(handler -> !handler.findCurios(ModItems.TRAIL_SIGHT.get()).isEmpty())
                 .orElse(false);
+    }
+
+    @Override
+    public boolean isDamageable(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean isBarVisible(ItemStack stack) {
+        return SculkSymbioteClientState.exposureValue() > 0;
+    }
+
+    @Override
+    public int getBarWidth(ItemStack stack) {
+        int maximum = Math.max(1, SculkSymbioteClientState.exposureMaximum());
+        return Math.max(0, Math.min(13,
+                Math.round(13.0F * SculkSymbioteClientState.exposureValue() / maximum)));
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        return 0x35D0C5;
     }
 }

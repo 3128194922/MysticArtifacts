@@ -22,6 +22,8 @@ import java.util.UUID;
 public final class SculkSymbioteClientState {
     private static final Deque<Marker> MARKERS = new ArrayDeque<>();
     private static boolean active;
+    private static int exposure;
+    private static int exposureMaximum = 1;
 
     private SculkSymbioteClientState() {
     }
@@ -43,11 +45,28 @@ public final class SculkSymbioteClientState {
     public static void setActive(boolean enabled) {
         if (active == enabled) return;
         active = enabled;
-        if (!enabled) MARKERS.clear();
+        if (!enabled) {
+            MARKERS.clear();
+            exposure = 0;
+            exposureMaximum = 1;
+        }
     }
 
     public static boolean isActive() {
         return active;
+    }
+
+    public static void setExposure(int value, int maximum) {
+        exposureMaximum = Math.max(1, maximum);
+        exposure = Math.max(0, Math.min(exposureMaximum, value));
+    }
+
+    public static int exposureValue() {
+        return exposure;
+    }
+
+    public static int exposureMaximum() {
+        return exposureMaximum;
     }
 
     public static void acceptMarkers(List<SculkSymbioteVibrationPacket.Marker> incoming) {
@@ -68,6 +87,8 @@ public final class SculkSymbioteClientState {
 
     public static void clear() {
         MARKERS.clear();
+        exposure = 0;
+        exposureMaximum = 1;
         if (active) setActive(false);
         active = false;
     }

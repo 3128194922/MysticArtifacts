@@ -25,7 +25,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
@@ -36,7 +39,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public class DemonicGestationEntity extends Entity implements IEntityAdditionalSpawnData {
 
@@ -56,6 +58,8 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
     private Vec3 dashGoal;
     private Vec3 dashOrigin = Vec3.ZERO;
     private final Set<Integer> hitIds = new HashSet<>();
+    private ArtifactAiLogic.State aiState = ArtifactAiLogic.State.FOLLOW;
+    private int targetScanCooldown;
 
     public DemonicGestationEntity(EntityType<? extends DemonicGestationEntity> type, Level level) {
         super(type, level);
@@ -144,20 +148,46 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
             return;
         }
 
-        if (this.attackCooldown > 0) {
-            this.attackCooldown--;
-        }
-
         if (this.isDashing()) {
+            this.aiState = ArtifactAiLogic.State.ATTACK;
             tickDash();
         } else {
-            moveToFollowPos(owner);
-            if (this.attackCooldown <= 0) {
-                this.target = findTarget(owner);
-                if (this.target != null) {
-                    startDash();
-                }
+            if (this.attackCooldown > 0) {
+                this.attackCooldown--;
             }
+            moveToFollowPos(owner);
+            tickAi(owner);
+        }
+    }
+
+    private void tickAi(Player owner) {
+        if (this.targetScanCooldown > 0) {
+            this.targetScanCooldown--;
+        }
+
+        boolean targetValid = this.target != null && isValidTarget(this.target, owner)
+                && this.target.distanceToSqr(owner) <= Config.DemonicGestationChargeRange
+                * Config.DemonicGestationChargeRange;
+        if (!targetValid) {
+            this.target = null;
+        }
+
+        boolean closeToFollowPoint = this.position().distanceToSqr(getFollowPosition(owner)) <= 1.0;
+        this.aiState = ArtifactAiLogic.nextState(this.aiState, this.target != null, targetValid,
+                this.attackCooldown <= 0, closeToFollowPoint);
+
+        if (this.aiState == ArtifactAiLogic.State.SEARCH && this.targetScanCooldown <= 0
+                && this.attackCooldown <= 0) {
+            this.target = findTarget(owner);
+            this.targetScanCooldown = 8;
+            this.aiState = this.target == null
+                    ? (closeToFollowPoint ? ArtifactAiLogic.State.FOLLOW : ArtifactAiLogic.State.SEARCH)
+                    : ArtifactAiLogic.State.ATTACK;
+        }
+
+        if (this.aiState == ArtifactAiLogic.State.ATTACK && this.target != null
+                && this.attackCooldown <= 0) {
+            startDash();
         }
     }
 
@@ -194,44 +224,78 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
     @Nullable
     private Entity findTarget(Player owner) {
         boolean dualWorn = ArtifactSpiritItem.isWearing(owner);
-        // When both worn, 器灵 handles the player's active target; prefer 索敌玩家的 targets
-        // for 器魔. Only when no preferred target remains do we fall back (may share a target).
-        LivingEntity excluded = dualWorn ? owner.getLastHurtMob() : null;
         AABB area = owner.getBoundingBox().inflate(Config.DemonicGestationAttackRange);
         List<LivingEntity> candidates = this.level().getEntitiesOfClass(
                 LivingEntity.class, area, e -> isValidTarget(e, owner));
         if (candidates.isEmpty()) return null;
 
-        if (dualWorn && excluded != null) {
-            LivingEntity preferred = nearest(candidates, owner, e -> e != excluded);
-            if (preferred != null) return preferred;
-        }
-        return nearest(candidates, owner, e -> true);
-    }
-
-    private static LivingEntity nearest(List<LivingEntity> list, Player owner,
-                                        Predicate<LivingEntity> filter) {
-        LivingEntity best = null;
-        double bestDist = Double.MAX_VALUE;
-        for (LivingEntity e : list) {
-            if (!filter.test(e)) continue;
-            double d = e.distanceToSqr(owner);
-            if (d < bestDist) {
-                bestDist = d;
-                best = e;
+        int activeTargetId = owner.getLastHurtMob() == null ? -1 : owner.getLastHurtMob().getId();
+        int attackerId = owner.getLastHurtByMob() == null ? -1 : owner.getLastHurtByMob().getId();
+        int spiritTargetId = findSpiritTargetId(owner);
+        List<ArtifactAiLogic.Candidate> snapshots = candidates.stream()
+                .map(candidate -> new ArtifactAiLogic.Candidate(
+                        candidate.getId(),
+                        candidate.distanceToSqr(owner),
+                        candidate.isAlive(),
+                        candidate instanceof Player player && player.isSpectator(),
+                        candidate.isAlliedTo(owner),
+                        hasLineOfSight(owner, candidate),
+                        candidate.getId() == activeTargetId,
+                        candidate.getId() == attackerId,
+                        isTargetingOwner(candidate, owner),
+                        candidate.getId() == spiritTargetId
+                ))
+                .toList();
+        int selectedId = ArtifactAiLogic.chooseTarget(snapshots, activeTargetId, attackerId,
+                ArtifactAiLogic.Role.DEMONIC, dualWorn);
+        for (LivingEntity candidate : candidates) {
+            if (candidate.getId() == selectedId) {
+                return candidate;
             }
         }
-        return best;
+        return null;
     }
 
-    private static boolean isValidTarget(LivingEntity candidate, Player owner) {
+    private int findSpiritTargetId(Player owner) {
+        List<ArtifactSpiritEntity> spirits = this.level().getEntitiesOfClass(
+                ArtifactSpiritEntity.class,
+                owner.getBoundingBox().inflate(32.0),
+                spirit -> owner.getUUID().equals(spirit.getOwnerUUID())
+        );
+        for (ArtifactSpiritEntity spirit : spirits) {
+            Entity spiritTarget = spirit.getCombatTarget();
+            if (spiritTarget != null && spiritTarget.isAlive()) {
+                return spiritTarget.getId();
+            }
+        }
+        return -1;
+    }
+
+    private static boolean isValidTarget(Entity candidate, Player owner) {
+        if (!(candidate instanceof LivingEntity living)) return false;
         if (candidate == owner || !candidate.isAlive()) return false;
         if (candidate instanceof Player p && p.isSpectator()) return false;
+        if (candidate.isInvulnerable() || candidate.isAlliedTo(owner)) return false;
+        if (!hasLineOfSight(owner, candidate)) return false;
 
-        // Actively targeting the player, or last hurt by the player (neutral retaliation)
-        boolean targeting = candidate instanceof Mob mob && mob.getTarget() == owner;
-        boolean retaliating = candidate.getLastHurtByMob() == owner;
-        return targeting || retaliating;
+        return living == owner.getLastHurtMob()
+                || isTargetingOwner(candidate, owner)
+                || living.getLastHurtByMob() == owner;
+    }
+
+    private static boolean isTargetingOwner(Entity candidate, Player owner) {
+        return candidate instanceof Mob mob && mob.getTarget() == owner;
+    }
+
+    private static boolean hasLineOfSight(LivingEntity owner, Entity target) {
+        BlockHitResult hit = owner.level().clip(new ClipContext(
+                owner.getEyePosition(),
+                target.getEyePosition(),
+                ClipContext.Block.OUTLINE,
+                ClipContext.Fluid.NONE,
+                owner
+        ));
+        return hit.getType() == HitResult.Type.MISS;
     }
 
     // ========== Dash (straight-line charge & pierce) ==========
@@ -313,6 +377,13 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
         this.dashGoal = null;
         this.hitIds.clear();
         this.attackCooldown = Config.DemonicGestationAttackCooldown;
+        this.aiState = ArtifactAiLogic.State.COOLDOWN;
+        this.targetScanCooldown = 8;
+    }
+
+    @Nullable
+    public Entity getCombatTarget() {
+        return this.target;
     }
 
     private static double lerp(double from, double to, double factor) {
