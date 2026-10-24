@@ -6,7 +6,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public class NetworkHandler {
-    private static final String PROTOCOL_VERSION = "1.1";
+    private static final String PROTOCOL_VERSION = "1.5";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(MysticArtifacts.MODID, "simple_channel"),
             () -> PROTOCOL_VERSION,
@@ -133,6 +133,13 @@ public class NetworkHandler {
                 DeathScytheTargetPacket::encode,
                 DeathScytheTargetPacket::decode,
                 DeathScytheTargetPacket::handle,
+                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
+        );
+
+        INSTANCE.registerMessage(id++, FlagSpearChargeSyncPacket.class,
+                FlagSpearChargeSyncPacket::encode,
+                FlagSpearChargeSyncPacket::decode,
+                FlagSpearChargeSyncPacket::handle,
                 java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
         );
     }

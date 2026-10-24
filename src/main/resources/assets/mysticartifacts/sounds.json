@@ -7,6 +7,14 @@
             }
         ]
     },
+    "entity.lightning_bottle_burst": {
+        "subtitle": "subtitle.mysticartifacts.lightning_bottle_burst",
+        "sounds": [
+            {
+                "name": "mysticartifacts:lightning_bottle_burst"
+            }
+        ]
+    },
     "entity.ceasing": {
         "subtitle": "subtitle.mysticartifacts.ceasing",
         "sounds": [
@@ -57,13 +65,7 @@
         "subtitle": "subtitle.mysticartifacts.katana_slash",
         "sounds": [
             {
-                "name": "mysticartifacts:katana_slash_1"
-            },
-            {
-                "name": "mysticartifacts:katana_slash_2"
-            },
-            {
-                "name": "mysticartifacts:katana_slash_3"
+                "name": "mysticartifacts:katana_slash"
             }
         ]
     },

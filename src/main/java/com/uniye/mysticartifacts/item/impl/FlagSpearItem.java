@@ -3,6 +3,8 @@ package com.uniye.mysticartifacts.item.impl;
 import com.uniye.mysticartifacts.Config;
 import com.uniye.mysticartifacts.client.render.FlagSpearItemRenderer;
 import com.uniye.mysticartifacts.entity.FlagSpearEntity;
+import com.uniye.mysticartifacts.init.ModItems;
+import com.uniye.mysticartifacts.network.FlagSpearChargeSyncPacket;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -24,11 +26,14 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import java.util.function.Consumer;
 
 public class FlagSpearItem extends SwordItem {
-    public static final int MAX_CHARGE = 5;
+    /** 充能上限：最多 6 层，每层可触发一次左键范围爆发 */
+    public static final int MAX_CHARGE = 6;
     public static final String CHARGE_TAG = "FlagSpearCharge";
-    /** 右键丢出后玩家获得的迅捷时长：2s */
+    /** 投掷出的旗枪实体用于「回收即充能」的虚拟物品标记，防止副本进入背包 */
+    public static final String THROWN_MARKER_TAG = "FlagSpearThrown";
+    /** 右键投掷后玩家获得的迅捷时长：2s */
     public static final int THROW_SPEED_DURATION_TICKS = 40;
-    /** 玩家捡起插住的旗枪后获得的迅捷时长：4s */
+    /** 玩家回收投出的旗枪后获得的迅捷时长：4s */
     public static final int PICKUP_SPEED_DURATION_TICKS = 80;
     private static final int BAR_WIDTH_PIXELS = 13;
     private static final int CHARGE_BAR_COLOR = 0xFFD700;
@@ -46,6 +51,46 @@ public class FlagSpearItem extends SwordItem {
 
     public static void setCharge(ItemStack stack, int charge) {
         stack.getOrCreateTag().putInt(CHARGE_TAG, Math.max(0, Math.min(MAX_CHARGE, charge)));
+    }
+
+    /** 投掷实体携带的虚拟物品：只用于渲染，回收时转化为充能而不是掉落实体物品 */
+    public static boolean isThrownMarker(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        return tag != null && tag.getBoolean(THROWN_MARKER_TAG);
+    }
+
+    /** 打上虚拟标记（副本上操作，不影响玩家手持的那把） */
+    public static ItemStack markThrown(ItemStack stack) {
+        stack.getOrCreateTag().putBoolean(THROWN_MARKER_TAG, true);
+        return stack;
+    }
+
+    /** 投出的旗枪外观：固定为无充能外观，避免实体渲染成满充能状态 */
+    public static ItemStack createThrownDisplayStack() {
+        ItemStack stack = new ItemStack(ModItems.FLAG_SPEAR.get());
+        setCharge(stack, 0);
+        return stack;
+    }
+
+    /**
+     * 回收投出的旗枪时给玩家物品栏里的旗枪充能 +1。
+     * 主手优先，其次背包内第一把；没有旗枪或已达上限则不生效（充能丢失）。
+     *
+     * @return 是否成功充能
+     */
+    public static boolean chargePlayerSpear(Player player) {
+        int slot = FlagSpearChargeSyncPacket.findChargeSlot(player, ModItems.FLAG_SPEAR.get());
+        if (slot < 0) return false;
+
+        ItemStack target = player.getInventory().items.get(slot);
+        int charge = getCharge(target);
+        if (charge >= MAX_CHARGE) return false;
+
+        int updated = charge + 1;
+        setCharge(target, updated);
+        // 立即同步到客户端，让充能条即时刷新
+        FlagSpearChargeSyncPacket.send(player, slot, updated, MAX_CHARGE);
+        return true;
     }
 
     // ------ 耐久条用于显示充能，本体无耐久损耗 ------
@@ -87,9 +132,7 @@ public class FlagSpearItem extends SwordItem {
             spear.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.5F, 1.0F);
             level.addFreshEntity(spear);
 
-            if (!player.getAbilities().instabuild) {
-                stack.shrink(1);
-            }
+            // 主手旗枪保留：投掷的是「旗枪幻影」，回收后为背包里的旗枪充能而非直接入包
             player.getCooldowns().addCooldown(this, Config.FlagSpearThrowCooldown);
             player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, THROW_SPEED_DURATION_TICKS, 0));
             level.playSound(

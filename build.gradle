@@ -130,6 +130,11 @@ if (project.hasProperty('revolverTests')) {
     sourceSets.main.resources.srcDir 'src/test/revolver/resources'
 }
 
+if (project.hasProperty('lightningBottleTests')) {
+    sourceSets.main.java.srcDir 'src/test/lightning-bottle/java'
+    sourceSets.main.resources.srcDir 'src/test/lightning-bottle/resources'
+}
+
 repositories {
     mavenCentral()
     maven {

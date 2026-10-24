@@ -71,6 +71,7 @@ public class ModEntities {
                     .build("two_dragons_play_ball")
     );
 
+
     public static final RegistryObject<EntityType<TwoDragonsFanEntity>> TWO_DRAGONS_FAN = ENTITIES.register("two_dragons_fan",
             () -> EntityType.Builder.<TwoDragonsFanEntity>of(TwoDragonsFanEntity::new, MobCategory.MISC)
                     .sized(0.5f, 0.5f)

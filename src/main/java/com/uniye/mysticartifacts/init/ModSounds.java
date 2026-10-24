@@ -15,6 +15,8 @@ public class ModSounds {
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.ceasing")));
     public static final RegistryObject<SoundEvent> LIGHTNING_BOTTLE_ZAP = SOUNDS.register("entity.lightning_bottle_zap",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.lightning_bottle_zap")));
+    public static final RegistryObject<SoundEvent> LIGHTNING_BOTTLE_BURST = SOUNDS.register("entity.lightning_bottle_burst",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.lightning_bottle_burst")));
     public static final RegistryObject<SoundEvent> BELL_TOLL = SOUNDS.register("entity.bell_toll",
             () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(MysticArtifacts.MODID, "entity.bell_toll")));
     public static final RegistryObject<SoundEvent> BELL_TOLL_FAIL = SOUNDS.register("entity.bell_toll_fail",

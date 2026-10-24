@@ -132,9 +132,14 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
     public void tick() {
         super.tick();
 
-        if (this.level().isClientSide) return;
-
         Player owner = getOwnerPlayer();
+
+        if (this.level().isClientSide) {
+            if (owner != null && !this.isDashing()) {
+                moveToFollowPos(owner);
+            }
+            return;
+        }
 
         // Validate owner
         if (owner == null || !owner.isAlive() || owner.isSpectator()) {
@@ -327,17 +332,6 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
 
         Vec3 cur = this.position();
 
-        // Mild homing so a moving target is still reached (keeps path mostly straight)
-        if (this.target != null && this.target.isAlive()) {
-            Vec3 toTarget = this.target.position().add(0, this.target.getBbHeight() * 0.5, 0)
-                    .subtract(cur);
-            if (toTarget.lengthSqr() > 1e-6) {
-                dir = toTarget.normalize();
-                this.dashDir = dir;
-                updateHeading(dir);
-            }
-        }
-
         Vec3 next = cur.add(dir.scale(Config.DemonicGestationChargeSpeed));
         this.setDeltaMovement(dir.scale(Config.DemonicGestationChargeSpeed));
         this.setPos(next.x, next.y, next.z);
@@ -352,8 +346,10 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
             this.hitIds.add(living.getId());
         }
 
-        // End dash when goal reached, range exceeded, or target is gone
-        boolean reachedGoal = this.dashGoal != null && next.distanceToSqr(this.dashGoal) < 0.7;
+        // End after crossing the fixed point selected at dash start, even if a step overshoots it.
+        double progress = next.subtract(this.dashOrigin).dot(dir);
+        boolean reachedGoal = this.dashGoal != null
+                && progress >= this.dashGoal.subtract(this.dashOrigin).length();
         boolean exceededRange = cur.distanceToSqr(this.dashOrigin)
                 > Config.DemonicGestationChargeRange * Config.DemonicGestationChargeRange;
         boolean targetGone = (this.target == null || !this.target.isAlive())
@@ -388,6 +384,13 @@ public class DemonicGestationEntity extends Entity implements IEntityAdditionalS
 
     private static double lerp(double from, double to, double factor) {
         return from + (to - from) * factor;
+    }
+
+    @Override
+    public void lerpTo(double x, double y, double z, float yRot, float xRot, int lerpSteps, boolean teleport) {
+        if (this.isDashing()) {
+            super.lerpTo(x, y, z, yRot, xRot, lerpSteps, teleport);
+        }
     }
 
     // ========== Persistence ==========
