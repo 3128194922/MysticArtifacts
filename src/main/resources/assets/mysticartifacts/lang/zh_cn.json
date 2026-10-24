@@ -64,6 +64,8 @@
     "item.mysticartifacts.ancestors_letter": "圣焰",
     "item.mysticartifacts.trail_sight": "幽匿共生体",
     "item.mysticartifacts.lightning_bottle": "雷电瓶",
+    "death.attack.mysticartifacts.lightning_bottle_chain": "%1$s 被雷电瓶的连锁闪电击杀了。",
+    "death.attack.mysticartifacts.lightning_bottle_chain.player": "%1$s 被 %2$s 的雷电瓶连锁闪电击杀了。",
     "death.attack.spear": "%1$s 被长矛刺穿了",
     "death.attack.spear.player": "%1$s 被 %2$s 用长矛刺穿了",
     "item.mysticartifacts.jiba_revolver": "机霸左轮",

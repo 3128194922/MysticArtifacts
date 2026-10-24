@@ -21,6 +21,7 @@ public class ModDamageTypes {
     public static final ResourceKey<DamageType> IAIDO = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "iaido"));
     public static final ResourceKey<DamageType> KATANA_GHOST_SLASH = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "katana_ghost_slash"));
     public static final ResourceKey<DamageType> SPEAR = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "spear"));
+    public static final ResourceKey<DamageType> LIGHTNING_BOTTLE_CHAIN = ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(MysticArtifacts.MODID, "lightning_bottle_chain"));
     public static DamageSource getSimpleDamageSource(Level level, ResourceKey<DamageType> type) {
         return new DamageSource(level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(type));
     }
