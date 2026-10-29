@@ -23,6 +23,7 @@ import java.util.UUID;
 @Mod.EventBusSubscriber(modid = MysticArtifacts.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class AllSeeingEyeEvents {
 
+    private static final double RECENTER_DISTANCE_SQR = 16.0D * 16.0D;
     private static final Map<UUID, SpectateInfo> SPECTATES = new HashMap<>();
 
     private record SpectateInfo(
@@ -125,7 +126,13 @@ public class AllSeeingEyeEvents {
                 continue;
             }
 
-            teleportToTarget(watcher, target);
+            // Keep the target and nearby chunks tracked without correcting the observer's
+            // position every server tick. The client camera follows the target independently.
+            double dx = watcher.getX() - target.getX();
+            double dz = watcher.getZ() - target.getZ();
+            if (dx * dx + dz * dz > RECENTER_DISTANCE_SQR) {
+                teleportToTarget(watcher, target);
+            }
         }
     }
 
