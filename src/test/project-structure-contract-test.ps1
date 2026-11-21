@@ -11,8 +11,7 @@ if ($mainText -match 'net\.minecraft\.client') {
 $requiredSources = @(
     'src/main/java/com/uniye/mysticartifacts/init/ModItems.java',
     'src/main/java/com/uniye/mysticartifacts/init/ModEntities.java',
-    'src/main/java/com/uniye/mysticartifacts/init/ModSounds.java',
-    'src/main/java/com/uniye/mysticartifacts/revolver/RevolverRegistries.java'
+    'src/main/java/com/uniye/mysticartifacts/init/ModSounds.java'
 )
 
 foreach ($relativePath in $requiredSources) {
@@ -28,7 +27,7 @@ if ($exampleMatches) {
     throw 'Java package path contains forbidden example token.'
 }
 
-$registeredIds = @('jiba_revolver', 'revolver_bullet', 'revolver_cylinder', 'mysticartifacts')
+$registeredIds = @('mysticartifacts')
 foreach ($id in $registeredIds) {
     $pattern = [regex]::Escape($id)
     $matches = $javaFiles | Select-String -Pattern $pattern -CaseSensitive

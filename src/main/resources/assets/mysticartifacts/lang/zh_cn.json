@@ -67,20 +67,5 @@
     "death.attack.mysticartifacts.lightning_bottle_chain": "%1$s 被雷电瓶的连锁闪电击杀了。",
     "death.attack.mysticartifacts.lightning_bottle_chain.player": "%1$s 被 %2$s 的雷电瓶连锁闪电击杀了。",
     "death.attack.spear": "%1$s 被长矛刺穿了",
-    "death.attack.spear.player": "%1$s 被 %2$s 用长矛刺穿了",
-    "item.mysticartifacts.jiba_revolver": "机霸左轮",
-    "item.mysticartifacts.revolver_cartridge": "左轮实弹",
-    "item.mysticartifacts.revolver_casing": "左轮弹壳",
-    "container.mysticartifacts.revolver": "机霸左轮 · 弹巢",
-    "tooltip.mysticartifacts.revolver.ammo": "实弹：%s / 6",
-    "tooltip.mysticartifacts.revolver.controls": "左键击发 · 右键取壳装弹",
-    "entity.mysticartifacts.revolver_bullet": "左轮弹丸",
-    "subtitle.mysticartifacts.revolver.fire": "左轮开火",
-    "subtitle.mysticartifacts.revolver.dry_fire": "击锤空响",
-    "subtitle.mysticartifacts.revolver.open": "弹巢打开",
-    "subtitle.mysticartifacts.revolver.close": "弹巢闭合",
-    "subtitle.mysticartifacts.revolver.load": "弹药装卸",
-    "item.mysticartifacts.c4_detonator": "C4起爆器",
-    "entity.mysticartifacts.c4_bomb": "C4炸弹",
-    "tooltip.mysticartifacts.c4_detonator.controls": "左键投掷 C4 · 右键引爆你投出的 C4"
+    "death.attack.spear.player": "%1$s 被 %2$s 用长矛刺穿了"
 }

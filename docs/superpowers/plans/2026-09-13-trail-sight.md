@@ -221,7 +221,6 @@ Run:
 
 ```text
 powershell -ExecutionPolicy Bypass -File src/test/trail-sight-wiring-contract-test.ps1
-powershell -ExecutionPolicy Bypass -File src/test/revolver-tests.ps1
 ./gradlew.bat compileJava
 ./gradlew.bat build
 ```

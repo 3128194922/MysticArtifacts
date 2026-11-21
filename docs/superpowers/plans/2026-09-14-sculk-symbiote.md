@@ -236,7 +236,7 @@ git commit -m "feat: render sculk vibration markers"
 
 - [ ] **Step 4: Run final verification**
 
-运行所有 `src/test/sculk-symbiote-*.ps1`、已有 trail-sight/revolver 测试、资源 JSON 解析、`git diff --check`，然后尝试 `./gradlew.bat compileJava`。若 Gradle 仍遇到环境权限错误，只报告该环境阻塞，不把它归因于源码。
+运行所有 `src/test/sculk-symbiote-*.ps1`、已有 trail-sight 测试、资源 JSON 解析、`git diff --check`，然后尝试 `./gradlew.bat compileJava`。若 Gradle 仍遇到环境权限错误，只报告该环境阻塞，不把它归因于源码。
 
 - [ ] **Step 5: Commit verified resource changes**
 

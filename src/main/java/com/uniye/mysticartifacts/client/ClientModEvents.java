@@ -81,9 +81,6 @@ public final class ClientModEvents {
         EntityRenderers.register(ModEntities.FLAME_PROJECTILE.get(), FlameProjectileRenderer::new);
         EntityRenderers.register(ModEntities.KATANA_SLASH.get(), KatanaSlashRenderer::new);
         EntityRenderers.register(ModEntities.KATANA_CIRCLE_SLASH.get(), KatanaCircleSlashRenderer::new);
-        EntityRenderers.register(ModEntities.C4_BOMB.get(), C4BombRenderer::new);
-
-
 
         CuriosRendererRegistry.register(ModItems.SWORD_SWARM_CHARM.get(), SwordSwarmCharmRenderer::new);
 

@@ -6,7 +6,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public class NetworkHandler {
-    private static final String PROTOCOL_VERSION = "1.5";
+    private static final String PROTOCOL_VERSION = "1.6";
     public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(MysticArtifacts.MODID, "simple_channel"),
             () -> PROTOCOL_VERSION,
@@ -16,10 +16,6 @@ public class NetworkHandler {
 
     public static void register() {
         int id = 0;
-        INSTANCE.registerMessage(id++, RevolverFirePacket.class, RevolverFirePacket::encode, RevolverFirePacket::decode,
-                RevolverFirePacket::handle, java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER));
-        INSTANCE.registerMessage(id++, RevolverFeedbackPacket.class, RevolverFeedbackPacket::encode, RevolverFeedbackPacket::decode,
-                RevolverFeedbackPacket::handle, java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT));
         INSTANCE.registerMessage(id++, TeleportToKunaiPacket.class,
                 TeleportToKunaiPacket::encode,
                 TeleportToKunaiPacket::decode,
@@ -115,14 +111,6 @@ public class NetworkHandler {
                 java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_CLIENT)
         );
 
-        INSTANCE.registerMessage(id++, C4ThrowPacket.class,
-                C4ThrowPacket::encode,
-                C4ThrowPacket::decode,
-                C4ThrowPacket::handle,
-                java.util.Optional.of(net.minecraftforge.network.NetworkDirection.PLAY_TO_SERVER)
-        );
-
-        id = Math.max(id, 18); // ID 17 is reserved for the existing C4 packet change.
         INSTANCE.registerMessage(id++, DeathScytheSlashPacket.class,
                 DeathScytheSlashPacket::encode,
                 DeathScytheSlashPacket::decode,

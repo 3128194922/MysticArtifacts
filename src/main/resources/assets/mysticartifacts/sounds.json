@@ -85,46 +85,6 @@
             }
         ]
     },
-    "revolver.fire": {
-        "subtitle": "subtitle.mysticartifacts.revolver.fire",
-        "sounds": [
-            {
-                "name": "mysticartifacts:revolver/fire"
-            }
-        ]
-    },
-    "revolver.dry_fire": {
-        "subtitle": "subtitle.mysticartifacts.revolver.dry_fire",
-        "sounds": [
-            {
-                "name": "mysticartifacts:revolver/dry_fire"
-            }
-        ]
-    },
-    "revolver.open": {
-        "subtitle": "subtitle.mysticartifacts.revolver.open",
-        "sounds": [
-            {
-                "name": "mysticartifacts:revolver/open"
-            }
-        ]
-    },
-    "revolver.close": {
-        "subtitle": "subtitle.mysticartifacts.revolver.close",
-        "sounds": [
-            {
-                "name": "mysticartifacts:revolver/close"
-            }
-        ]
-    },
-    "revolver.load": {
-        "subtitle": "subtitle.mysticartifacts.revolver.load",
-        "sounds": [
-            {
-                "name": "mysticartifacts:revolver/load"
-            }
-        ]
-    },
     "entity.flag_spear_burst": {
         "subtitle": "subtitle.mysticartifacts.flag_spear_burst",
         "sounds": [

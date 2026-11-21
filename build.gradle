@@ -125,11 +125,6 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 // Opt-in integration fixtures: never included in the distributable production build.
-if (project.hasProperty('revolverTests')) {
-    sourceSets.main.java.srcDir 'src/test/revolver/java'
-    sourceSets.main.resources.srcDir 'src/test/revolver/resources'
-}
-
 if (project.hasProperty('lightningBottleTests')) {
     sourceSets.main.java.srcDir 'src/test/lightning-bottle/java'
     sourceSets.main.resources.srcDir 'src/test/lightning-bottle/resources'

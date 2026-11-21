@@ -17,7 +17,7 @@
 - 保持 Minecraft 1.20.1、Forge 47.4.6、Java 17。
 - 保持 `com.uniye.mysticartifacts` 包根，Java 包路径不得出现 `example`。
 - 保持所有注册名、资源路径、网络协议、配置键、配置默认值和配置文件名。
-- 不覆盖、删除、重命名当前工作区中未提交的左轮、武士刀、测试或文档文件。
+- 不覆盖、删除、重命名当前工作区中未提交的武士刀、测试或文档文件。
 - 不进行全量功能包迁移；现有功能类只在编译需要时调整导入。
 - 每次提交只暂存本任务明确列出的文件，不能使用全量 `git add`。
 
@@ -31,7 +31,6 @@
 - Reference: `src/main/java/com/uniye/mysticartifacts/init/ModItems.java`
 - Reference: `src/main/java/com/uniye/mysticartifacts/init/ModEntities.java`
 - Reference: `src/main/java/com/uniye/mysticartifacts/init/ModSounds.java`
-- Reference: `src/main/java/com/uniye/mysticartifacts/revolver/RevolverRegistries.java`
 
 **Interfaces:**
 - Produces: a PowerShell executable contract check that exits non-zero when the main class still contains client-only imports, required registration IDs disappear, or Java packages contain `example`.
@@ -55,8 +54,7 @@ if ($mainText -match 'net\.minecraft\.client') {
 $requiredSources = @(
     'src/main/java/com/uniye/mysticartifacts/init/ModItems.java',
     'src/main/java/com/uniye/mysticartifacts/init/ModEntities.java',
-    'src/main/java/com/uniye/mysticartifacts/init/ModSounds.java',
-    'src/main/java/com/uniye/mysticartifacts/revolver/RevolverRegistries.java'
+    'src/main/java/com/uniye/mysticartifacts/init/ModSounds.java'
 )
 
 foreach ($relativePath in $requiredSources) {
@@ -72,7 +70,7 @@ if ($exampleMatches) {
     throw 'Java package path contains forbidden example token.'
 }
 
-$registeredIds = @('jiba_revolver', 'revolver_bullet', 'revolver_cylinder', 'mysticartifacts')
+$registeredIds = @('mysticartifacts')
 foreach ($id in $registeredIds) {
     $matches = $javaFiles | Select-String -Pattern [regex]::Escape($id) -CaseSensitive
     if (-not $matches) {
@@ -108,10 +106,8 @@ git commit -m "test: add project structure contract"
 - Create: `src/main/java/com/uniye/mysticartifacts/compat/QuarkCompat.java`
 - Modify: `src/main/java/com/uniye/mysticartifacts/Config.java`
 - Modify: `src/main/java/com/uniye/mysticartifacts/MysticArtifacts.java`
-- Review-only: `src/main/java/com/uniye/mysticartifacts/revolver/RevolverRegistries.java`
-
 **Interfaces:**
-- `ModRegistries.register(IEventBus eventBus)` calls the existing item, entity, sound, creative-tab, revolver menu, and revolver sound registration methods exactly once.
+- `ModRegistries.register(IEventBus eventBus)` calls the existing item, entity, sound, and creative-tab registration methods exactly once.
 - `ModConfigs.register()` registers the existing COMMON, SERVER, and CLIENT specs with their current file names.
 - `QuarkCompat.register()` performs the current Quark presence check and registers `CodexAnvilHandler` only when Quark is loaded.
 
@@ -125,8 +121,6 @@ public static void register(IEventBus eventBus) {
     ModEntities.register(eventBus);
     ModSounds.register(eventBus);
     ModCreativeModTabs.register(eventBus);
-    RevolverRegistries.MENUS.register(eventBus);
-    RevolverRegistries.SOUNDS.register(eventBus);
 }
 ```
 
@@ -143,8 +137,6 @@ Create `ModConfigs` with this registration contract:
 ```java
 public static void register() {
     ModLoadingContext context = ModLoadingContext.get();
-    context.registerConfig(ModConfig.Type.SERVER,
-            RevolverConfig.SPEC, "mysticartifacts-revolver-server.toml");
     context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     context.registerConfig(ModConfig.Type.CLIENT,
             TrailSightClientConfig.SPEC,

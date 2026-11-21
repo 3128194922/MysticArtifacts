@@ -1,6 +1,5 @@
 package com.uniye.mysticartifacts.init;
 
-import com.uniye.mysticartifacts.revolver.RevolverRegistries;
 import net.minecraftforge.eventbus.api.IEventBus;
 
 public final class ModRegistries {
@@ -12,7 +11,5 @@ public final class ModRegistries {
         ModEntities.register(eventBus);
         ModSounds.register(eventBus);
         ModCreativeModTabs.register(eventBus);
-        RevolverRegistries.MENUS.register(eventBus);
-        RevolverRegistries.SOUNDS.register(eventBus);
     }
 }

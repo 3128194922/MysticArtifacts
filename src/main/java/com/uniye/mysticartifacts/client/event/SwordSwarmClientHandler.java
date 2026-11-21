@@ -24,7 +24,7 @@ public class SwordSwarmClientHandler {
         if (!SwordSwarmCharm.isWearing(mc.player)) return;
 
         if (event.isAttack()) {
-            if (!mc.player.getMainHandItem().is(com.uniye.mysticartifacts.init.ModItems.JIBA_REVOLVER.get())) event.setSwingHand(true);
+            event.setSwingHand(true);
         }
     }
     
@@ -41,7 +41,6 @@ public class SwordSwarmClientHandler {
         lastFireTime = now;
         
         NetworkHandler.INSTANCE.sendToServer(new SwordSwarmAttackPacket());
-        if (!mc.player.getMainHandItem().is(com.uniye.mysticartifacts.init.ModItems.JIBA_REVOLVER.get()))
-            mc.player.swing(mc.player.getUsedItemHand());
+        mc.player.swing(mc.player.getUsedItemHand());
     }
 }

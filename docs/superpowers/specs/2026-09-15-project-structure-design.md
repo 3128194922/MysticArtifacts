@@ -8,9 +8,9 @@
 
 - `MysticArtifacts.java` 同时负责 DeferredRegister 注册、网络初始化、配置注册、Quark 可选集成、服务器事件和客户端渲染注册。
 - 客户端渲染器、`ItemProperties` 和 GUI overlay 直接位于主模组类的嵌套客户端订阅器中，主入口因此直接引用 `net.minecraft.client` 类型。
-- 通用注册表位于 `init`，左轮的菜单和声音注册表位于 `revolver`，入口类需要了解两套注册位置。
+- 通用注册表位于 `init`，入口类通过统一注册入口调用各注册类。
 - 配置注册逻辑、可选 Quark 集成逻辑与模组启动编排耦合在一起。
-- 当前工作区包含未提交的左轮、武士刀和测试改动，结构整理不能覆盖、删除或重命名这些改动。
+- 当前工作区包含未提交的武士刀和测试改动，结构整理不能覆盖、删除或重命名这些改动。
 
 ## 设计边界
 
@@ -29,7 +29,6 @@
 - 新增少量启动编排类。
 - 将主模组类中的客户端初始化代码移到独立客户端事件类。
 - 将配置注册和 Quark 检测提取为独立入口。
-- 对 `RevolverRegistries.java` 做仅限导入、格式和可读性的整理。
 - 新增结构契约检查脚本。
 
 ## 目标结构
@@ -51,7 +50,7 @@ com.uniye.mysticartifacts
     └── ClientModEvents.java   # 客户端渲染、GUI 与模型属性注册
 ```
 
-`revolver/RevolverRegistries.java` 继续保留在左轮功能包中，由 `ModRegistries` 统一调用。这样既不改变左轮功能的现有边界，也避免主入口直接维护多处注册细节。
+现有功能专属注册表保留在各自功能包中，由 `ModRegistries` 统一调用。这样既保持功能边界，也避免主入口直接维护多处注册细节。
 
 ## 运行流程
 
@@ -75,8 +74,6 @@ com.uniye.mysticartifacts
 2. `ModEntities.register(eventBus)`。
 3. `ModSounds.register(eventBus)`。
 4. `ModCreativeModTabs.register(eventBus)`。
-5. `RevolverRegistries.MENUS.register(eventBus)`。
-6. `RevolverRegistries.SOUNDS.register(eventBus)`。
 
 所有现有 `RegistryObject` 字段和注册 ID 保持原样。
 
@@ -85,7 +82,6 @@ com.uniye.mysticartifacts
 `ModConfigs.register()` 统一调用现有的 `ModLoadingContext.registerConfig`：
 
 - `Config.SPEC`：COMMON。
-- `RevolverConfig.SPEC`：SERVER，保留 `mysticartifacts-revolver-server.toml` 文件名。
 - `TrailSightClientConfig.SPEC`：CLIENT，保留 `mysticartifacts-trail-sight-client.toml` 文件名。
 
 配置项名称、默认值、范围和加载事件不变。仅调整 `Config.SPEC` 的访问级别以支持独立注册入口。
