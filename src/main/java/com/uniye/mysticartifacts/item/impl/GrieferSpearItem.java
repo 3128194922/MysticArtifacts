@@ -36,8 +36,11 @@ public class GrieferSpearItem extends SpearItem {
     }
 
     @Override
-    protected void pierceAttack(Level level, Player player, ItemStack stack) {
-        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, e -> canHitEntity(player, e) && isWithinRange(player, e))) {
+    protected void pierceAttack(Level level, LivingEntity player, ItemStack stack) {
+        if (level.isClientSide()) return;
+
+        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, getRangeScale(player),
+                e -> canHitEntity(player, e) && isWithinRange(player, e, getRangeScale(player)))) {
             Entity entity = entityHitResult.getEntity();
 
             if (entity instanceof net.minecraftforge.entity.PartEntity<?> partEntity) {
@@ -65,8 +68,10 @@ public class GrieferSpearItem extends SpearItem {
                     Level.ExplosionInteraction.NONE
             );
 
-            player.stopUsingItem();
-            player.getCooldowns().addCooldown(this, CONTACT_COOLDOWN_TICKS);
+            if (player instanceof Player realPlayer) {
+                realPlayer.stopUsingItem();
+                realPlayer.getCooldowns().addCooldown(this, CONTACT_COOLDOWN_TICKS);
+            }
             break;
         }
     }

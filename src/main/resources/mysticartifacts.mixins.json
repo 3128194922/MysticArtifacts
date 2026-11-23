@@ -6,13 +6,18 @@
   "refmap": "mysticartifacts.refmap.json",
   "mixins": [
     "ItemCooldownsMixin",
-    "ServerItemCooldownsAccessor"
+    "ServerItemCooldownsAccessor",
+    "MobSpearMixin",
+    "MeleeAttackGoalMixin"
   ],
   "client": [
     "LocalPlayerMixin",
     "EntityRenderDispatcherMixin",
     "KatanaModelMixin",
-    "KatanaRenderMixin"
+    "KatanaRenderMixin",
+    "HumanoidSpearPoseMixin",
+    "ZombieSpearPoseMixin",
+    "PiglinSpearPoseMixin"
   ],
   "injectors": {
     "defaultRequire": 1

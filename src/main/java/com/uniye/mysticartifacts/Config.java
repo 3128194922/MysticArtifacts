@@ -107,6 +107,13 @@ public class Config
             .comment("Ticks a planted Flag Spear keeps bursting before dropping as an item. Default 200 = 10s.")
             .defineInRange("FlagSpearGroundDuration", 200, 20, 12000);
 
+    private static final ForgeConfigSpec.ConfigValue<Double> SPEAR_MOB_SPAWN_CHANCE = BUILDER
+            .comment("Chance for a zombie/piglin-type mob to spawn holding the Amethyst Spear. 0 disables it.")
+            .defineInRange("SpearMobSpawnChance", 0.05, 0.0, 1.0);
+    private static final ForgeConfigSpec.ConfigValue<Double> SPEAR_MOB_DROP_CHANCE = BUILDER
+            .comment("Drop chance of a mob-spawned spear when that mob dies.")
+            .defineInRange("SpearMobDropChance", 0.02, 0.0, 2.0);
+
     private static final ForgeConfigSpec.ConfigValue<Double> DEATH_EYE_RENDER_RANGE = BUILDER
             .comment("Death Eye execution line render range")
             .defineInRange("DeathEyeRenderRange", 36.0, 0.0, 255.0);
@@ -247,6 +254,9 @@ public class Config
     public static double FlagSpearBurstRange;
     public static int FlagSpearBurstInterval;
     public static int FlagSpearGroundDuration;
+
+    public static double SpearMobSpawnChance;
+    public static double SpearMobDropChance;
     
     public static double DeathEyeRenderRange;
     
@@ -319,6 +329,9 @@ public class Config
         FlagSpearBurstRange = FLAG_SPEAR_BURST_RANGE.get();
         FlagSpearBurstInterval = FLAG_SPEAR_BURST_INTERVAL.get();
         FlagSpearGroundDuration = FLAG_SPEAR_GROUND_DURATION.get();
+
+        SpearMobSpawnChance = SPEAR_MOB_SPAWN_CHANCE.get();
+        SpearMobDropChance = SPEAR_MOB_DROP_CHANCE.get();
         
         DeathEyeRenderRange = DEATH_EYE_RENDER_RANGE.get();
         

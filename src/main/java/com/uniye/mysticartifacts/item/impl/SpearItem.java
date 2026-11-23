@@ -45,6 +45,7 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.entity.PartEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,22 +57,45 @@ import java.util.function.Predicate;
 public class SpearItem extends SwordItem {
 
     protected static final float HITBOX_MARGIN = 0.3F;
-    protected static final int DELAY_TICKS = 10;
+    public static final int DELAY_TICKS = 10;
     protected static final int CONTACT_COOLDOWN_TICKS = 10;
     protected static final int CHECK_INTERVAL = 3;
+    /** 怪物持矛时相对玩家的距离/判定缩减，避免怪物无脑超远距离戳刺 */
+    protected static final float MOB_RANGE_SCALE = 0.8F;
+    /** 怪物视角判定的最小前方夹角（点积），约 69 度 */
+    protected static final double FACING_DOT = 0.35D;
 
     protected final float maxRange;
     protected final float minRange;
+    protected final int swingTicks;
 
     public SpearItem(Tier tier, int attackDamageModifier, float attackSpeedModifier, Properties properties,
                      float minRange, float maxRange) {
         super(tier, attackDamageModifier, attackSpeedModifier, properties.stacksTo(1));
         this.minRange = minRange;
         this.maxRange = maxRange;
+        this.swingTicks = Math.max(4, Math.round(20.0F / Math.max(0.1F, 4.0F + attackSpeedModifier)));
     }
 
     public SpearItem(Tier tier, int attackDamageModifier, float attackSpeedModifier, Properties properties) {
         this(tier, attackDamageModifier, attackSpeedModifier, properties, 1.5F, 4.5F);
+    }
+
+    public float getMinRange() {
+        return minRange;
+    }
+
+    public float getMaxRange() {
+        return maxRange;
+    }
+
+    public int getSwingTicks() {
+        return swingTicks;
+    }
+
+    /** 玩家使用完整距离，怪物缩短，避免刷怪后远程压制 */
+    public float getRangeScale(LivingEntity user) {
+        return user instanceof Player ? 1.0F : MOB_RANGE_SCALE;
     }
 
     @Override
@@ -101,7 +125,10 @@ public class SpearItem extends SwordItem {
     public @NotNull InteractionResultHolder<ItemStack> use(Level level, Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         player.startUsingItem(hand);
-        player.playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F);
+        if (!level.isClientSide) {
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.TRIDENT_HIT, player.getSoundSource(), 1.0F, 1.0F);
+        }
         return InteractionResultHolder.consume(stack);
     }
 
@@ -117,51 +144,169 @@ public class SpearItem extends SwordItem {
 
     @Override
     public void onUseTick(Level level, @NotNull LivingEntity user, @NotNull ItemStack stack, int count) {
-        if (!(user instanceof Player player) || level.isClientSide()) return;
+        if (level.isClientSide()) return;
 
         int chargeTime = getUseDuration(stack) - count;
         if (chargeTime < DELAY_TICKS) return;
         if (chargeTime % CHECK_INTERVAL != 0) return;
 
-        pierceAttack(level, player, stack);
+        pierceAttack(level, user, stack);
     }
 
-    protected void pierceAttack(Level level, Player player, ItemStack stack) {
-        float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+    /** 右键蓄力突刺：按使用者（玩家/怪物）自身视角沿头部朝向穿透 */
+    protected void pierceAttack(Level level, LivingEntity user, ItemStack stack) {
+        if (level.isClientSide()) return;
 
-        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, e -> canHitEntity(player, e) && isWithinRange(player, e))) {
-            Entity entity = entityHitResult.getEntity();
+        float damage = (float) user.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        float scale = getRangeScale(user);
+        boolean hit = false;
 
-            if (entity instanceof net.minecraftforge.entity.PartEntity<?> partEntity) {
-                entity = partEntity.getParent();
-            }
+        for (EntityHitResult entityHitResult : getHitEntitiesAlong(user, HITBOX_MARGIN, scale,
+                e -> canHitEntity(user, e) && isWithinRange(user, e, scale))) {
+            Entity entity = resolvePart(entityHitResult.getEntity());
+            if (entity == null || entity == user || entity.isPassengerOfSameVehicle(user)) continue;
 
             float finalDamage = damage;
             if (entity instanceof LivingEntity livingTarget) {
                 finalDamage += EnchantmentHelper.getDamageBonus(stack, livingTarget.getMobType());
             }
 
-            DamageSource source = ModDamageTypes.getSource(level, ModDamageTypes.SPEAR, player, player);
-
+            DamageSource source = ModDamageTypes.getSource(level, ModDamageTypes.SPEAR, user, user);
             if (entity.hurt(source, finalDamage)) {
-                stack.hurtEnemy(entity instanceof LivingEntity living ? living : null, player);
+                hit = true;
                 if (entity instanceof LivingEntity living) {
-                    EnchantmentHelper.doPostHurtEffects(living, player);
+                    EnchantmentHelper.doPostHurtEffects(living, user);
+                    applyKnockback(user, living);
+                    if (user instanceof Player player) {
+                        if (!stack.isEmpty()) stack.hurtEnemy(living, player);
+                    }
                 }
-                EnchantmentHelper.doPostDamageEffects(player, entity);
-                player.setLastHurtMob(entity);
-                player.stopUsingItem();
-                player.getCooldowns().addCooldown(this, CONTACT_COOLDOWN_TICKS);
+                EnchantmentHelper.doPostDamageEffects(user, entity);
+                if (user instanceof Player player) {
+                    player.setLastHurtMob(entity);
+                    player.stopUsingItem();
+                    player.getCooldowns().addCooldown(this, CONTACT_COOLDOWN_TICKS);
+                } else if (!stack.isEmpty()) {
+                    stack.hurtAndBreak(1, user, e -> e.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+                }
             }
+        }
+
+        if (hit) {
+            level.playSound(null, user.getX(), user.getY(), user.getZ(),
+                    SoundEvents.TRIDENT_HIT, user.getSoundSource(), 1.0F, 1.0F);
         }
     }
 
+    /**
+     * 近战突刺（左键/怪物 AI）。多目标穿透，且不叠加原版剑击伤害；
+     * 射线打空时用“怪物自身视角 + 前方夹角”回退到首选目标。
+     */
+    public boolean stab(@NotNull LivingEntity attacker, @NotNull EquipmentSlot slot, @Nullable Entity preferredTarget) {
+        Level level = attacker.level();
+        if (level.isClientSide()) return false;
+
+        ItemStack stack = attacker.getItemBySlot(slot);
+        if (!(stack.getItem() instanceof SpearItem)) return false;
+
+        float damage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        float scale = getRangeScale(attacker);
+        List<Entity> targets = new ArrayList<>();
+
+        for (EntityHitResult entityHitResult : getHitEntitiesAlong(attacker, HITBOX_MARGIN, scale,
+                e -> canHitEntity(attacker, e) && isWithinRange(attacker, e, scale))) {
+            Entity entity = resolvePart(entityHitResult.getEntity());
+            if (entity != null && entity != attacker && !targets.contains(entity)) {
+                targets.add(entity);
+            }
+        }
+
+        Entity primary = resolvePart(preferredTarget);
+        if (primary != null && primary != attacker && !targets.contains(primary)
+                && canHitEntity(attacker, primary)
+                && isWithinRange(attacker, primary, scale)
+                && isFacing(attacker, primary, scale)) {
+            targets.add(primary);
+        }
+
+        boolean hit = false;
+        for (Entity target : targets) {
+            if (target.isPassengerOfSameVehicle(attacker)) continue;
+
+            float finalDamage = damage;
+            if (target instanceof LivingEntity livingTarget) {
+                finalDamage += EnchantmentHelper.getDamageBonus(stack, livingTarget.getMobType());
+            }
+
+            DamageSource source = ModDamageTypes.getSource(level, ModDamageTypes.SPEAR, attacker, attacker);
+            if (target.hurt(source, finalDamage)) {
+                hit = true;
+                if (target instanceof LivingEntity living) {
+                    EnchantmentHelper.doPostHurtEffects(living, attacker);
+                    applyKnockback(attacker, living);
+                }
+                EnchantmentHelper.doPostDamageEffects(attacker, target);
+
+                if (attacker instanceof Player player) {
+                    player.setLastHurtMob(target);
+                    player.causeFoodExhaustion(0.1F);
+                    if (!stack.isEmpty()) {
+                        stack.hurtEnemy(target instanceof LivingEntity living ? living : null, player);
+                    }
+                } else if (!stack.isEmpty()) {
+                    stack.hurtAndBreak(1, attacker, e -> e.broadcastBreakEvent(slot));
+                }
+            }
+            if (stack.isEmpty()) break;
+        }
+
+        if (hit) {
+            level.playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(),
+                    SoundEvents.TRIDENT_HIT, attacker.getSoundSource(), 1.0F, 1.0F);
+            if (attacker instanceof Player player) {
+                Vec3 look = getHeadLookAngle(player);
+                player.push(look.x * 0.28D, 0.0D, look.z * 0.28D);
+            }
+        }
+        return hit;
+    }
+
+    protected static void applyKnockback(LivingEntity attacker, LivingEntity target) {
+        float strength = 0.4F + EnchantmentHelper.getKnockbackBonus(attacker);
+        if (strength <= 0.0F) return;
+        target.knockback(strength, attacker.getX() - target.getX(), attacker.getZ() - target.getZ());
+    }
+
+    /** 怪物视角：目标是否在头部朝向的前方锥形内 */
+    protected boolean isFacing(LivingEntity attacker, Entity target, float rangeScale) {
+        Vec3 look = getHeadLookAngle(attacker);
+        Vec3 to = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D)
+                .subtract(attacker.getEyePosition());
+        double distance = to.length();
+        if (distance < 1.0E-4D) return true;
+        if (distance > effectiveMaxRange(attacker) * rangeScale + 0.5D) return false;
+        return to.scale(1.0D / distance).dot(look) >= FACING_DOT;
+    }
+
+    @Nullable
+    protected static Entity resolvePart(@Nullable Entity entity) {
+        if (entity instanceof net.minecraftforge.entity.PartEntity<?> partEntity) {
+            return partEntity.getParent();
+        }
+        return entity;
+    }
+
     protected Collection<EntityHitResult> getHitEntitiesAlong(LivingEntity livingEntity, float f, Predicate<Entity> predicate) {
+        return getHitEntitiesAlong(livingEntity, f, 1.0F, predicate);
+    }
+
+    protected Collection<EntityHitResult> getHitEntitiesAlong(LivingEntity livingEntity, float f, float rangeScale,
+                                                              Predicate<Entity> predicate) {
         Vec3 vec3 = getHeadLookAngle(livingEntity);
         Vec3 vec32 = livingEntity.getEyePosition();
-        Vec3 vec33 = vec32.add(vec3.scale(effectiveMinRange(livingEntity)));
+        Vec3 vec33 = vec32.add(vec3.scale(effectiveMinRange(livingEntity) * rangeScale));
         double d = getKnownMovement(livingEntity).dot(vec3);
-        Vec3 vec34 = vec32.add(vec3.scale((double) effectiveMaxRange(livingEntity) + Math.max(0.0, d)));
+        Vec3 vec34 = vec32.add(vec3.scale((double) effectiveMaxRange(livingEntity) * rangeScale + Math.max(0.0, d)));
         return getHitEntitiesAlong(vec33, livingEntity, predicate, vec34, f, ClipContext.Block.COLLIDER)
                 .map(blockHitResult -> List.of(), collection -> collection);
     }
@@ -263,7 +408,11 @@ public class SpearItem extends SwordItem {
     }
 
     protected boolean isWithinRange(Entity attacker, Entity target) {
-        float range = effectiveMaxRange(attacker) + HITBOX_MARGIN + 1.0F;
+        return isWithinRange(attacker, target, 1.0F);
+    }
+
+    protected boolean isWithinRange(Entity attacker, Entity target, float rangeScale) {
+        float range = effectiveMaxRange(attacker) * rangeScale + HITBOX_MARGIN + 1.0F;
         return attacker.distanceToSqr(target) <= range * range;
     }
 
@@ -295,45 +444,6 @@ public class SpearItem extends SwordItem {
         float f4 = Mth.cos(f);
         float f5 = Mth.sin(f);
         return new Vec3((double)(f3 * f4), (double)(-f5), (double)(f2 * f4));
-    }
-
-    @Override
-    public boolean hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
-        if (attacker instanceof Player player && !attacker.level().isClientSide) {
-            leftClickPierceAttack(attacker.level(), player);
-        }
-        return false;
-    }
-
-    private void leftClickPierceAttack(Level level, Player player) {
-        ItemStack stack = player.getMainHandItem();
-        float damage = (float) player.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        Vec3 lookVec = getHeadLookAngle(player);
-
-        for (EntityHitResult entityHitResult : getHitEntitiesAlong(player, HITBOX_MARGIN, e -> canHitEntity(player, e) && isWithinRange(player, e))) {
-            Entity entity = entityHitResult.getEntity();
-
-            if (entity instanceof net.minecraftforge.entity.PartEntity<?> partEntity) {
-                entity = partEntity.getParent();
-            }
-
-            float finalDamage = damage;
-            if (entity instanceof LivingEntity livingTarget) {
-                finalDamage += EnchantmentHelper.getDamageBonus(stack, livingTarget.getMobType());
-            }
-
-            DamageSource source = ModDamageTypes.getSource(level, ModDamageTypes.SPEAR, player, player);
-
-            if (entity.hurt(source, finalDamage)) {
-                if (entity instanceof LivingEntity living) {
-                    EnchantmentHelper.doPostHurtEffects(living, player);
-                }
-                EnchantmentHelper.doPostDamageEffects(player, entity);
-                player.setLastHurtMob(entity);
-            }
-        }
-
-        player.push(lookVec.x * 0.38, 0.0, lookVec.z * 0.38);
     }
 
     @Override
@@ -398,7 +508,7 @@ public class SpearItem extends SwordItem {
         }
 
         private void firstPersonUse(PoseStack poseStack, float useTicks, HumanoidArm arm, int dir) {
-            int delay = 10;
+            int delay = DELAY_TICKS;
             float raiseProgress = progress(useTicks, 0.0f, delay);
             float raiseIn = Ease.inOutBack(raiseProgress);
             float sway = Mth.sin(useTicks * 25.0f * Mth.DEG_TO_RAD) * 0.3f * (1.0f - raiseProgress);
