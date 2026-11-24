@@ -24,6 +24,12 @@
         "mysticartifacts:using": 1
       },
       "model": "mysticartifacts:item/spear_using"
+    },
+    {
+      "predicate": {
+        "mysticartifacts:mob_holding": 1
+      },
+      "model": "mysticartifacts:item/spear_mob"
     }
   ]
 }
