@@ -27,8 +27,8 @@ if (([regex]::Matches($clientEvents, 'zombie_holding')).Count -lt 2) {
 foreach ($model in @($spearModel, $grieferModel)) {
     $zombieIndex = $model.IndexOf('mysticartifacts:zombie_holding')
     $mobIndex = $model.IndexOf('mysticartifacts:mob_holding')
-    if ($zombieIndex -lt 0 -or $mobIndex -lt 0 -or $zombieIndex -gt $mobIndex) {
-        throw 'zombie_holding override must be listed before mob_holding'
+    if ($zombieIndex -lt 0 -or $mobIndex -lt 0 -or $zombieIndex -lt $mobIndex) {
+        throw 'zombie_holding override must be listed last because ItemOverrides checks the list in reverse'
     }
 }
 

@@ -21,12 +21,6 @@
   "overrides": [
     {
       "predicate": {
-        "mysticartifacts:zombie_holding": 1
-      },
-      "model": "mysticartifacts:item/spear_zombie"
-    },
-    {
-      "predicate": {
         "mysticartifacts:using": 1
       },
       "model": "mysticartifacts:item/spear_using"
@@ -36,6 +30,12 @@
         "mysticartifacts:mob_holding": 1
       },
       "model": "mysticartifacts:item/spear_mob"
+    },
+    {
+      "predicate": {
+        "mysticartifacts:zombie_holding": 1
+      },
+      "model": "mysticartifacts:item/spear_zombie"
     }
   ]
 }
