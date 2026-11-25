@@ -15,7 +15,8 @@
     "EntityRenderDispatcherMixin",
     "KatanaModelMixin",
     "KatanaRenderMixin",
-    "HumanoidSpearPoseMixin"
+    "HumanoidSpearPoseMixin",
+    "ZombieSpearPoseMixin"
   ],
   "injectors": {
     "defaultRequire": 1
