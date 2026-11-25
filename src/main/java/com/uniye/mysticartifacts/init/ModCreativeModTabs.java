@@ -22,6 +22,7 @@ public class ModCreativeModTabs {
                         pOutput.accept(ModItems.AIRBURST_ARROW.get());
                         pOutput.accept(ModItems.EXPLODING_ARROW.get());
                         pOutput.accept(ModItems.FINAL_EXPLODING_ARROW.get());
+                        pOutput.accept(ModItems.TNT_ARROW.get());
                         pOutput.accept(ModItems.ENDER_KUNAI.get());
                         pOutput.accept(ModItems.TWO_DRAGONS_PLAY_BALL.get());
                         pOutput.accept(ModItems.KATANA.get());

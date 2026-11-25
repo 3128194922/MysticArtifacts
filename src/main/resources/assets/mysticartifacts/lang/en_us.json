@@ -1,5 +1,7 @@
 {
     "item.mysticartifacts.trail_sight": "Sculk Symbiote",
+    "item.mysticartifacts.tnt_arrow": "Delayed TNT Arrow",
+    "entity.mysticartifacts.tnt_arrow": "Delayed TNT Arrow",
     "item.mysticartifacts.lightning_bottle": "Lightning Bottle",
     "item.mysticartifacts.flag_spear": "Flag Spear",
     "item.mysticartifacts.death_scythe": "Death Scythe",

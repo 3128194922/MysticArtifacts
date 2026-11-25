@@ -8,6 +8,8 @@
     "entity.mysticartifacts.exploding_arrow": "空爆I",
     "item.mysticartifacts.final_exploding_arrow": "空爆II",
     "entity.mysticartifacts.final_exploding_arrow": "空爆II",
+    "item.mysticartifacts.tnt_arrow": "延迟TNT箭",
+    "entity.mysticartifacts.tnt_arrow": "延迟TNT箭",
     "item.mysticartifacts.ender_kunai": "末影苦无",
     "entity.mysticartifacts.ender_kunai": "末影苦无",
     "death.attack.collapsing": "%1$s 感受到震动",

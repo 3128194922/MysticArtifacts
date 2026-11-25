@@ -71,6 +71,7 @@ public final class ClientModEvents {
         EntityRenderers.register(ModEntities.AIRBURST_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "airburst_arrow"));
         EntityRenderers.register(ModEntities.EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "exploding_arrow"));
         EntityRenderers.register(ModEntities.FINAL_EXPLODING_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "final_exploding_arrow"));
+        EntityRenderers.register(ModEntities.TNT_ARROW.get(), ctx -> new ModArrowRenderer(ctx, "tnt_arrow"));
         EntityRenderers.register(ModEntities.ENDER_KUNAI.get(), ctx -> new ModArrowRenderer(ctx, "kunai"));
         EntityRenderers.register(ModEntities.POKER_CARD.get(), PokerCardRenderer::new);
         EntityRenderers.register(ModEntities.FLAG_SPEAR.get(), FlagSpearEntityRenderer::new);

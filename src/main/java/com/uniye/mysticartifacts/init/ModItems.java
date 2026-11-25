@@ -32,6 +32,10 @@ public class ModItems {
             "final_exploding_arrow",
             () -> new FinalExplodingArrowItem(new Item.Properties())
     );
+    public static final RegistryObject<Item> TNT_ARROW = ITEMS.register(
+            "tnt_arrow",
+            () -> new TntArrowItem(new Item.Properties())
+    );
 
     public static final RegistryObject<Item> ENDER_KUNAI = ITEMS.register("ender_kunai",
             () -> new EnderKunaiItem(new Item.Properties().stacksTo(16)));

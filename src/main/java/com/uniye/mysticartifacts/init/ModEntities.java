@@ -52,6 +52,14 @@ public class ModEntities {
                     .build("final_exploding_arrow")
     );
 
+    public static final RegistryObject<EntityType<TntArrowEntity>> TNT_ARROW = ENTITIES.register("tnt_arrow",
+            () -> EntityType.Builder.<TntArrowEntity>of(TntArrowEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .clientTrackingRange(8)
+                    .updateInterval(3)
+                    .build("tnt_arrow")
+    );
+
     public static final RegistryObject<EntityType<EnderKunaiEntity>> ENDER_KUNAI = ENTITIES.register("ender_kunai",
             () -> EntityType.Builder.<EnderKunaiEntity>of(EnderKunaiEntity::new, MobCategory.MISC)
                     .sized(0.8f, 0.8f)
