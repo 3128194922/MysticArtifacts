@@ -110,6 +110,9 @@ public class Config
     private static final ForgeConfigSpec.ConfigValue<Double> SPEAR_MOB_SPAWN_CHANCE = BUILDER
             .comment("Chance for a zombie/piglin-type mob to spawn holding the Amethyst Spear. 0 disables it.")
             .defineInRange("SpearMobSpawnChance", 0.05, 0.0, 1.0);
+    private static final ForgeConfigSpec.ConfigValue<Double> SPEAR_MOB_GRIEFER_CHANCE = BUILDER
+            .comment("When a mob spawns with a spear, chance that it is the Griefer Spear instead of the normal spear. 0 = never, 1 = always.")
+            .defineInRange("SpearMobGrieferChance", 0.25, 0.0, 1.0);
     private static final ForgeConfigSpec.ConfigValue<Double> SPEAR_MOB_DROP_CHANCE = BUILDER
             .comment("Drop chance of a mob-spawned spear when that mob dies.")
             .defineInRange("SpearMobDropChance", 0.02, 0.0, 2.0);
@@ -256,6 +259,7 @@ public class Config
     public static int FlagSpearGroundDuration;
 
     public static double SpearMobSpawnChance;
+    public static double SpearMobGrieferChance;
     public static double SpearMobDropChance;
     
     public static double DeathEyeRenderRange;
@@ -331,6 +335,7 @@ public class Config
         FlagSpearGroundDuration = FLAG_SPEAR_GROUND_DURATION.get();
 
         SpearMobSpawnChance = SPEAR_MOB_SPAWN_CHANCE.get();
+        SpearMobGrieferChance = SPEAR_MOB_GRIEFER_CHANCE.get();
         SpearMobDropChance = SPEAR_MOB_DROP_CHANCE.get();
         
         DeathEyeRenderRange = DEATH_EYE_RENDER_RANGE.get();

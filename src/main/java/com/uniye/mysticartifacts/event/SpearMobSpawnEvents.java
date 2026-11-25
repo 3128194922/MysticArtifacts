@@ -7,6 +7,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -32,7 +33,10 @@ public final class SpearMobSpawnEvents {
         if (!mob.getMainHandItem().isEmpty()) return;
         if (mob.getRandom().nextDouble() >= chance) return;
 
-        mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(ModItems.SPEAR.get()));
+        Item spear = mob.getRandom().nextDouble() < Config.SpearMobGrieferChance
+                ? ModItems.GRIEFER_SPEAR.get()
+                : ModItems.SPEAR.get();
+        mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(spear));
         mob.setDropChance(EquipmentSlot.MAINHAND, (float) Config.SpearMobDropChance);
     }
 }
