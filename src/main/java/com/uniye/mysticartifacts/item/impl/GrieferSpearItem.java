@@ -75,4 +75,21 @@ public class GrieferSpearItem extends SpearItem {
             break;
         }
     }
+
+    @Override
+    protected boolean onSpearHit(Level level, LivingEntity attacker, Entity target, ItemStack stack) {
+        if (attacker instanceof Player) return false;
+
+        DamageSource source = ModDamageTypes.getSource(level, ModDamageTypes.SPEAR, attacker, attacker);
+        level.explode(
+                attacker,
+                source,
+                null,
+                target.getX(), target.getY(), target.getZ(),
+                PIERCE_EXPLOSION_RADIUS,
+                false,
+                Level.ExplosionInteraction.NONE
+        );
+        return true;
+    }
 }

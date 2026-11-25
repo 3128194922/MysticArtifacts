@@ -232,6 +232,7 @@ public class SpearItem extends SwordItem {
         boolean hit = false;
         for (Entity target : targets) {
             if (target.isPassengerOfSameVehicle(attacker)) continue;
+            boolean stopAfterTarget = false;
 
             float finalDamage = damage;
             if (target instanceof LivingEntity livingTarget) {
@@ -246,6 +247,7 @@ public class SpearItem extends SwordItem {
                     applyKnockback(attacker, living);
                 }
                 EnchantmentHelper.doPostDamageEffects(attacker, target);
+                stopAfterTarget = onSpearHit(level, attacker, target, stack);
 
                 if (attacker instanceof Player player) {
                     player.setLastHurtMob(target);
@@ -257,7 +259,7 @@ public class SpearItem extends SwordItem {
                     stack.hurtAndBreak(1, attacker, e -> e.broadcastBreakEvent(slot));
                 }
             }
-            if (stack.isEmpty()) break;
+            if (stopAfterTarget || stack.isEmpty()) break;
         }
 
         if (hit) {
@@ -269,6 +271,11 @@ public class SpearItem extends SwordItem {
             }
         }
         return hit;
+    }
+
+    /** 近战命中后的扩展点；返回 true 时停止本次穿透的后续目标。 */
+    protected boolean onSpearHit(Level level, LivingEntity attacker, Entity target, ItemStack stack) {
+        return false;
     }
 
     protected static void applyKnockback(LivingEntity attacker, LivingEntity target) {
