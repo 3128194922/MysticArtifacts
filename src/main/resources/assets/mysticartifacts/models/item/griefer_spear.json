@@ -21,6 +21,12 @@
   "overrides": [
     {
       "predicate": {
+        "mysticartifacts:zombie_holding": 1
+      },
+      "model": "mysticartifacts:item/griefer_spear_zombie"
+    },
+    {
+      "predicate": {
         "mysticartifacts:using": 1
       },
       "model": "mysticartifacts:item/griefer_spear_using"

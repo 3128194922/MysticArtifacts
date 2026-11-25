@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * 长矛第三人称姿态：只处理玩家蓄力举起。
- * 静止/挥击使用原版手臂动作；僵尸等生物保持原手臂姿势，由 mob_holding 模型决定矛的朝向。
+ * 静止/挥击使用原版手臂动作；僵尸保留前伸手臂，由 zombie_holding 模型让矛沿手臂向前。
  */
 public final class SpearThirdPersonPose {
     private SpearThirdPersonPose() {

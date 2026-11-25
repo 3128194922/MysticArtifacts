@@ -13,6 +13,8 @@ import com.uniye.mysticartifacts.item.impl.WitchPotItem;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
@@ -115,6 +117,18 @@ public final class ClientModEvents {
                 ModItems.GRIEFER_SPEAR.get(),
                 new ResourceLocation(MODID, "mob_holding"),
                 (stack, level, holder, seed) -> holder != null && !(holder instanceof Player) ? 1.0F : 0.0F
+        ));
+        event.enqueueWork(() -> ItemProperties.register(
+                ModItems.SPEAR.get(),
+                new ResourceLocation(MODID, "zombie_holding"),
+                (stack, level, holder, seed) ->
+                        holder instanceof Zombie && !(holder instanceof ZombifiedPiglin) ? 1.0F : 0.0F
+        ));
+        event.enqueueWork(() -> ItemProperties.register(
+                ModItems.GRIEFER_SPEAR.get(),
+                new ResourceLocation(MODID, "zombie_holding"),
+                (stack, level, holder, seed) ->
+                        holder instanceof Zombie && !(holder instanceof ZombifiedPiglin) ? 1.0F : 0.0F
         ));
     }
 }

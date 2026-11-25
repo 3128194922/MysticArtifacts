@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:item/handheld",
+  "loader": "forge:separate_transforms",
+  "textures": { "layer0": "mysticartifacts:item/spear" },
+  "base": { "parent": "mysticartifacts:item/spear_zombie_in_hand" },
+  "perspectives": {
+    "gui": { "parent": "mysticartifacts:item/spear_gui" },
+    "fixed": { "parent": "mysticartifacts:item/spear_gui" },
+    "ground": { "parent": "mysticartifacts:item/spear_gui" }
+  }
+}

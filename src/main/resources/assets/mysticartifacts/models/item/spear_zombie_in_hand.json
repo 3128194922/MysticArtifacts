@@ -1,0 +1,4 @@
+{
+  "parent": "mysticartifacts:item/custom/spear_zombie",
+  "textures": { "layer0": "mysticartifacts:item/spear_in_hand" }
+}
