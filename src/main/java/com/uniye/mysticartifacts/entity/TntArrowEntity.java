@@ -19,6 +19,7 @@ public class TntArrowEntity extends AbstractArrow {
     public static final int BLOCK_FUSE_TICKS = 40;
     public static final float EXPLOSION_STRENGTH = 3.0F;
 
+    private boolean exploded;
     private int fuse = -1;
 
     public TntArrowEntity(EntityType<? extends TntArrowEntity> type, Level level) {
@@ -67,7 +68,9 @@ public class TntArrowEntity extends AbstractArrow {
     }
 
     private void explode() {
-        if (this.level().isClientSide() || this.isRemoved()) {
+        // 注意：AbstractArrow#onHitEntity 命中后（pierce=0）会先 discard 本实体，
+        // 所以这里不能用 isRemoved() 判断是否已爆炸，否则命中生物永远不爆。
+        if (this.exploded || this.level().isClientSide()) {
             return;
         }
         if (!(this.level() instanceof ServerLevel serverLevel)) {
@@ -75,6 +78,7 @@ public class TntArrowEntity extends AbstractArrow {
             return;
         }
 
+        this.exploded = true;
         serverLevel.explode(this, this.getX(), this.getY() - 1.0D, this.getZ(),
                 EXPLOSION_STRENGTH, Level.ExplosionInteraction.NONE);
         this.discard();
