@@ -8,12 +8,10 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
@@ -24,7 +22,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * 饕餮之锅：右键收集副手食物，已食用种类数量转化为攻击伤害。
+ * 饕餮之锅：光标持锅右键食物槽喂食，已食用种类数量转化为攻击伤害。
  */
 public class EldritchPanItem extends SwordItem {
     public static final String FOOD_LIST_TAG = "foodlist";
@@ -39,24 +37,22 @@ public class EldritchPanItem extends SwordItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack pan = player.getItemInHand(hand);
-        if (hand != InteractionHand.MAIN_HAND) {
-            return InteractionResultHolder.pass(pan);
+    public boolean overrideStackedOnOther(ItemStack pan, Slot slot, ClickAction action, Player player) {
+        if (action != ClickAction.SECONDARY) {
+            return false;
         }
 
-        ItemStack food = player.getOffhandItem();
-        if (!food.getItem().isEdible()) {
-            return InteractionResultHolder.pass(pan);
-        }
-        if (level.isClientSide) {
-            return InteractionResultHolder.success(pan);
+        ItemStack food = slot.getItem();
+        if (food.isEmpty() || !food.getItem().isEdible()) {
+            return false;
         }
 
         if (hasEaten(pan, food)) {
-            player.displayClientMessage(Component.literal(FOOD_ALREADY_EATEN), true);
-            playPanSound(level, player, SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH);
-            return InteractionResultHolder.success(pan);
+            if (!player.level().isClientSide) {
+                player.displayClientMessage(Component.literal(FOOD_ALREADY_EATEN), true);
+            }
+            player.playSound(SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH, 1.0F, 1.0F);
+            return true;
         }
 
         CompoundTag tag = pan.getOrCreateTag();
@@ -68,8 +64,8 @@ public class EldritchPanItem extends SwordItem {
         pan.setTag(tag);
 
         food.shrink(1);
-        playPanSound(level, player, SoundEvents.PLAYER_LEVELUP);
-        return InteractionResultHolder.success(pan);
+        player.playSound(SoundEvents.PLAYER_LEVELUP, 1.0F, 1.0F);
+        return true;
     }
 
     @Override
@@ -104,9 +100,5 @@ public class EldritchPanItem extends SwordItem {
     private static String getItemId(ItemStack stack) {
         ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         return id.toString();
-    }
-
-    private static void playPanSound(Level level, Player player, SoundEvent sound) {
-        level.playSound(null, player.getX(), player.getY(), player.getZ(), sound, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
 }
