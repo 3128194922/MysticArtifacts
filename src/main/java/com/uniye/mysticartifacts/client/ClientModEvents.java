@@ -87,6 +87,7 @@ public final class ClientModEvents {
         EntityRenderers.register(ModEntities.KATANA_CIRCLE_SLASH.get(), KatanaCircleSlashRenderer::new);
 
         CuriosRendererRegistry.register(ModItems.SWORD_SWARM_CHARM.get(), SwordSwarmCharmRenderer::new);
+        CuriosRendererRegistry.register(ModItems.ELDRITCH_PAN.get(), EldritchPanCurioRenderer::new);
 
         event.enqueueWork(() -> ItemProperties.register(
                 ModItems.KATANA.get(),

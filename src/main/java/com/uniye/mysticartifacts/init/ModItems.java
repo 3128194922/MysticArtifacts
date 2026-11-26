@@ -98,6 +98,9 @@ public class ModItems {
     public static final RegistryObject<Item> LIGHTNING_BOTTLE = ITEMS.register("lightning_bottle",
             () -> new LightningBottleItem(new Item.Properties().stacksTo(1)));
 
+    public static final RegistryObject<Item> ELDRITCH_PAN = ITEMS.register("eldritch_pan",
+            () -> new EldritchPanItem(new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.EPIC)));
+
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
