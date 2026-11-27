@@ -9,6 +9,7 @@ $mobMixin = Get-Content -Raw (Join-Path $mainRoot 'java/com/uniye/mysticartifact
 $spawnEvent = Get-Content -Raw (Join-Path $mainRoot 'java/com/uniye/mysticartifacts/event/SpearMobSpawnEvents.java')
 $grieferModel = Get-Content -Raw (Join-Path $mainRoot 'resources/assets/mysticartifacts/models/item/griefer_spear.json')
 $zombieHolder = Get-Content -Raw (Join-Path $mainRoot 'resources/assets/mysticartifacts/models/item/griefer_spear_zombie_in_hand.json')
+$pseudoExplosion = Get-Content -Raw (Join-Path $mainRoot 'java/com/uniye/mysticartifacts/util/PseudoExplosion.java')
 
 if ($grieferItem -notmatch 'class\s+GrieferSpearItem\s+extends\s+SpearItem') {
     throw 'GrieferSpearItem must inherit SpearItem so mob melee uses spear AI'
@@ -31,11 +32,26 @@ if ($zombieHolder -notmatch 'mysticartifacts:item/custom/spear_zombie') {
 if ($spearItem -notmatch 'onSpearHit' -or $spearItem -notmatch 'stopAfterTarget\s*=\s*onSpearHit') {
     throw 'Spear melee does not invoke the per-hit effect hook'
 }
-if ($grieferItem -notmatch 'protected\s+boolean\s+onSpearHit' -or $grieferItem -notmatch 'level\.explode') {
-    throw 'Griefer Spear does not explode on mob melee hits'
+if ($grieferItem -notmatch 'protected\s+boolean\s+onSpearHit') {
+    throw 'Griefer Spear does not hook mob melee hits'
+}
+if ($grieferItem -match 'level\.explode') {
+    throw 'Griefer Spear must not use the vanilla explosion (it destroys blocks and fires ExplosionEvent)'
+}
+if ($grieferItem -notmatch 'PseudoExplosion\.detonate') {
+    throw 'Griefer Spear does not use the pseudo explosion for its area damage'
 }
 if ($grieferItem -notmatch 'attacker\s+instanceof\s+Player' -or $grieferItem -notmatch 'return\s+false') {
     throw 'Griefer Spear melee explosion must stay disabled for players'
+}
+if ($pseudoExplosion -match '\.explode\(' -or $pseudoExplosion -match 'ExplosionInteraction') {
+    throw 'PseudoExplosion must stay a particle-only fake explosion'
+}
+if ($pseudoExplosion -notmatch 'ParticleTypes\.EXPLOSION_EMITTER' -or $pseudoExplosion -notmatch 'SoundEvents\.GENERIC_EXPLODE') {
+    throw 'PseudoExplosion must still spawn explosion particles and sound'
+}
+if ($pseudoExplosion -notmatch 'getEntities\(' -or $pseudoExplosion -notmatch 'damageAt\(') {
+    throw 'PseudoExplosion must resolve area damage through an AABB entity query'
 }
 
 Write-Output 'griefer spear mob contract: PASS'
