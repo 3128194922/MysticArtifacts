@@ -10,7 +10,11 @@ import com.uniye.mysticartifacts.network.LightningBottlePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +24,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,6 +36,10 @@ public final class LightningBottleEvents {
     private static final float CHAIN_DAMAGE = 4.0F;
     private static final double FIELD_RADIUS = 5.0D;
     private static final float FIELD_DAMAGE = 4.0F;
+    private static final ResourceLocation CATACLYSM_WETNESS =
+            new ResourceLocation("cataclysm", "wetness");
+    private static boolean wetnessLookupDone;
+    private static MobEffect wetnessEffect;
 
     private LightningBottleEvents() {
     }
@@ -50,7 +59,14 @@ public final class LightningBottleEvents {
         if (maxTargets <= 0) return;
 
         // Merge the primary hit's bonus so its existing hurt frames cannot swallow it.
-        event.setAmount(event.getAmount() + CHAIN_DAMAGE);
+        // 非 lightning 伤害源不会被灾变在 LivingDamageEvent 中放大，这里只补瓶子的附加段；
+        // lightning 伤害源交给灾变统一放大，避免重复乘算。
+        float primaryBonus = LightningBottleLogic.primaryBonus(
+                CHAIN_DAMAGE,
+                event.getSource().is(DamageTypeTags.IS_LIGHTNING),
+                wetnessAmplifier(primaryTarget)
+        );
+        event.setAmount(event.getAmount() + primaryBonus);
         DamageSource chainSource = ModDamageTypes.getSource(player.level(), ModDamageTypes.LIGHTNING_BOTTLE_CHAIN, player, player);
         AABB searchArea = primaryTarget.getBoundingBox().inflate(CHAIN_RANGE);
         List<LivingEntity> candidates = player.level().getEntitiesOfClass(
@@ -130,5 +146,20 @@ public final class LightningBottleEvents {
         for (LivingEntity target : targets) {
             target.hurt(fieldSource, FIELD_DAMAGE);
         }
+    }
+
+    private static int wetnessAmplifier(LivingEntity target) {
+        MobEffect effect = getWetnessEffect();
+        if (effect == null) return -1;
+        MobEffectInstance instance = target.getEffect(effect);
+        return instance == null ? -1 : instance.getAmplifier();
+    }
+
+    private static MobEffect getWetnessEffect() {
+        if (!wetnessLookupDone) {
+            wetnessEffect = ForgeRegistries.MOB_EFFECTS.getValue(CATACLYSM_WETNESS);
+            wetnessLookupDone = true;
+        }
+        return wetnessEffect;
     }
 }
